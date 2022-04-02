@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "671212376862",
+    "firebase_url": "https://project-keeper-22974-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "project-keeper-22974",
+    "storage_bucket": "project-keeper-22974.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671212376862:android:e07c5d9b1628ff3a05ef0f",
+        "android_client_info": {
+          "package_name": "com.novikovpashka.projectkeeper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "671212376862-26amdlrt2ga2i3v89imgskebp6smch8s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgyiBG4HAxEe23mpAp4W9BWukzJNIpXzA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "671212376862-26amdlrt2ga2i3v89imgskebp6smch8s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
