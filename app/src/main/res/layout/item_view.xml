@@ -7,7 +7,7 @@
     <data>
         <variable
             name="project"
-            type="com.example.projectkeeper.data.datafirestore.Project"/>
+            type="com.novikovpashka.projectkeeper.data.datafirestore.Project"/>
     </data>
 
 <com.google.android.material.card.MaterialCardView

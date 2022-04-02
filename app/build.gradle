@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
 
-        applicationId "com.example.recycler"
+        applicationId "com.novikovpashka.projectkeeper"
         minSdk 21
         targetSdk 31
         versionCode 1
