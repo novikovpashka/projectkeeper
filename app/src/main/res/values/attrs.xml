@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="Color">
+        <attr name="colorSearchSolid" format="reference">
+        </attr>
+
+        <attr name="titleItem" format="reference">
+        </attr>
+
+        <attr name="pullColor" format="reference">
+        </attr>
+
+        <attr name="sheetColor" format="reference">
+        </attr>
+
+        <attr name="dividerColorMy" format="reference">
+        </attr>
+
+        <attr name="incomingColor" format="reference">
+        </attr>
+
+        <attr name="leftColor" format="reference">
+        </attr>
+
+        <attr name="cardColor" format="reference">
+        </attr>
+
+        <attr name="cardSecondColor" format="reference">
+        </attr>
+
+        <attr name="cardDividerColor" format="reference">
+        </attr>
+
+    </declare-styleable>
+
+</resources>

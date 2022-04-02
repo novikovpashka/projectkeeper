@@ -1,0 +1,75 @@
+<resources>
+
+    <color name="def_theme_light_primary">#FCA311</color>
+    <color name="def_theme_light_onPrimary">#FFFFFF</color>
+    <color name="def_theme_light_primaryContainer">#FCA311</color>
+    <color name="def_theme_light_onPrimaryContainer">#131B23</color>
+    <color name="def_theme_light_secondary">#FCA311</color>
+    <color name="def_theme_light_onSecondary">#FFFFFF</color>
+    <color name="def_theme_light_secondaryContainer">#FCA311</color>
+    <color name="def_theme_light_onSecondaryContainer">#191A2B</color>
+    <color name="def_theme_light_tertiary">#797153</color>
+    <color name="def_theme_light_onTertiary">#FFFFFF</color>
+    <color name="def_theme_light_tertiaryContainer">#FFD7EF</color>
+    <color name="def_theme_light_onTertiaryContainer">#2E1126</color>
+    <color name="def_theme_light_error">#BA1B1B</color>
+    <color name="def_theme_light_errorContainer">#FFDAD4</color>
+    <color name="def_theme_light_onError">#FFFFFF</color>
+    <color name="def_theme_light_onErrorContainer">#410001</color>
+    <color name="def_theme_light_background">#E8E9EB</color>
+    <color name="def_theme_light_onBackground">#1B1B1F</color>
+    <color name="def_theme_light_surface">#E8E9EB</color>
+    <color name="def_theme_light_onSurface">#1B1B1F</color>
+    <color name="def_theme_light_surfaceVariant">#E1E4EA</color>
+    <color name="def_theme_light_onSurfaceVariant">#1B1B1F</color>
+    <color name="def_theme_light_outline">#777680</color>
+    <color name="def_theme_light_inverseOnSurface">#1B1B1F</color>
+    <color name="def_theme_light_inverseSurface">#E1E4EA</color>
+    <color name="def_theme_light_primaryInverse">#FCA311</color>
+    <color name="def_gray">#2A3037</color>
+    <color name="def_light_gray">#BEBEBE</color>
+    <color name="def_title">#000000</color>
+    <color name="def_divider">#CCCCCF</color>
+    <color name="def_text_main">#A9B3BD</color>
+    <color name="def_incoming">#548335</color>
+    <color name="def_left">#E6314A</color>
+    <color name="def_card">#E3E9E3</color>
+    <color name="def_card_second">#E1E8E1</color>
+
+    <color name="def_theme_night_primary">#FCA311</color>
+    <color name="def_theme_night_onPrimary">#FFFFFF</color>
+    <color name="def_theme_night_primaryContainer">#FCA311</color>
+    <color name="def_theme_night_onPrimaryContainer">#131B23</color>
+    <color name="def_theme_night_secondary">#FCA311</color>
+    <color name="def_theme_night_onSecondary">#FFFFFF</color>
+    <color name="def_theme_night_secondaryContainer">#FCA311</color>
+    <color name="def_theme_night_onSecondaryContainer">#191A2B</color>
+    <color name="def_theme_night_tertiary">#797153</color>
+    <color name="def_theme_night_onTertiary">#FFFFFF</color>
+    <color name="def_theme_night_tertiaryContainer">#FFD7EF</color>
+    <color name="def_theme_night_onTertiaryContainer">#2E1126</color>
+    <color name="def_theme_night_error">#BA1B1B</color>
+    <color name="def_theme_night_errorContainer">#FFDAD4</color>
+    <color name="def_theme_night_onError">#FFFFFF</color>
+    <color name="def_theme_night_onErrorContainer">#410001</color>
+    <color name="def_theme_night_background">#131B23</color>
+    <color name="def_theme_night_onBackground">#DBE3EB</color>
+    <color name="def_theme_night_surface">#131B23</color>
+    <color name="def_theme_night_onSurface">#DBE3EB</color>
+    <color name="def_theme_night_surfaceVariant">#1B232B</color>
+    <color name="def_theme_night_onSurfaceVariant">#DBE3EB</color>
+    <color name="def_theme_night_outline">#777680</color>
+    <color name="def_theme_night_inverseOnSurface">#F3EFF4</color>
+    <color name="def_theme_night_inverseSurface">#252F39</color>
+    <color name="def_theme_night_primaryInverse">#FCA311</color>
+
+    <color name="def_night_gray">#2A3037</color>
+    <color name="def_night_title">#FFFFFF</color>
+    <color name="def_night_divider">#000810</color>
+    <color name="def_night_text_main">#A9B3BD</color>
+    <color name="def_night_incoming">#ABE188</color>
+    <color name="def_night_left">#FF5D73</color>
+    <color name="def_night_card">#252F39</color>
+    <color name="def_night_card_second">#212932</color>
+
+</resources>
