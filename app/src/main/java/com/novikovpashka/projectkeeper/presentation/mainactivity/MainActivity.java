@@ -58,7 +58,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
-@SuppressWarnings("ALL")
 public class MainActivity extends AppCompatActivity implements RadioListener, OnItemClickListener {
     private FloatingActionButton addButton;
     private RecyclerView recyclerView;

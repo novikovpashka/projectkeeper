@@ -13,14 +13,11 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.novikovpashka.projectkeeper.databinding.ActivityLoginBinding
-import com.novikovpashka.projectkeeper.domain.models.EmailAndPasswordParam
-import com.novikovpashka.projectkeeper.domain.usecases.LoginByEmailUseCase
 
 class LoginActivity : AppCompatActivity() {
 
     private val mAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private lateinit var progressBar: LinearProgressIndicator
-    private val LoginByEmailUseCase: LoginByEmailUseCase = LoginByEmailUseCase()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,13 +37,12 @@ class LoginActivity : AppCompatActivity() {
             startMainActivity()
         }
         loginButton.setOnClickListener {
-            val email = emailEditText.text.toString()
-            val password = passwordEditText.text.toString()
-            val param = EmailAndPasswordParam(email = email, password = password)
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
 
-            if (LoginByEmailUseCase.execute(EmailAndPasswordParam = param)) {
+            if (email.isNotEmpty() && password.isNotEmpty() ) {
                 progressOn()
-                createOrLoginUserByEmail(param.email.trim(), param.password.trim())
+                createOrLoginUserByEmail(email, password)
             }
             else Snackbar.make(it, "Fields can't be empty", BaseTransientBottomBar.LENGTH_LONG).show()
         }
