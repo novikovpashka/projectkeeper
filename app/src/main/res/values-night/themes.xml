@@ -29,10 +29,13 @@
         <item name="colorSurfaceInverse">@color/def_theme_night_inverseSurface</item>
         <item name="colorPrimaryInverse">@color/def_theme_night_primaryInverse</item>
         <item name="backgroundColor">@color/def_theme_night_background</item>
+        <item name="elevationOverlayColor">#7C8895</item>
 
-        <item name="android:windowTranslucentNavigation">true</item>
-
+        <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+
         <item name="colorSearchSolid">@color/def_night_gray</item>
         <item name="pullColor">@color/def_night_gray</item>
         <item name="titleItem">@color/def_night_title</item>
@@ -52,7 +55,9 @@
     </style>
 
     <style name="ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-        <item name="background">@color/def_theme_night_background</item>
+        <item name="background">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="liftOnScroll">true</item>
     </style>
 
 </resources>

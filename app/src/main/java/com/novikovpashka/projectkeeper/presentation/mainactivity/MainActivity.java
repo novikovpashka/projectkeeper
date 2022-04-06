@@ -2,29 +2,41 @@ package com.novikovpashka.projectkeeper.presentation.mainactivity;
 
 import android.content.Intent;
 import android.content.res.Resources.Theme;
+import android.graphics.Insets;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.WrapperListAdapter;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.view.ActionMode.Callback;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.OnApplyWindowInsetsListener;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -61,14 +73,14 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements RadioListener, OnItemClickListener {
     private FloatingActionButton addButton;
     private RecyclerView recyclerView;
-    private ImageView sortButton;
-    private ImageView cancelSearch;
-    private EditText searchText;
+//    private ImageView sortButton;
+//    private ImageView cancelSearch;
+//    private EditText searchText;
     private ShimmerFrameLayout shimmerProjects;
     private CoordinatorLayout coordinatorLayout;
     private MaterialToolbar materialToolbar;
     private DrawerLayout drawerLayout;
-    private LinearLayout linearLayout;
+//    private LinearLayout linearLayout;
     private NavigationView navigationView;
 
     private FirebaseAuth mAuth;
@@ -81,22 +93,56 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     private TextView eurrub;
     private TextView lastupdate;
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+//        binding.appbarlayout.setPadding(0, WindowInsets.CONSUMED
+//                .getInsets(WindowInsets.Type.systemBars()).top, 0, 0);
+//        Log.v("mytag", String.valueOf(WindowInsets.CONSUMED.getInsets(WindowInsets.Type.systemBars()).top));
+//        Log.v("mytag", String.valueOf(WindowInsets.CONSUMED.getInsets(WindowInsets.Type.systemBars()).bottom));
 
-        searchText = binding.searchMain.searchInput;
-        sortButton = binding.searchMain.filter;
-        cancelSearch = binding.searchMain.cancelSearch;
+
+        binding.appbarlayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+                Insets mInsets = insets.getInsets(WindowInsets.Type.systemBars());
+                v.setPadding(0, mInsets.top, 0, 0);
+                return insets;
+            }
+        });
+
+        binding.addButton.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override
+            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+
+                Insets mInsets = insets.getInsets(WindowInsets.Type.systemBars());
+                CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.bottomMargin = mInsets.bottom + dpToPx(16);
+                params.rightMargin = dpToPx(16);
+                params.gravity = Gravity.END | Gravity.BOTTOM;
+
+
+                binding.addButton.setLayoutParams(params);
+
+                return insets;
+            }
+        });
+
+
+//        searchText = binding.searchMain.searchInput;
+//        sortButton = binding.searchMain.filter;
+//        cancelSearch = binding.searchMain.cancelSearch;
         addButton = binding.addButton;
         coordinatorLayout = binding.coordinator;
         materialToolbar = binding.materialToolbar;
         drawerLayout = binding.drawerLayout;
         shimmerProjects = binding.shimmerProjects;
         shimmerProjects.setVisibility(View.VISIBLE);
-        linearLayout = binding.searchMain.searchBar;
+//        linearLayout = binding.searchMain.searchBar;
         navigationView = binding.navigationView;
         mAuth = FirebaseAuth.getInstance();
         recyclerView = binding.recyclerView;
@@ -152,44 +198,44 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             return false;
         });
 
-        searchText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//        searchText.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//                mainActivityViewModel.getSearchTextLiveData().setValue(editable.toString().trim().
+//                        toLowerCase(Locale.ROOT));
+//                if (!editable.toString().equals("")) {
+//                    sortCollapse();
+//                }
+//                else sortExpand();
+//            }
+//        });
 
-            }
+//        sortButton.setOnClickListener(view -> {
+//            BottomSortDialog bottomSortDialog = new BottomSortDialog();
+//            Bundle bundle = new Bundle();
+//            bundle.putSerializable("currentSortParam", mainActivityViewModel.
+//                    getSortParamLiveData().getValue());
+//            bundle.putSerializable("currentOrderParam", mainActivityViewModel.
+//                    getOrderParamLiveData().getValue());
+//            bottomSortDialog.setArguments(bundle);
+//            bottomSortDialog.show(getSupportFragmentManager(), "filter_dialog");
+//        });
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                mainActivityViewModel.getSearchTextLiveData().setValue(editable.toString().trim().
-                        toLowerCase(Locale.ROOT));
-                if (!editable.toString().equals("")) {
-                    sortCollapse();
-                }
-                else sortExpand();
-            }
-        });
-
-        sortButton.setOnClickListener(view -> {
-            BottomSortDialog bottomSortDialog = new BottomSortDialog();
-            Bundle bundle = new Bundle();
-            bundle.putSerializable("currentSortParam", mainActivityViewModel.
-                    getSortParamLiveData().getValue());
-            bundle.putSerializable("currentOrderParam", mainActivityViewModel.
-                    getOrderParamLiveData().getValue());
-            bottomSortDialog.setArguments(bundle);
-            bottomSortDialog.show(getSupportFragmentManager(), "filter_dialog");
-        });
-
-        cancelSearch.setOnClickListener(view -> {
-            searchText.setText("");
-            searchText.clearFocus();
-            sortExpand();
-        });
+//        cancelSearch.setOnClickListener(view -> {
+//            searchText.setText("");
+//            searchText.clearFocus();
+//            sortExpand();
+//        });
 
     }
 
@@ -262,26 +308,26 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 setAction("UNDO", view -> mainActivityViewModel.
                         restoreDeletedProjects()).show());
 
-        recyclerView.addOnScrollListener(new OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (dy > 0) {
-                    /* Scroll Down */
-                    if (addButton.isShown()) {
-                        addButton.hide();
-                    }
-                    if (!recyclerView.canScrollVertically(1) && !projectAdapter.getSelectMode()) {
-                        addButton.show();
-                    }
-                } else if (dy < 0) {
-                    /* Scroll Up */
-                    if (!addButton.isShown() && !projectAdapter.getSelectMode()) {
-                        addButton.show();
-                    }
-                }
-            }
-        });
+//        recyclerView.addOnScrollListener(new OnScrollListener() {
+//            @Override
+//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                if (dy > 0) {
+//                    /* Scroll Down */
+//                    if (addButton.isShown()) {
+//                        addButton.hide();
+//                    }
+//                    if (!recyclerView.canScrollVertically(1) && !projectAdapter.getSelectMode()) {
+//                        addButton.show();
+//                    }
+//                } else if (dy < 0) {
+//                    /* Scroll Up */
+//                    if (!addButton.isShown() && !projectAdapter.getSelectMode()) {
+//                        addButton.show();
+//                    }
+//                }
+//            }
+//        });
     }
 
     @Override
@@ -347,23 +393,22 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
         Project project = new Project(name, price, incomings);
         mainActivityViewModel.addProject(project);
-
     }
 
-    private void sortCollapse() {
-        cancelSearch.setVisibility(View.VISIBLE);
-        sortButton.setClickable(false);
-        sortButton.animate().alpha(0).rotation(45).setDuration(100);
-        cancelSearch.setClickable(true);
-        cancelSearch.animate().alpha(1).rotation(0).setDuration(100);
-    }
-
-    private void sortExpand() {
-        sortButton.setClickable(true);
-        sortButton.animate().alpha(1).rotation(0).setDuration(100);
-        cancelSearch.setClickable(false);
-        cancelSearch.animate().alpha(0).rotation(-45).setDuration(100);
-    }
+//    private void sortCollapse() {
+//        cancelSearch.setVisibility(View.VISIBLE);
+//        sortButton.setClickable(false);
+//        sortButton.animate().alpha(0).rotation(45).setDuration(100);
+//        cancelSearch.setClickable(true);
+//        cancelSearch.animate().alpha(1).rotation(0).setDuration(100);
+//    }
+//
+//    private void sortExpand() {
+//        sortButton.setClickable(true);
+//        sortButton.animate().alpha(1).rotation(0).setDuration(100);
+//        cancelSearch.setClickable(false);
+//        cancelSearch.animate().alpha(0).rotation(-45).setDuration(100);
+//    }
 
     private void startAddProjectActivity() {
         Intent intent = new Intent(this, AddProjectActivity.class);
@@ -427,13 +472,13 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             actionMode.getMenuInflater().inflate(R.menu.topappbar_menu_contextual, menu);
             statusBarColor = getWindow().getStatusBarColor();
 
-            TypedValue typedValue = new TypedValue();
-            Theme theme = getTheme();
-            theme.resolveAttribute(attr.backgroundColor, typedValue, true);
-            @ColorInt int color = typedValue.data;
-            getWindow().setStatusBarColor(color);
+//            TypedValue typedValue = new TypedValue();
+//            Theme theme = getTheme();
+//            theme.resolveAttribute(attr.backgroundColor, typedValue, true);
+//            @ColorInt int color = typedValue.data;
+//            getWindow().setStatusBarColor(color);
             addButton.hide();
-            linearLayout.setVisibility(View.GONE);
+//            linearLayout.setVisibility(View.GONE);
             return true;
         }
 
@@ -456,17 +501,21 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 projectAdapter.notifyItemChanged(x);
             }
             addButton.show();
-            linearLayout.setVisibility(View.VISIBLE);
+//            linearLayout.setVisibility(View.VISIBLE);
 
             //Crutch to avoid status bar blinking
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    getWindow().setStatusBarColor(statusBarColor);
-                }
-            }, 500);
+//            Handler handler = new Handler();
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    getWindow().setStatusBarColor(statusBarColor);
+//                }
+//            }, 500);
         }
+    }
+
+    public int dpToPx(int dp){
+        return (int)(dp * getResources().getDisplayMetrics().density);
     }
 
 }

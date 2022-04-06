@@ -5,20 +5,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
-    tools:openDrawer="left"
     >
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
         >
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbarlayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
+            android:layout_height="wrap_content"
             >
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -31,61 +29,27 @@
                 style="@style/Widget.Material3.Toolbar"
                 app:title="@string/app_name"
                 app:menu="@menu/topappbar_menu"
-                app:layout_collapseMode="pin"
-                android:elevation="0dp"
-                app:contentScrim="?attr/colorSurface"
                 app:navigationIcon="@drawable/ic_baseline_menu_24"
                 >
             </com.google.android.material.appbar.MaterialToolbar>
+        </com.google.android.material.appbar.AppBarLayout>
 
-        <LinearLayout
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/linearLayout"
-            android:layout_marginTop="?attr/actionBarSize"
-            app:layout_constraintTop_toBottomOf="@id/material_toolbar"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:background="@android:color/transparent"
-            android:orientation="vertical"
-            >
-
-            <include
-                android:id="@+id/search_main"
-                layout="@layout/search_view"
-                />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="?attr/colorSurface">
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_marginTop="8dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?attr/colorSurface"
-                    app:dividerColor="?attr/dividerColorMy"
-                    />
-            </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fadingEdge="none"
-                android:requiresFadingEdge="none"
-                android:scrollbarStyle="insideOverlay"
-                android:scrollbars="vertical"
-                android:visibility="visible"
-                android:paddingBottom="40dp"
-                android:clipToPadding="false"
-                tools:listitem="@layout/item_view"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                />
-        </LinearLayout>
+            android:fadingEdge="none"
+            android:requiresFadingEdge="none"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbars="vertical"
+            android:visibility="visible"
+            android:paddingBottom="40dp"
+            android:clipToPadding="false"
+            tools:listitem="@layout/item_view"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            />
 
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmer_projects"
@@ -117,7 +81,6 @@
             </LinearLayout>
         </com.facebook.shimmer.ShimmerFrameLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -127,24 +90,8 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
             android:contentDescription="@string/todo"
-            android:fitsSystemWindows="true"
             android:src="@android:drawable/ic_input_add"
             app:borderWidth="1dp" />
-
-        <TextView
-            android:id="@+id/hint_add_project"
-            android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:textSize="12sp"
-            android:layout_gravity="bottom"
-            android:fontFamily="sans-serif-light"
-            android:text="Press button to add project >"
-            android:layout_marginStart="16dp"
-            android:layout_marginBottom="10dp"
-            android:visibility="visible"
-            android:alpha="0"
-            android:translationY="30dp"
-            />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
