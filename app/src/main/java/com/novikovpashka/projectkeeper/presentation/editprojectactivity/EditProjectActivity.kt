@@ -22,7 +22,7 @@ class EditProjectActivity : AppCompatActivity() {
         setContentView(binding.root)
         projectName = binding.projectName
         projectPrice = binding.projectPrice
-        projectIncoming = binding.incoming.incomingText
+//        projectIncoming = binding.incoming.incomingText
         toolbar = binding.toolbar
 
         setInputFieldsDisable()

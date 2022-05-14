@@ -39,6 +39,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
@@ -99,38 +100,25 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-//        binding.appbarlayout.setPadding(0, WindowInsets.CONSUMED
-//                .getInsets(WindowInsets.Type.systemBars()).top, 0, 0);
-//        Log.v("mytag", String.valueOf(WindowInsets.CONSUMED.getInsets(WindowInsets.Type.systemBars()).top));
-//        Log.v("mytag", String.valueOf(WindowInsets.CONSUMED.getInsets(WindowInsets.Type.systemBars()).bottom));
 
-
-        binding.appbarlayout.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+            binding.appbarlayout.setOnApplyWindowInsetsListener((v, insets) -> {
                 Insets mInsets = insets.getInsets(WindowInsets.Type.systemBars());
                 v.setPadding(0, mInsets.top, 0, 0);
                 return insets;
-            }
-        });
+            });
 
-        binding.addButton.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
-
+            binding.addButton.setOnApplyWindowInsetsListener((v, insets) -> {
                 Insets mInsets = insets.getInsets(WindowInsets.Type.systemBars());
                 CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
                 params.bottomMargin = mInsets.bottom + dpToPx(16);
                 params.rightMargin = dpToPx(16);
                 params.gravity = Gravity.END | Gravity.BOTTOM;
-
-
                 binding.addButton.setLayoutParams(params);
-
                 return insets;
-            }
-        });
+            });
+        }
 
 
 //        searchText = binding.searchMain.searchInput;
@@ -242,6 +230,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     private void initRecyclerAndObservers() {
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(projectAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         mainActivityViewModel.getProjects().observe(this, projects ->
                 projectAdapter.submitList(projects));
@@ -283,11 +272,10 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             if(aBoolean) {
                 actionMode = startSupportActionMode(new ActionBarCallback());
             }
-            else if (actionMode !=null) {
+            else if (actionMode != null) {
                 actionMode.finish();
             }
         });
-
 
         mainActivityViewModel.getProjectsToDelete().observe(this, projects -> {
             projectAdapter.getSelectedProject().clear();
@@ -307,27 +295,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 make(coordinatorLayout, s, BaseTransientBottomBar.LENGTH_LONG).
                 setAction("UNDO", view -> mainActivityViewModel.
                         restoreDeletedProjects()).show());
-
-//        recyclerView.addOnScrollListener(new OnScrollListener() {
-//            @Override
-//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-//                super.onScrolled(recyclerView, dx, dy);
-//                if (dy > 0) {
-//                    /* Scroll Down */
-//                    if (addButton.isShown()) {
-//                        addButton.hide();
-//                    }
-//                    if (!recyclerView.canScrollVertically(1) && !projectAdapter.getSelectMode()) {
-//                        addButton.show();
-//                    }
-//                } else if (dy < 0) {
-//                    /* Scroll Up */
-//                    if (!addButton.isShown() && !projectAdapter.getSelectMode()) {
-//                        addButton.show();
-//                    }
-//                }
-//            }
-//        });
     }
 
     @Override
@@ -354,11 +321,11 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 return true;
             }
             else if (item.getItemId() == id.add_random_10) {
-                addTenRandomProjects();
+//                addTenRandomProjects();
                 return true;
             }
             else if (item.getItemId() == id.add_random_1) {
-                addOneRandomProject();
+//                addOneRandomProject();
                 return true;
             }
             return false;
@@ -366,34 +333,34 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     }
 
     /**Add 10 random**/
-    private void addTenRandomProjects() {
-        for (int i = 0; i < 10; i++) {
-            Faker faker = new Faker();
-            String name = faker.country().capital();
-            double price = Double.parseDouble(new DecimalFormat("####").format((int) (Math.random() * 200000)/1000*1000));
-            double incoming = Double.parseDouble(new DecimalFormat("####").format((int) (Math.random() * price)/1000*1000));
-            ArrayList<Double> incomings = new ArrayList<>();
-            incomings.add(incoming);
-            Project project = new Project(name, price, incomings);
-            mainActivityViewModel.addProject(project);
-        }
-    }
+//    private void addTenRandomProjects() {
+//        for (int i = 0; i < 10; i++) {
+//            Faker faker = new Faker();
+//            String name = faker.country().capital();
+//            double price = Double.parseDouble(new DecimalFormat("####").format((int) (Math.random() * 200000)/1000*1000));
+//            double incoming = Double.parseDouble(new DecimalFormat("####").format((int) (Math.random() * price)/1000*1000));
+//            ArrayList<Double> incomings = new ArrayList<>();
+//            incomings.add(incoming);
+//            Project project = new Project(name, price, incomings);
+//            mainActivityViewModel.addProject(project);
+//        }
+//    }
 
     /**Add 1 random**/
-    private void addOneRandomProject() {
-        Faker faker = new Faker();
-        String name = faker.country().capital();
-
-        double price = Double.parseDouble(new DecimalFormat("####").
-                format((int) (Math.random() * 200000)/1000*1000));
-        double incoming = Double.parseDouble(new DecimalFormat("####")
-                .format((int) (Math.random() * price)/1000*1000));
-        ArrayList<Double> incomings = new ArrayList<>();
-        incomings.add(incoming);
-
-        Project project = new Project(name, price, incomings);
-        mainActivityViewModel.addProject(project);
-    }
+//    private void addOneRandomProject() {
+//        Faker faker = new Faker();
+//        String name = faker.country().capital();
+//
+//        double price = Double.parseDouble(new DecimalFormat("####").
+//                format((int) (Math.random() * 200000)/1000*1000));
+//        double incoming = Double.parseDouble(new DecimalFormat("####")
+//                .format((int) (Math.random() * price)/1000*1000));
+//        ArrayList<Double> incomings = new ArrayList<>();
+//        incomings.add(incoming);
+//
+//        Project project = new Project(name, price, incomings);
+//        mainActivityViewModel.addProject(project);
+//    }
 
 //    private void sortCollapse() {
 //        cancelSearch.setVisibility(View.VISIBLE);

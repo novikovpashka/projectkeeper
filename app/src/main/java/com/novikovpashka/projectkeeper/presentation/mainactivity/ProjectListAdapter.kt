@@ -40,8 +40,8 @@ class ProjectListAdapter(private val listener: OnItemClickListener) : ListAdapte
                 project = item
                 executePendingBindings()
                 binding.itemTotalprice.text = Helpers.convert(item.price, currency, usdRate, eurRate)
-                binding.itemIncomings.text = Helpers.convert(item.incomings.sum(), currency, usdRate, eurRate)
-                binding.itemLeft.text = Helpers.convert(item.price - item.incomings.sum(), currency, usdRate, eurRate)
+//                binding.itemIncomings.text = Helpers.convert(item.incomings.sum(), currency, usdRate, eurRate)
+//                binding.itemLeft.text = Helpers.convert(item.price - item.incomings.sum(), currency, usdRate, eurRate)
 
                 binding.root.setOnLongClickListener {
                     if (!selectMode && selectedProject.isEmpty()) {

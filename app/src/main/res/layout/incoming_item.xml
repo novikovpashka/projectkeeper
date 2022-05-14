@@ -1,57 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
 
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/incoming_text"
-        android:layout_width="0dp"
+    <data>
+        <variable
+            name="incoming"
+            type="com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectViewModel.ItemIncoming"/>
+    </data>
+
+    <LinearLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        app:boxBackgroundColor="@android:color/transparent"
-        android:hint="incoming"
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/delete_item"
+        android:orientation="vertical"
+        android:background="@drawable/stroke_incoming"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
         >
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/incoming_edit_text"
-
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:textSize="16sp"
+            android:orientation="horizontal"
             >
-        </com.google.android.material.textfield.TextInputEditText>
-    </com.google.android.material.textfield.TextInputLayout>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_calendar_today_24">
+            </ImageView>
+            <TextView
+                android:id="@+id/incoming_date"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_gravity="center"
+                android:textSize="18sp"
+                android:text="@{incoming.incomingDateText}"
+                >
+            </TextView>
 
-    <ImageView
-        android:id="@+id/delete_item"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:cropToPadding="true"
-        android:scaleType="center"
-        android:alpha="0"
-        android:visibility="visible"
-        android:clickable="false"
-        android:src="@drawable/ic_baseline_close_24"
-        android:rotation="-45"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/delete_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:gravity="top"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:text="Remove">
+            </com.google.android.material.button.MaterialButton>
 
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        </LinearLayout>
 
-        android:layout_marginEnd="16dp"
-        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginVertical="8dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_baseline_currency_ruble_24">
+            </ImageView>
+            <EditText
+                android:id="@+id/incoming_value"
+                android:text="@{incoming.incomingValue}"
+                android:background="@android:color/transparent"
+                android:textSize="16sp"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:hint="Incoming value"
+                android:inputType="number"
+                >
+            </EditText>
 
-    </ImageView>
+        </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginVertical="8dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_notes_24">
+            </ImageView>
+            <EditText
+                android:id="@+id/incoming_desc"
+                android:text="@{incoming.incomingDescription}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:layout_marginStart="16dp"
+                android:hint="Add description"
+                android:inputType="textMultiLine"
+                android:nestedScrollingEnabled="true"
+                android:lines="3"
+                android:minLines="1"
+                android:maxLines="3"
+                android:overScrollMode="always"
+                android:scrollbarStyle="insideInset"
+                android:scrollbars="vertical"
+                >
+            </EditText>
 
+        </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+</layout>

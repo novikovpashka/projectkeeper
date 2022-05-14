@@ -8,6 +8,8 @@ import java.util.*
 data class Project (
     var name: String = "",
     var price: Double = 0.0,
-    var incomings: MutableList<Double> = mutableListOf()) : Parcelable {
-    val dateAdded: Long = Date().time
-}
+    var description: String = "",
+    var incomings: MutableList<Incoming> = mutableListOf(),
+    var dateAdded: Long = Date().time,
+    val dateStamp: Long = Date().time) : Parcelable
+

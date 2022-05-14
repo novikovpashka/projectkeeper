@@ -23,9 +23,6 @@
                 android:id="@+id/material_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 style="@style/Widget.Material3.Toolbar"
                 app:title="@string/app_name"
                 app:menu="@menu/topappbar_menu"
@@ -39,17 +36,16 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipToPadding="false"
             android:fadingEdge="none"
+            android:paddingBottom="40dp"
             android:requiresFadingEdge="none"
             android:scrollbarStyle="insideOverlay"
             android:scrollbars="vertical"
             android:visibility="visible"
-            android:paddingBottom="40dp"
-            android:clipToPadding="false"
-            tools:listitem="@layout/item_view"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            />
+            tools:listitem="@layout/item_view" />
 
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmer_projects"

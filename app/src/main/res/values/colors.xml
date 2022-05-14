@@ -42,8 +42,8 @@
     <color name="def_theme_night_onPrimaryContainer">#131B23</color>
     <color name="def_theme_night_secondary">#FCA311</color>
     <color name="def_theme_night_onSecondary">#FFFFFF</color>
-    <color name="def_theme_night_secondaryContainer">#FCA311</color>
-    <color name="def_theme_night_onSecondaryContainer">#191A2B</color>
+    <color name="def_theme_night_secondaryContainer">#E69F29</color>
+    <color name="def_theme_night_onSecondaryContainer">#FFFFFF</color>
     <color name="def_theme_night_tertiary">#797153</color>
     <color name="def_theme_night_onTertiary">#FFFFFF</color>
     <color name="def_theme_night_tertiaryContainer">#FFD7EF</color>

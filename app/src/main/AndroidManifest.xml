@@ -40,7 +40,7 @@
         <activity
             android:name=".presentation.addprojectactivity.AddProjectActivity"
             android:exported="false"
-            android:noHistory="true" />
+            android:noHistory="false" />
     </application>
 
 </manifest>
