@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.novikovpashka.projectkeeper.R
@@ -55,7 +56,25 @@ class AddProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClickL
             Snackbar.make(binding.root, s!!, BaseTransientBottomBar.LENGTH_LONG).show()
         }
 
-        binding.addActivityToolbar.setNavigationOnClickListener { finish() }
+        binding.addActivityToolbar.setNavigationOnClickListener {
+            if (binding.projectNameEditText.text.isNotEmpty()
+                || binding.projectPriceEditText.text.isNotEmpty()
+                || binding.projectDescriptionEditText.text.isNotEmpty()
+                || incomingAdapter.itemCount > 1
+            ) {
+                MaterialAlertDialogBuilder(this)
+                    .setMessage("Discard changes?")
+                    .setPositiveButton("Discard") { dialog, which ->
+                        finish()
+                    }
+                    .setNegativeButton("Keep editing") { dialog, which ->
+                        dialog.cancel()
+                    }
+                    .show()
+            }
+            else finish()
+        }
+
         binding.addActivityToolbar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.add_project) {
                 val project = viewModel.parseProject(

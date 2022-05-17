@@ -3,6 +3,7 @@ package com.novikovpashka.projectkeeper.presentation.mainactivity
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
@@ -10,6 +11,7 @@ import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.data.apicurrency.NoConnectivityException
 import com.novikovpashka.projectkeeper.data.datafirestore.Project
 import com.novikovpashka.projectkeeper.data.datafirestore.ProjectFirestoreRepo
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -87,6 +89,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     private val _snackbar = MutableLiveData<String?>()
     val snackbar: LiveData<String?>
         get() = _snackbar
+
+    private val _title = MutableLiveData<String?>()
+    val title: LiveData<String?>
+        get() = _title
 
 
     val projects: LiveData<List<Project>>
@@ -173,8 +179,18 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
         if (projectsToRestore.size == 1) {
             _snackbar.value = projectsToRestore.get(0).name + " deleted"
+            viewModelScope.launch {
+                delay(5000)
+               _snackbar.value = null
+            }
         }
-        else _snackbar.value = projectsToRestore.size.toString() + " projects deleted"
+        else {
+            _snackbar.value = projectsToRestore.size.toString() + " projects deleted"
+            viewModelScope.launch {
+                delay(5000)
+                _snackbar.value = null
+            }
+        }
     }
 
     private suspend fun loadProjectsObserved (value: QuerySnapshot, error: FirebaseFirestoreException?): List<Project> {
@@ -198,12 +214,17 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         projectsToDelete.value = projectsToDeleteList
         projectsIdToDeleteList.add(position)
         projectsIdToDelete.value = projectsIdToDeleteList
+        _title.value = projectsIdToDeleteList.size.toString()
     }
     fun removeProjectToDelete (project: Project, position: Int) {
         projectsToDeleteList.remove(project)
         projectsToDelete.value = projectsToDeleteList
         projectsIdToDeleteList.remove(position)
         projectsIdToDelete.value = projectsIdToDeleteList
+        if (projectsToDeleteList.isEmpty()) {
+            _title.value = null
+        }
+        else _title.value = projectsIdToDeleteList.size.toString()
     }
 
     fun clearSelectedProjects() : MutableList<Int> {
@@ -214,6 +235,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         projectsIdToDeleteList.clear()
         projectsIdToDelete.value = projectsIdToDeleteList
         selectMode.value = false
+        _title.value = null
         return idToNotify
     }
 
@@ -221,6 +243,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         for (project in projectsToRestore) {
             addProject(project)
         }
+        projectsToRestore.clear()
     }
 
 

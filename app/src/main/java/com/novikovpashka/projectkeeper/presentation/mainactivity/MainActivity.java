@@ -31,6 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.view.ActionMode.Callback;
+import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.OnApplyWindowInsetsListener;
@@ -45,6 +46,7 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.javafaker.Faker;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
@@ -87,8 +89,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     private FirebaseAuth mAuth;
     private ProjectListAdapter projectAdapter;
     private MainActivityViewModel mainActivityViewModel;
-
-    private ActionMode actionMode;
+    private AppBarLayout appBarLayout;
 
     private TextView usdrub;
     private TextView eurrub;
@@ -124,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 //        searchText = binding.searchMain.searchInput;
 //        sortButton = binding.searchMain.filter;
 //        cancelSearch = binding.searchMain.cancelSearch;
+        appBarLayout = binding.appbarlayout;
         addButton = binding.addButton;
         coordinatorLayout = binding.coordinator;
         materialToolbar = binding.materialToolbar;
@@ -155,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         addButton.setOnClickListener(this::showAddPopupMenu);
         mainActivityViewModel.getValueUSDRUB();
         mainActivityViewModel.getValueEURRUB();
-
     }
 
     @Override
@@ -171,10 +172,14 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 startStartActivity();
                 return true;
             }
+            if (item.getItemId() == id.delete) {
+                mainActivityViewModel.deleteProjects();
+            }
             return false;
         });
 
-        materialToolbar.setNavigationOnClickListener(view -> drawerLayout.openDrawer(GravityCompat.START));
+        materialToolbar.setNavigationOnClickListener(view ->
+                drawerLayout.openDrawer(GravityCompat.START));
 
         navigationView.setNavigationItemSelectedListener(item -> {
             switch (item.getItemId()) {
@@ -268,12 +273,13 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         mainActivityViewModel.getUpdated().observe(this, s -> lastupdate.setText(s));
 
         mainActivityViewModel.getSelectMode().observe(this, aBoolean -> {
+            boolean prevValue = projectAdapter.getSelectMode();
             projectAdapter.setSelectMode(aBoolean);
             if(aBoolean) {
-                actionMode = startSupportActionMode(new ActionBarCallback());
+                setSelectedMode();
             }
-            else if (actionMode != null) {
-                actionMode.finish();
+            else {
+                if (prevValue) stopSelectMode();
             }
         });
 
@@ -291,10 +297,20 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             }
         });
 
-        mainActivityViewModel.getSnackbar().observe(this, s -> Snackbar.
-                make(coordinatorLayout, s, BaseTransientBottomBar.LENGTH_LONG).
-                setAction("UNDO", view -> mainActivityViewModel.
-                        restoreDeletedProjects()).show());
+        mainActivityViewModel.getSnackbar().observe(this, s ->  {
+            if (s != null) {
+                Snackbar.make(coordinatorLayout, s, 5000).
+                    setAction("UNDO", view -> mainActivityViewModel.
+                            restoreDeletedProjects()).show();
+            }
+        });
+
+        mainActivityViewModel.getTitle().observe(this, s ->  {
+            if (s != null) {
+                materialToolbar.setTitle(s);
+            }
+            else materialToolbar.setTitle("Projects");
+        });
     }
 
     @Override
@@ -431,58 +447,37 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         mainActivityViewModel.removeProjectToDelete(project, position);
     }
 
-    class ActionBarCallback implements Callback {
-        int statusBarColor;
-        @Override
-        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            actionMode = mode;
-            actionMode.getMenuInflater().inflate(R.menu.topappbar_menu_contextual, menu);
-            statusBarColor = getWindow().getStatusBarColor();
-
-//            TypedValue typedValue = new TypedValue();
-//            Theme theme = getTheme();
-//            theme.resolveAttribute(attr.backgroundColor, typedValue, true);
-//            @ColorInt int color = typedValue.data;
-//            getWindow().setStatusBarColor(color);
-            addButton.hide();
-//            linearLayout.setVisibility(View.GONE);
-            return true;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
-        }
-
-        @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            if (item.getItemId() == id.delete) {
-                mainActivityViewModel.deleteProjects();
-            }
-            return true;
-        }
-
-        @Override
-        public void onDestroyActionMode(ActionMode mode) {
-            for (int x : mainActivityViewModel.clearSelectedProjects()) {
-                projectAdapter.notifyItemChanged(x);
-            }
-            addButton.show();
-//            linearLayout.setVisibility(View.VISIBLE);
-
-            //Crutch to avoid status bar blinking
-//            Handler handler = new Handler();
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    getWindow().setStatusBarColor(statusBarColor);
-//                }
-//            }, 500);
-        }
-    }
 
     public int dpToPx(int dp){
         return (int)(dp * getResources().getDisplayMetrics().density);
     }
+
+    public void setSelectedMode() {
+        addButton.hide();
+        materialToolbar.getMenu().clear();
+        materialToolbar.inflateMenu(menu.topappbar_menu_contextual);
+        materialToolbar.setNavigationIcon(R.drawable.ic_baseline_close_24);
+        materialToolbar.setNavigationOnClickListener(v -> {
+            for (int x : mainActivityViewModel.clearSelectedProjects()) {
+                projectAdapter.notifyItemChanged(x);
+            }
+            addButton.show();
+        });
+    }
+
+    public void stopSelectMode() {
+        for (int x : mainActivityViewModel.clearSelectedProjects()) {
+            projectAdapter.notifyItemChanged(x);
+        }
+        materialToolbar.getMenu().clear();
+        materialToolbar.inflateMenu(menu.topappbar_menu);
+        materialToolbar.setNavigationIcon(R.drawable.ic_baseline_menu_24);
+        materialToolbar.setNavigationOnClickListener(view ->
+                drawerLayout.openDrawer(GravityCompat.START));
+        addButton.show();
+    }
+
+
+
 
 }
