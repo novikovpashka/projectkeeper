@@ -39,6 +39,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             .loadCurrentCurrencyFromStorage(getApplication<Application>().applicationContext)
     }
 
+    var currentAccentColor = projectsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
+
 
     fun getValueUSDRUB() {
         viewModelScope.launch {
@@ -207,6 +209,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
             else projectsList.sortBy { it.dateAdded }
             continuation.resume(projectsList)
         }
+    }
+
+    fun loadAccentColor(): Int {
+        return projectsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
     }
 
     fun addProjectToDelete (project: Project, position: Int) {

@@ -17,6 +17,8 @@
             android:id="@+id/appbarlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:elevation="100dp"
+            android:elevation="100dp"
             >
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -27,6 +29,8 @@
                 app:title="@string/app_name"
                 app:menu="@menu/topappbar_menu"
                 app:navigationIcon="@drawable/ic_baseline_menu_24"
+                app:elevation="100dp"
+                android:elevation="100dp"
                 >
             </com.google.android.material.appbar.MaterialToolbar>
             

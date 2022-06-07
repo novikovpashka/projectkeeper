@@ -39,18 +39,44 @@
         <item name="cardColor">@color/def_card</item>
         <item name="cardSecondColor">@color/def_card_second</item>
 
-        <item name="android:windowTranslucentNavigation">false</item>
-
-        <item name="windowActionModeOverlay">true</item>
-        <item name="actionModeCloseDrawable">@drawable/ic_baseline_close_24</item>
-        <item name="actionModeBackground">@color/def_theme_light_background</item>
-        <item name="android:actionModeBackground">@color/def_theme_light_background</item>
-        <item name="actionModeStyle">@style/ActionMode</item>
-
+        <item name="android:windowTranslucentStatus">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="enableEdgeToEdge">true</item>
 
         <item name="android:windowLightStatusBar">true</item>
-
-
     </style>
+
+    <style name="Theme.Default.Red" parent="Theme.Default">
+        <item name="colorPrimary">@color/myRed</item>
+        <item name="colorPrimaryContainer">@color/myRed</item>
+        <item name="colorSecondary">@color/myRed</item>
+        <item name="colorSecondaryContainer">@color/myRed</item>
+        <item name="colorPrimaryInverse">@color/myRed</item>
+    </style>
+
+    <style name="Theme.Default.Green" parent="Theme.Default">
+        <item name="colorPrimary">@color/myGreen</item>
+        <item name="colorPrimaryContainer">@color/myGreen</item>
+        <item name="colorSecondary">@color/myGreen</item>
+        <item name="colorSecondaryContainer">@color/myGreen</item>
+        <item name="colorPrimaryInverse">@color/myGreen</item>
+    </style>
+
+    <style name="Theme.Default.Purple" parent="Theme.Default">
+        <item name="colorPrimary">@color/myPurple</item>
+        <item name="colorPrimaryContainer">@color/myPurple</item>
+        <item name="colorSecondary">@color/myPurple</item>
+        <item name="colorSecondaryContainer">@color/myPurple</item>
+        <item name="colorPrimaryInverse">@color/myPurple</item>
+    </style>
+
+    <style name="Theme.Default.Blue" parent="Theme.Default">
+        <item name="colorPrimary">@color/myBlue</item>
+        <item name="colorPrimaryContainer">@color/myBlue</item>
+        <item name="colorSecondary">@color/myBlue</item>
+        <item name="colorSecondaryContainer">@color/myBlue</item>
+        <item name="colorPrimaryInverse">@color/myBlue</item>
+    </style>
+
 </resources>

@@ -1,18 +1,22 @@
 package com.novikovpashka.projectkeeper.presentation.addprojectactivity
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.novikovpashka.projectkeeper.data.datafirestore.Incoming
 import com.novikovpashka.projectkeeper.data.datafirestore.Project
+import com.novikovpashka.projectkeeper.data.datafirestore.ProjectFirestoreRepo
 import java.lang.NumberFormatException
 import java.text.SimpleDateFormat
 import java.util.*
 
-class AddProjectViewModel : ViewModel() {
+class AddProjectViewModel(application: Application) : AndroidViewModel(application) {
     private val incomings = mutableListOf<ItemIncoming>()
     private val _incomingsLiveData = MutableLiveData<List<ItemIncoming>>()
+    private val projectsRepository = ProjectFirestoreRepo.instance!!
 
     val incomingsLiveData: LiveData<List<ItemIncoming>>
     get() = _incomingsLiveData
@@ -49,6 +53,10 @@ class AddProjectViewModel : ViewModel() {
 
     fun saveIncomingDate(value: Long, index: Int) {
         incomings[index].incomingDate = value
+    }
+
+    fun getAccentColor(): Int {
+        return projectsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
     }
 
     fun parseProject(name: String, price: String, description: String): Project? {

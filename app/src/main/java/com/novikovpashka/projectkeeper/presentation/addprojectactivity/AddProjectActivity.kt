@@ -11,6 +11,7 @@ import android.widget.DatePicker
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -32,6 +33,10 @@ class AddProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClickL
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
+        val _viewModel: AddProjectViewModel by viewModels()
+        viewModel = _viewModel
+        setAccentColor(viewModel.getAccentColor())
+
         val binding: ActivityAddProjectBinding = ActivityAddProjectBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -47,8 +52,6 @@ class AddProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClickL
 
         recyclerView = binding.recycler
         incomingAdapter = IncomingListAdapter(this)
-        val _viewModel: AddProjectViewModel by viewModels()
-        viewModel = _viewModel
 
         initRecycler()
 
@@ -158,6 +161,30 @@ class AddProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClickL
             val date = simpleDateFormat.format(calendar.timeInMillis)
             viewModel.saveIncomingDateText(date, index = _index)
             incomingAdapter.notifyItemChanged(_index)
+        }
+    }
+
+    fun setAccentColor(color: Int) {
+        when (color) {
+            ContextCompat.getColor(this, R.color.myOrange) -> {
+                theme.applyStyle(R.style.Theme_Default, true)
+            }
+
+            ContextCompat.getColor(this, R.color.myRed) -> {
+                theme.applyStyle(R.style.Theme_Default_Red, true)
+            }
+
+            ContextCompat.getColor(this, R.color.myGreen) -> {
+                theme.applyStyle(R.style.Theme_Default_Green, true)
+            }
+
+            ContextCompat.getColor(this, R.color.myPurple) -> {
+                theme.applyStyle(R.style.Theme_Default_Purple, true)
+            }
+
+            ContextCompat.getColor(this, R.color.myBlue) -> {
+                theme.applyStyle(R.style.Theme_Default_Blue, true)
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity
 
+import android.app.Dialog
 import android.content.Context
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.widget.RadioButton
@@ -7,6 +8,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.WindowCompat
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.internal.ViewUtils.doOnApplyWindowInsets
 import com.novikovpashka.projectkeeper.databinding.BottomSortMainBinding
 
 class BottomSortDialog : BottomSheetDialogFragment() {

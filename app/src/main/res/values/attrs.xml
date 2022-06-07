@@ -32,6 +32,9 @@
         <attr name="cardDividerColor" format="reference">
         </attr>
 
+        <attr name="accentColor" format="reference">
+        </attr>
+
     </declare-styleable>
 
 </resources>

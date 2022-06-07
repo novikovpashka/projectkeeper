@@ -1,75 +1,89 @@
 <resources>
-        <style name="Theme.Default" parent="Theme.Material3.Light.NoActionBar">
-            <item name="colorPrimary">@color/def_theme_light_primary</item>
-            <item name="colorOnPrimary">@color/def_theme_light_onPrimary</item>
-            <item name="colorPrimaryContainer">@color/def_theme_light_primaryContainer</item>
-            <item name="colorOnPrimaryContainer">@color/def_theme_light_onPrimaryContainer</item>
-            <item name="colorSecondary">@color/def_theme_light_secondary</item>
-            <item name="colorOnSecondary">@color/def_theme_light_onSecondary</item>
-            <item name="colorSecondaryContainer">@color/def_theme_light_secondaryContainer</item>
-            <item name="colorOnSecondaryContainer">@color/def_theme_light_onSecondaryContainer</item>
-            <item name="colorTertiary">@color/def_theme_light_tertiary</item>
-            <item name="colorOnTertiary">@color/def_theme_light_onTertiary</item>
-            <item name="colorTertiaryContainer">@color/def_theme_light_tertiaryContainer</item>
-            <item name="colorOnTertiaryContainer">@color/def_theme_light_onTertiaryContainer</item>
-            <item name="colorError">@color/def_theme_light_error</item>
-            <item name="colorErrorContainer">@color/def_theme_light_errorContainer</item>
-            <item name="colorOnError">@color/def_theme_light_onError</item>
-            <item name="colorOnErrorContainer">@color/def_theme_light_onErrorContainer</item>
-            <item name="android:colorBackground">@color/def_theme_light_background</item>
-            <item name="colorOnBackground">@color/def_theme_light_onBackground</item>
-            <item name="colorSurface">@color/def_theme_light_surface</item>
-            <item name="colorOnSurface">@color/def_theme_light_onSurface</item>
-            <item name="colorSurfaceVariant">@color/def_theme_light_surfaceVariant</item>
-            <item name="colorOnSurfaceVariant">@color/def_theme_light_onSurfaceVariant</item>
-            <item name="colorOutline">@color/def_theme_light_outline</item>
-            <item name="colorOnSurfaceInverse">@color/def_theme_light_inverseOnSurface</item>
-            <item name="colorSurfaceInverse">@color/def_theme_light_inverseSurface</item>
-            <item name="colorPrimaryInverse">@color/def_theme_light_primaryInverse</item>
-            <item name="backgroundColor">@color/def_theme_light_background</item>
-
-\
-            <item name="colorSearchSolid">@color/def_gray</item>
-            <item name="pullColor">@color/def_light_gray</item>
-            <item name="titleItem">@color/def_title</item>
-            <item name="dividerColorMy">@color/def_divider</item>
-            <item name="incomingColor">@color/def_incoming</item>
-            <item name="leftColor">@color/def_left</item>
-            <item name="cardColor">@color/def_card</item>
-            <item name="cardSecondColor">@color/def_card_second</item>
-
-            <item name="android:windowTranslucentNavigation">false</item>
-            <item name="android:windowTranslucentStatus">true</item>
-
-            <item name="windowActionModeOverlay">true</item>
-            <item name="actionModeCloseDrawable">@drawable/ic_baseline_close_24</item>
-            <item name="actionModeBackground">@color/def_theme_light_background</item>
-            <item name="android:actionModeBackground">@color/def_theme_light_background</item>
-            <item name="actionModeStyle">@style/ActionMode</item>
+    <style name="Theme.Default" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/def_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/def_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/def_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/def_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/def_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/def_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/def_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/def_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/def_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/def_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/def_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/def_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/def_theme_light_error</item>
+        <item name="colorErrorContainer">@color/def_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/def_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/def_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/def_theme_light_background</item>
+        <item name="colorOnBackground">@color/def_theme_light_onBackground</item>
+        <item name="colorSurface">@color/def_theme_light_surface</item>
+        <item name="colorOnSurface">@color/def_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/def_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/def_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/def_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/def_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/def_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/def_theme_light_primaryInverse</item>
+        <item name="backgroundColor">@color/def_theme_light_background</item>
 
 
-            <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="colorSearchSolid">@color/def_gray</item>
+        <item name="pullColor">@color/def_light_gray</item>
+        <item name="titleItem">@color/def_title</item>
+        <item name="dividerColorMy">@color/def_divider</item>
+        <item name="incomingColor">@color/def_incoming</item>
+        <item name="leftColor">@color/def_left</item>
+        <item name="cardColor">@color/def_card</item>
+        <item name="cardSecondColor">@color/def_card_second</item>
 
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="enableEdgeToEdge">true</item>
+    </style>
 
-        </style>
+    <style name="Theme.Default.Red" parent="Theme.Default">
+        <item name="colorPrimary">@color/myRed</item>
+        <item name="colorPrimaryContainer">@color/myRed</item>
+        <item name="colorSecondary">@color/myRed</item>
+        <item name="colorSecondaryContainer">@color/myRed</item>
+        <item name="colorPrimaryInverse">@color/myRed</item>
+    </style>
 
-        <style name="NavigationDrawerTextStyle" parent="android:Widget.TextView">
-                <item name="android:fontFamily">sans-serif-medium</item>
-                <item name="android:textSize">14sp</item>
-        </style>
+    <style name="Theme.Default.Green" parent="Theme.Default">
+        <item name="colorPrimary">@color/myGreen</item>
+        <item name="colorPrimaryContainer">@color/myGreen</item>
+        <item name="colorSecondary">@color/myGreen</item>
+        <item name="colorSecondaryContainer">@color/myGreen</item>
+        <item name="colorPrimaryInverse">@color/myGreen</item>
+    </style>
 
-        <style name="NavigationDrawerHeaderTextStyle" parent="android:Widget.TextView">
-                <item name="android:fontFamily">sans-serif-black</item>
-                <item name="android:textSize">14sp</item>
-        </style>
+    <style name="Theme.Default.Purple" parent="Theme.Default">
+        <item name="colorPrimary">@color/myPurple</item>
+        <item name="colorPrimaryContainer">@color/myPurple</item>
+        <item name="colorSecondary">@color/myPurple</item>
+        <item name="colorSecondaryContainer">@color/myPurple</item>
+        <item name="colorPrimaryInverse">@color/myPurple</item>
+    </style>
 
-        <style name="ActionMode" parent="@style/Widget.AppCompat.ActionMode">
-                <item name="background">@color/def_theme_light_background</item>
-                <item name="android:statusBarColor">@android:color/transparent</item>
-        </style>
+    <style name="Theme.Default.Blue" parent="Theme.Default">
+        <item name="colorPrimary">@color/myBlue</item>
+        <item name="colorPrimaryContainer">@color/myBlue</item>
+        <item name="colorSecondary">@color/myBlue</item>
+        <item name="colorSecondaryContainer">@color/myBlue</item>
+        <item name="colorPrimaryInverse">@color/myBlue</item>
+    </style>
 
+    <style name="NavigationDrawerTextStyle" parent="android:Widget.TextView">
+            <item name="android:fontFamily">sans-serif-medium</item>
+            <item name="android:textSize">14sp</item>
+    </style>
 
-
-
+    <style name="NavigationDrawerHeaderTextStyle" parent="android:Widget.TextView">
+            <item name="android:fontFamily">sans-serif-black</item>
+            <item name="android:textSize">14sp</item>
+    </style>
 
 </resources>

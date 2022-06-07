@@ -3,10 +3,12 @@ package com.novikovpashka.projectkeeper.data.datafirestore
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.data.apicurrency.RetrofitInstance
 import retrofit2.Response
@@ -79,6 +81,22 @@ class ProjectFirestoreRepo {
         } else if (currency == "EUR") {
             return CurrencyList.EUR
         } else return CurrencyList.RUB
+    }
+
+    fun saveAccentColorToStorage (context: Context, color: Int) {
+        val sharedPreferences = context.getSharedPreferences("sharedPrefs",
+            AppCompatActivity.MODE_PRIVATE
+        )
+        val editor = sharedPreferences.edit()
+        editor.putInt("accentcolor", color)
+        editor.apply()
+    }
+
+    fun loadAccentColorFromStorage (context: Context): Int {
+        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+        val accentColor = sharedPreferences.getInt("accentcolor",
+            ContextCompat.getColor(context, AccentColors.MYORANGE.color))
+        return accentColor
     }
 
     fun getAllProjects(): CollectionReference {

@@ -8,10 +8,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
+import com.novikovpashka.projectkeeper.R
+import com.novikovpashka.projectkeeper.data.datafirestore.ProjectFirestoreRepo
 import com.novikovpashka.projectkeeper.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
@@ -20,6 +23,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var progressBar: LinearProgressIndicator
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val projectsRepository = ProjectFirestoreRepo.instance!!
+        setAccentColor(projectsRepository.loadAccentColorFromStorage(this))
         super.onCreate(savedInstanceState)
         val binding: ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -79,5 +84,29 @@ class LoginActivity : AppCompatActivity() {
     private fun progressOff() {
         progressBar.visibility = View.GONE
         window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    fun setAccentColor(color: Int) {
+        when (color) {
+            ContextCompat.getColor(this, R.color.myOrange) -> {
+                theme.applyStyle(R.style.Theme_Default, true)
+            }
+
+            ContextCompat.getColor(this, R.color.myRed) -> {
+                theme.applyStyle(R.style.Theme_Default_Red, true)
+            }
+
+            ContextCompat.getColor(this, R.color.myGreen) -> {
+                theme.applyStyle(R.style.Theme_Default_Green, true)
+            }
+
+            ContextCompat.getColor(this, R.color.myPurple) -> {
+                theme.applyStyle(R.style.Theme_Default_Purple, true)
+            }
+
+            ContextCompat.getColor(this, R.color.myBlue) -> {
+                theme.applyStyle(R.style.Theme_Default_Blue, true)
+            }
+        }
     }
 }

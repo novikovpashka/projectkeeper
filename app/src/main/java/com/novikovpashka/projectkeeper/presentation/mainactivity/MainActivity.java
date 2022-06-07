@@ -1,61 +1,40 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources.Theme;
 import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.WrapperListAdapter;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.view.ActionMode;
-import androidx.appcompat.view.ActionMode.Callback;
-import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.OnApplyWindowInsetsListener;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
-import com.github.javafaker.Faker;
-import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.novikovpashka.projectkeeper.R;
 import com.novikovpashka.projectkeeper.R.anim;
-import com.novikovpashka.projectkeeper.R.attr;
 import com.novikovpashka.projectkeeper.R.id;
 import com.novikovpashka.projectkeeper.R.menu;
 import com.novikovpashka.projectkeeper.data.datafirestore.Project;
@@ -69,27 +48,18 @@ import com.novikovpashka.projectkeeper.presentation.mainactivity.ProjectListAdap
 import com.novikovpashka.projectkeeper.presentation.settingsactivity.SettingsActivity;
 import com.novikovpashka.projectkeeper.presentation.startactivity.StartActivity;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Locale;
-
 public class MainActivity extends AppCompatActivity implements RadioListener, OnItemClickListener {
     private FloatingActionButton addButton;
     private RecyclerView recyclerView;
-//    private ImageView sortButton;
-//    private ImageView cancelSearch;
-//    private EditText searchText;
     private ShimmerFrameLayout shimmerProjects;
     private CoordinatorLayout coordinatorLayout;
     private MaterialToolbar materialToolbar;
     private DrawerLayout drawerLayout;
-//    private LinearLayout linearLayout;
     private NavigationView navigationView;
 
     private FirebaseAuth mAuth;
     private ProjectListAdapter projectAdapter;
     private MainActivityViewModel mainActivityViewModel;
-    private AppBarLayout appBarLayout;
 
     private TextView usdrub;
     private TextView eurrub;
@@ -98,6 +68,10 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.v("mytag", "main oncreate");
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        setAccentColor(mainActivityViewModel.loadAccentColor());
+
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -125,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 //        searchText = binding.searchMain.searchInput;
 //        sortButton = binding.searchMain.filter;
 //        cancelSearch = binding.searchMain.cancelSearch;
-        appBarLayout = binding.appbarlayout;
         addButton = binding.addButton;
         coordinatorLayout = binding.coordinator;
         materialToolbar = binding.materialToolbar;
@@ -145,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         lastupdate = navigationView.getHeaderView(0)
                 .findViewById(id.last_updated);
 
-        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+
 
         if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
@@ -163,16 +136,34 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     protected void onResume() {
         super.onResume();
         mainActivityViewModel.loadCurrentCurrency();
+
+        if (mainActivityViewModel.getCurrentAccentColor() != mainActivityViewModel.loadAccentColor()) {
+            mainActivityViewModel.setCurrentAccentColor(mainActivityViewModel.loadAccentColor());
+            recreate();
+        }
+
     }
+
 
     private void setToolbarListeners() {
         materialToolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == id.logout) {
-                mAuth.signOut();
-                startStartActivity();
-                return true;
+            if (item.getItemId() == id.sort) {
+                BottomSortDialog bottomSortDialog = new BottomSortDialog();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("currentSortParam", mainActivityViewModel.
+                        getSortParamLiveData().getValue());
+                bundle.putSerializable("currentOrderParam", mainActivityViewModel.
+                        getOrderParamLiveData().getValue());
+                bottomSortDialog.setArguments(bundle);
+                bottomSortDialog.show(getSupportFragmentManager(), "filter_dialog");
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+                }
+
             }
-            if (item.getItemId() == id.delete) {
+            else if (item.getItemId() == id.delete) {
                 mainActivityViewModel.deleteProjects();
             }
             return false;
@@ -182,11 +173,29 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 drawerLayout.openDrawer(GravityCompat.START));
 
         navigationView.setNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case id.settings:
-                    startSettingsActivity();
-                    overridePendingTransition(anim.slide_from_right, anim.slide_to_left);
-                case id.logout:
+            if (item.getItemId() == id.settings) {
+                startSettingsActivity();
+                overridePendingTransition(anim.slide_from_right, anim.slide_to_left);
+                return true;
+            }
+            else if (item.getItemId() == id.logout) {
+                new MaterialAlertDialogBuilder(this)
+                        .setMessage("Log out?")
+                        .setNegativeButton("Stay", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        })
+                        .setPositiveButton("Log out", new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mAuth.signOut();
+                                startStartActivity();
+                            }
+                        })
+                        .show();
             }
             return false;
         });
@@ -213,17 +222,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 //            }
 //        });
 
-//        sortButton.setOnClickListener(view -> {
-//            BottomSortDialog bottomSortDialog = new BottomSortDialog();
-//            Bundle bundle = new Bundle();
-//            bundle.putSerializable("currentSortParam", mainActivityViewModel.
-//                    getSortParamLiveData().getValue());
-//            bundle.putSerializable("currentOrderParam", mainActivityViewModel.
-//                    getOrderParamLiveData().getValue());
-//            bottomSortDialog.setArguments(bundle);
-//            bottomSortDialog.show(getSupportFragmentManager(), "filter_dialog");
-//        });
-
 //        cancelSearch.setOnClickListener(view -> {
 //            searchText.setText("");
 //            searchText.clearFocus();
@@ -231,6 +229,8 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 //        });
 
     }
+
+
 
     private void initRecyclerAndObservers() {
         recyclerView.setHasFixedSize(true);
@@ -320,6 +320,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         mainActivityViewModel.addProject(project);
     }
 
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -400,7 +401,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
     private void startSettingsActivity() {
         Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, 1);
     }
 
     private void startStartActivity() {
@@ -477,7 +478,17 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         addButton.show();
     }
 
-
-
-
+    public void setAccentColor(int color) {
+        if (color == ContextCompat.getColor(this, R.color.myOrange)) {
+            getTheme().applyStyle(R.style.Theme_Default, true);
+        } else if (color == ContextCompat.getColor(this, R.color.myRed)) {
+            getTheme().applyStyle(R.style.Theme_Default_Red, true);
+        } else if (color == ContextCompat.getColor(this, R.color.myGreen)) {
+            getTheme().applyStyle(R.style.Theme_Default_Green, true);
+        } else if (color == ContextCompat.getColor(this, R.color.myPurple)) {
+            getTheme().applyStyle(R.style.Theme_Default_Purple, true);
+        } else if (color == ContextCompat.getColor(this, R.color.myBlue)) {
+            getTheme().applyStyle(R.style.Theme_Default_Blue, true);
+        }
+    }
 }
