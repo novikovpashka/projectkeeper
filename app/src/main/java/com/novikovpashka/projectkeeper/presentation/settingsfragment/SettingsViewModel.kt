@@ -1,19 +1,15 @@
-package com.novikovpashka.projectkeeper.presentation.settingsactivity
+package com.novikovpashka.projectkeeper.presentation.settingsfragment
 
 import android.app.Application
-import android.graphics.Color
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
-import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.data.datafirestore.ProjectFirestoreRepo
 
-class SettingsActivityViewModel(application: Application) : AndroidViewModel(application) {
-
+class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     private val projectsRepository = ProjectFirestoreRepo.instance!!
 
     val currentCurrency = MutableLiveData(projectsRepository
@@ -45,5 +41,4 @@ class SettingsActivityViewModel(application: Application) : AndroidViewModel(app
         }
         return colorList
     }
-
 }

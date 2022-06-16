@@ -45,6 +45,7 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="enableEdgeToEdge">true</item>
+        <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
 
     </style>
 
@@ -78,6 +79,11 @@
         <item name="colorSecondary">@color/myBlue</item>
         <item name="colorSecondaryContainer">@color/myBlue</item>
         <item name="colorPrimaryInverse">@color/myBlue</item>
+    </style>
+
+    <style name="WindowAnimationTransition">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
 </resources>

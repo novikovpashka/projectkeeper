@@ -1,7 +1,7 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,13 +14,14 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,6 +34,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.novikovpashka.projectkeeper.CurrencyList;
 import com.novikovpashka.projectkeeper.R;
 import com.novikovpashka.projectkeeper.R.anim;
 import com.novikovpashka.projectkeeper.R.id;
@@ -45,10 +47,10 @@ import com.novikovpashka.projectkeeper.presentation.mainactivity.BottomSortDialo
 import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivityViewModel.OrderParam;
 import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivityViewModel.SortParam;
 import com.novikovpashka.projectkeeper.presentation.mainactivity.ProjectListAdapter.OnItemClickListener;
-import com.novikovpashka.projectkeeper.presentation.settingsactivity.SettingsActivity;
+import com.novikovpashka.projectkeeper.presentation.settingsfragment.SettingsFragment;
 import com.novikovpashka.projectkeeper.presentation.startactivity.StartActivity;
 
-public class MainActivity extends AppCompatActivity implements RadioListener, OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements RadioListener, OnItemClickListener, SettingsFragment.SettingsListener {
     private FloatingActionButton addButton;
     private RecyclerView recyclerView;
     private ShimmerFrameLayout shimmerProjects;
@@ -65,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     private TextView eurrub;
     private TextView lastupdate;
 
-    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v("mytag", "main oncreate");
@@ -93,6 +94,13 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 binding.addButton.setLayoutParams(params);
                 return insets;
             });
+        }
+        else {
+            WindowInsetsControllerCompat windowInsetsController =
+                    ViewCompat.getWindowInsetsController(getWindow().getDecorView());
+            windowInsetsController.setAppearanceLightStatusBars(false);
+            getWindow().setStatusBarColor(Color.BLACK);
+            getWindow().setNavigationBarColor(Color.BLACK);
         }
 
 
@@ -174,29 +182,32 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
         navigationView.setNavigationItemSelectedListener(item -> {
             if (item.getItemId() == id.settings) {
-                startSettingsActivity();
-                overridePendingTransition(anim.slide_from_right, anim.slide_to_left);
+
+                getSupportFragmentManager().beginTransaction()
+                        .setReorderingAllowed(true)
+                        .setCustomAnimations(
+                                anim.slide_from_right,
+                                anim.slide_to_left,
+                                anim.slide_to_right,
+                                anim.slide_to_right)
+                        .add(id.fragmentContainer, SettingsFragment.class, null)
+                        .addToBackStack(null)
+                        .commit();
+                drawerLayout.closeDrawer(Gravity.LEFT, true);
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                 return true;
             }
             else if (item.getItemId() == id.logout) {
                 new MaterialAlertDialogBuilder(this)
                         .setMessage("Log out?")
-                        .setNegativeButton("Stay", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-                            }
-                        })
-                        .setPositiveButton("Log out", new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                mAuth.signOut();
-                                startStartActivity();
-                            }
+                        .setNegativeButton("Stay", (dialog, which) -> dialog.cancel())
+                        .setPositiveButton("Log out", (dialog, which) -> {
+                            mAuth.signOut();
+                            startStartActivity();
                         })
                         .show();
             }
+
             return false;
         });
 
@@ -327,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         drawerLayout.closeDrawer(Gravity.LEFT, false);
     }
 
+
     /**Add projects menu**/
     public void showAddPopupMenu(View v) {
         PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
@@ -399,10 +411,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         startActivity(intent);
     }
 
-    private void startSettingsActivity() {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivityForResult(intent, 1);
-    }
 
     private void startStartActivity() {
         Intent intent = new Intent(this, StartActivity.class);
@@ -490,5 +498,21 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         } else if (color == ContextCompat.getColor(this, R.color.myBlue)) {
             getTheme().applyStyle(R.style.Theme_Default_Blue, true);
         }
+    }
+
+    @Override
+    public void activateDrawer() {
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+
+    @Override
+    public void recreateActivity() {
+        recreate();
+    }
+
+    @Override
+    public void currencyChanged(CurrencyList currency) {
+        projectAdapter.setCurrency(currency);
+        projectAdapter.notifyDataSetChanged();
     }
 }

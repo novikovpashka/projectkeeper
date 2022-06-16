@@ -1,49 +1,53 @@
-package com.novikovpashka.projectkeeper.presentation.settingsactivity
+package com.novikovpashka.projectkeeper.presentation.settingsfragment
 
-import android.content.Intent
+import android.content.Context
 import android.graphics.Insets
 import android.os.Build
 import android.os.Bundle
-import android.view.WindowInsets
-import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
+import android.view.*
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.R
-import com.novikovpashka.projectkeeper.databinding.ActivitySettingsBinding
+import com.novikovpashka.projectkeeper.databinding.FragmentSettingsBinding
 
-class SettingsActivity : AppCompatActivity(), AccentColorAdapter.OnColorListener{
-    private lateinit var binding: ActivitySettingsBinding
+class SettingsFragment : Fragment(),AccentColorAdapter.OnColorListener {
+
+    companion object {
+        fun newInstance() = SettingsFragment()
+    }
+
+    private lateinit var viewModel: SettingsViewModel
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var settingsListener: SettingsListener
     private lateinit var recyclerView: RecyclerView
     private lateinit var accentColorAdapter: AccentColorAdapter
-    private lateinit var viewModel: SettingsActivityViewModel
     private var accentColor: Int = 0
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        val _viewModel: SettingsActivityViewModel by viewModels()
-        viewModel = _viewModel
-        accentColor = viewModel.accentColor.value!!
-        setAccentColor(viewModel.accentColor.value!!)
-
-        super.onCreate(savedInstanceState)
-        binding = ActivitySettingsBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
             binding.appbarlayout.setOnApplyWindowInsetsListener { v, insets ->
                 val mInsets: Insets = insets.getInsets(WindowInsets.Type.systemBars())
                 v.setPadding(0, mInsets.top, 0, 0)
                 insets
             }
         }
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
+        accentColor = viewModel.accentColor.value!!
         recyclerView = binding.recycler
         accentColorAdapter = AccentColorAdapter(viewModel.getAccentColors(), this)
         recyclerView.adapter = accentColorAdapter
@@ -74,21 +78,21 @@ class SettingsActivity : AppCompatActivity(), AccentColorAdapter.OnColorListener
                 binding.dark.isChecked = true
                 binding.themeGroup.jumpDrawablesToCurrentState()
             }
-            MODE_NIGHT_NO -> {
+            AppCompatDelegate.MODE_NIGHT_NO -> {
                 binding.light.isChecked = true
                 binding.themeGroup.jumpDrawablesToCurrentState()
             }
         }
 
-        viewModel.currentTheme.observe(this) {
+        viewModel.currentTheme.observe(viewLifecycleOwner) {
             when (it) {
                 AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM -> binding.useSystem.isChecked = true
                 AppCompatDelegate.MODE_NIGHT_YES -> binding.dark.isChecked = true
-                MODE_NIGHT_NO -> binding.light.isChecked = true
+                AppCompatDelegate.MODE_NIGHT_NO -> binding.light.isChecked = true
             }
         }
 
-        viewModel.currentCurrency.observe(this) {
+        viewModel.currentCurrency.observe(viewLifecycleOwner) {
             when (it) {
                 CurrencyList.RUB -> binding.rub.isChecked = true
                 CurrencyList.USD -> binding.usd.isChecked = true
@@ -96,7 +100,7 @@ class SettingsActivity : AppCompatActivity(), AccentColorAdapter.OnColorListener
             }
         }
 
-        viewModel.accentColor.observe(this) {
+        viewModel.accentColor.observe(viewLifecycleOwner) {
             accentColorAdapter.currentAccentColor = it
             accentColorAdapter.notifyDataSetChanged()
             setAccentColor(it)
@@ -104,9 +108,18 @@ class SettingsActivity : AppCompatActivity(), AccentColorAdapter.OnColorListener
 
         binding.currencyGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
-                binding.rub.id -> viewModel.saveAndApplyCurrency(CurrencyList.RUB)
-                binding.usd.id -> viewModel.saveAndApplyCurrency(CurrencyList.USD)
-                binding.eur.id -> viewModel.saveAndApplyCurrency(CurrencyList.EUR)
+                binding.rub.id -> {
+                    viewModel.saveAndApplyCurrency(CurrencyList.RUB)
+                    settingsListener.currencyChanged(CurrencyList.RUB)
+                }
+                binding.usd.id -> {
+                    viewModel.saveAndApplyCurrency(CurrencyList.USD)
+                    settingsListener.currencyChanged(CurrencyList.USD)
+                }
+                binding.eur.id -> {
+                    viewModel.saveAndApplyCurrency(CurrencyList.EUR)
+                    settingsListener.currencyChanged(CurrencyList.EUR)
+                }
             }
         }
 
@@ -114,21 +127,33 @@ class SettingsActivity : AppCompatActivity(), AccentColorAdapter.OnColorListener
             when (checkedId) {
                 binding.useSystem.id -> AppCompatDelegate
                     .setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-                binding.light.id -> AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
+                binding.light.id -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 binding.dark.id -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             }
             viewModel.saveCurrentTheme()
         }
 
         binding.settingsToolbar.setNavigationOnClickListener {
-            finish()
-            overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right)
+            settingsListener.activateDrawer()
+            requireActivity().onBackPressed()
         }
+
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-        overridePendingTransition(R.anim.slide_from_left, R.anim.slide_to_right)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        settingsListener = context as SettingsListener
+    }
+
+    interface SettingsListener {
+        fun activateDrawer()
+        fun recreateActivity()
+        fun currencyChanged(currency: CurrencyList)
     }
 
     override fun onColorPick(color: Int) {
@@ -137,33 +162,30 @@ class SettingsActivity : AppCompatActivity(), AccentColorAdapter.OnColorListener
 
     fun setAccentColor(color: Int) {
         when (color) {
-            ContextCompat.getColor(this, R.color.myOrange) -> {
-                theme.applyStyle(R.style.Theme_Default, true)
+            ContextCompat.getColor(activity!!.applicationContext, R.color.myOrange) -> {
+                context!!.theme.applyStyle(R.style.Theme_Default, true)
             }
 
-            ContextCompat.getColor(this, R.color.myRed) -> {
-                theme.applyStyle(R.style.Theme_Default_Red, true)
+            ContextCompat.getColor(activity!!.applicationContext, R.color.myRed) -> {
+                context!!.theme.applyStyle(R.style.Theme_Default_Red, true)
             }
 
-            ContextCompat.getColor(this, R.color.myGreen) -> {
-                theme.applyStyle(R.style.Theme_Default_Green, true)
+            ContextCompat.getColor(activity!!.applicationContext, R.color.myGreen) -> {
+                context!!.theme.applyStyle(R.style.Theme_Default_Green, true)
             }
 
-            ContextCompat.getColor(this, R.color.myPurple) -> {
-                theme.applyStyle(R.style.Theme_Default_Purple, true)
+            ContextCompat.getColor(activity!!.applicationContext, R.color.myPurple) -> {
+                context!!.theme.applyStyle(R.style.Theme_Default_Purple, true)
             }
 
-            ContextCompat.getColor(this, R.color.myBlue) -> {
-                theme.applyStyle(R.style.Theme_Default_Blue, true)
+            ContextCompat.getColor(activity!!.applicationContext, R.color.myBlue) -> {
+                context!!.theme.applyStyle(R.style.Theme_Default_Blue, true)
             }
         }
         if (color != accentColor) {
-            recreate()
+            activity!!.recreate()
+            Log.v("mytag", "color applied")
         }
-    }
-
-    public interface recreateMain {
-        fun recreateMain()
     }
 
 }

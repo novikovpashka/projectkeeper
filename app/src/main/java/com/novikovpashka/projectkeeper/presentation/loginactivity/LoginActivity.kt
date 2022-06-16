@@ -23,8 +23,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var progressBar: LinearProgressIndicator
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        val projectsRepository = ProjectFirestoreRepo.instance!!
-        setAccentColor(projectsRepository.loadAccentColorFromStorage(this))
+//        val projectsRepository = ProjectFirestoreRepo.instance!!
+//        setAccentColor(projectsRepository.loadAccentColorFromStorage(this))
         super.onCreate(savedInstanceState)
         val binding: ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)

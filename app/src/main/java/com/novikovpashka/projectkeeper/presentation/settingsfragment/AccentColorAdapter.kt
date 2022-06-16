@@ -1,19 +1,11 @@
-package com.novikovpashka.projectkeeper.presentation.settingsactivity
+package com.novikovpashka.projectkeeper.presentation.settingsfragment
 
-import android.graphics.Color
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
-import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
-import com.novikovpashka.projectkeeper.AccentColors
-import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.databinding.ColorItemBinding
-import com.novikovpashka.projectkeeper.databinding.ItemViewBinding
 
 class AccentColorAdapter (private val colorList: MutableList<Int>, onColorListener: OnColorListener) : RecyclerView.Adapter<AccentColorAdapter.ColorHolder>() {
 

@@ -16,7 +16,7 @@ import retrofit2.Response
 class ProjectFirestoreRepo {
 
     private val db = FirebaseFirestore.getInstance()
-    private val user = FirebaseAuth.getInstance().currentUser!!.email.toString()
+    private val user = FirebaseAuth.getInstance().currentUser?.email.toString()
 
     suspend fun getUSDRUB(context: Context): Response<String> {
         return RetrofitInstance.invoke(context).getUSD()
