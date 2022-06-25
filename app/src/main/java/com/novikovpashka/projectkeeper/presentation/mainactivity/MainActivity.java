@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.github.javafaker.Faker;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -39,16 +40,22 @@ import com.novikovpashka.projectkeeper.R;
 import com.novikovpashka.projectkeeper.R.anim;
 import com.novikovpashka.projectkeeper.R.id;
 import com.novikovpashka.projectkeeper.R.menu;
+import com.novikovpashka.projectkeeper.data.datafirestore.Incoming;
 import com.novikovpashka.projectkeeper.data.datafirestore.Project;
 import com.novikovpashka.projectkeeper.databinding.ActivityMainBinding;
 import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectActivity;
-import com.novikovpashka.projectkeeper.presentation.editprojectactivity.EditProjectActivity;
+import com.novikovpashka.projectkeeper.presentation.projectactivity.ProjectActivity;
 import com.novikovpashka.projectkeeper.presentation.mainactivity.BottomSortDialog.RadioListener;
 import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivityViewModel.OrderParam;
 import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivityViewModel.SortParam;
 import com.novikovpashka.projectkeeper.presentation.mainactivity.ProjectListAdapter.OnItemClickListener;
 import com.novikovpashka.projectkeeper.presentation.settingsfragment.SettingsFragment;
 import com.novikovpashka.projectkeeper.presentation.startactivity.StartActivity;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements RadioListener, OnItemClickListener, SettingsFragment.SettingsListener {
     private FloatingActionButton addButton;
@@ -141,17 +148,10 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        mainActivityViewModel.loadCurrentCurrency();
-
-        if (mainActivityViewModel.getCurrentAccentColor() != mainActivityViewModel.loadAccentColor()) {
-            mainActivityViewModel.setCurrentAccentColor(mainActivityViewModel.loadAccentColor());
-            recreate();
-        }
-
+    public void onBackPressed() {
+        super.onBackPressed();
+        activateDrawer();
     }
-
 
     private void setToolbarListeners() {
         materialToolbar.setOnMenuItemClickListener(item -> {
@@ -167,7 +167,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-
                 }
 
             }
@@ -238,7 +237,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 //            searchText.clearFocus();
 //            sortExpand();
 //        });
-
     }
 
 
@@ -354,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 return true;
             }
             else if (item.getItemId() == id.add_random_1) {
-//                addOneRandomProject();
+                addOneRandomProject();
                 return true;
             }
             return false;
@@ -376,20 +374,30 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 //    }
 
     /**Add 1 random**/
-//    private void addOneRandomProject() {
-//        Faker faker = new Faker();
-//        String name = faker.country().capital();
-//
-//        double price = Double.parseDouble(new DecimalFormat("####").
-//                format((int) (Math.random() * 200000)/1000*1000));
-//        double incoming = Double.parseDouble(new DecimalFormat("####")
-//                .format((int) (Math.random() * price)/1000*1000));
-//        ArrayList<Double> incomings = new ArrayList<>();
-//        incomings.add(incoming);
-//
-//        Project project = new Project(name, price, incomings);
-//        mainActivityViewModel.addProject(project);
-//    }
+    private void addOneRandomProject() {
+        Faker faker = new Faker();
+        String name = faker.country().capital();
+        String description = faker.harryPotter().quote();
+        double price = Double.parseDouble(new DecimalFormat("####").
+                format((int) (Math.random() * 200000)/1000*1000));
+
+        List<Incoming> incomings = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            String incomingDescription = faker.harryPotter().quote();
+            double incomingValue = Double.parseDouble(new DecimalFormat("####")
+                    .format((int) (Math.random() * price)/3/1000*1000));
+            Incoming incoming = new Incoming(
+                    incomingDescription,
+                    incomingValue,
+                    new Date().getTime(),
+                    new Date().getTime()
+            );
+            incomings.add(incoming);
+        }
+
+        Project project = new Project(name, price, description, incomings, new Date().getTime());
+        mainActivityViewModel.addProject(project);
+    }
 
 //    private void sortCollapse() {
 //        cancelSearch.setVisibility(View.VISIBLE);
@@ -419,7 +427,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     }
 
     private void startEditProjectActivity(Project project) {
-        Intent intent = new Intent(this, EditProjectActivity.class);
+        Intent intent = new Intent(this, ProjectActivity.class);
         intent.putExtra("Project", project);
         startActivity(intent);
     }

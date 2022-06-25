@@ -23,6 +23,14 @@ class ProjectListAdapter(private val listener: OnItemClickListener) : ListAdapte
         val project = getItem(position)
         (holder as ProjectViewHolder).bind(project)
         holder.binding.card.isChecked = selectedProject.contains(project)
+        holder.binding.itemTotalprice.text = Helpers.convertPrice(project.price, currency, usdRate, eurRate)
+
+        var incomingsSum = 0.0
+        for (x in project.incomings) {
+            incomingsSum += x.incomingValue
+        }
+        holder.binding.itemIncomings.text = Helpers.convertPrice(incomingsSum, currency, usdRate, eurRate)
+        holder.binding.itemLeft.text = Helpers.convertPrice(project.price - incomingsSum, currency, usdRate, eurRate)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -34,19 +42,10 @@ class ProjectListAdapter(private val listener: OnItemClickListener) : ListAdapte
     inner class ProjectViewHolder(
         val binding: ItemViewBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        var incomingsSum = 0.0
-
         fun bind(item: Project) {
             binding.apply {
                 project = item
                 executePendingBindings()
-                binding.itemTotalprice.text = Helpers.convert(item.price, currency, usdRate, eurRate)
-                for (x in item.incomings) {
-                    incomingsSum += x.incomingValue
-                }
-
-                binding.itemIncomings.text = Helpers.convert(incomingsSum, currency, usdRate, eurRate)
-                binding.itemLeft.text = Helpers.convert(item.price - incomingsSum, currency, usdRate, eurRate)
 
                 binding.root.setOnLongClickListener {
                     if (!selectMode && selectedProject.isEmpty()) {

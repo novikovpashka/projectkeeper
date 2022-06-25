@@ -11,5 +11,12 @@ data class Project (
     var description: String = "",
     var incomings: MutableList<Incoming> = mutableListOf(),
     var dateAdded: Long = Date().time,
-    val dateStamp: Long = Date().time) : Parcelable
+    val dateStamp: Long = Date().time) : Parcelable {
+        constructor(
+            name: String = "",
+            price: Double = 0.0,
+            description: String = "",
+            incomings: MutableList<Incoming> = mutableListOf(),
+            dateAdded: Long = Date().time) : this(name, price, description, incomings, dateAdded, Date().time)
+}
 

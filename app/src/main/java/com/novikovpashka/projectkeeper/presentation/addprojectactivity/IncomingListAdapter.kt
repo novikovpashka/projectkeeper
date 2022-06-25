@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
-import com.novikovpashka.projectkeeper.databinding.IncomingItemBinding
-import com.novikovpashka.projectkeeper.databinding.IncomingItemLastBinding
+import com.novikovpashka.projectkeeper.databinding.IncomingItemEditBinding
+import com.novikovpashka.projectkeeper.databinding.IncomingItemEditLastBinding
 
 class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapter<AddProjectViewModel.ItemIncoming, RecyclerView.ViewHolder>(IncomingDiffCallback()) {
 
@@ -34,20 +34,20 @@ class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapt
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == 0) {
             IncomingViewHolder(
-                IncomingItemBinding.inflate(
+                IncomingItemEditBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
             )
         } else
             ButtonViewHolder(
-                IncomingItemLastBinding.inflate(
+                IncomingItemEditLastBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
             )
     }
 
     inner class IncomingViewHolder(
-        val binding: IncomingItemBinding
+        val binding: IncomingItemEditBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: AddProjectViewModel.ItemIncoming) {
             binding.apply {
@@ -79,7 +79,7 @@ class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapt
     }
 
     inner class ButtonViewHolder(
-        binding: IncomingItemLastBinding
+        binding: IncomingItemEditLastBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         val addButton: MaterialButton = binding.add
         init {
@@ -90,7 +90,10 @@ class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapt
     }
 
     private class IncomingDiffCallback : DiffUtil.ItemCallback<AddProjectViewModel.ItemIncoming>() {
-        override fun areItemsTheSame(oldItem: AddProjectViewModel.ItemIncoming, newItem: AddProjectViewModel.ItemIncoming): Boolean {
+        override fun areItemsTheSame(
+            oldItem: AddProjectViewModel.ItemIncoming,
+            newItem: AddProjectViewModel.ItemIncoming
+        ): Boolean {
             return oldItem.dateStamp == newItem.dateStamp
         }
         override fun areContentsTheSame(oldItem: AddProjectViewModel.ItemIncoming, newItem: AddProjectViewModel.ItemIncoming): Boolean {

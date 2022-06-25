@@ -27,7 +27,7 @@
             android:exported="false"
             android:launchMode="singleTask" />
         <activity
-            android:name=".presentation.editprojectactivity.EditProjectActivity"
+            android:name=".presentation.projectactivity.ProjectActivity"
             android:exported="false"
             android:noHistory="false" />
         <activity

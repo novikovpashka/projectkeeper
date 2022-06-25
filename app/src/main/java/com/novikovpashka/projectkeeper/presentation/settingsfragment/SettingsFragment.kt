@@ -135,7 +135,8 @@ class SettingsFragment : Fragment(),AccentColorAdapter.OnColorListener {
 
         binding.settingsToolbar.setNavigationOnClickListener {
             settingsListener.activateDrawer()
-            requireActivity().onBackPressed()
+//            requireActivity().onBackPressed()
+            requireActivity().supportFragmentManager.popBackStack()
         }
 
     }

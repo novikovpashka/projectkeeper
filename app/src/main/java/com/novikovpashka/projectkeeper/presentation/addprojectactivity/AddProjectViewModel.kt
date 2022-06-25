@@ -94,7 +94,7 @@ class AddProjectViewModel(application: Application) : AndroidViewModel(applicati
             price = price.toDouble(),
             description = description,
             incomings = incomingList
-                )
+        )
     }
 
     data class ItemIncoming (

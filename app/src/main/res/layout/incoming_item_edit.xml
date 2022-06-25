@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="incoming"
+            type="com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectViewModel.ItemIncoming"/>
+    </data>
+
+    <LinearLayout android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="16dp"
+        android:background="@drawable/stroke_incoming"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="16dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
         >
-
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:dividerThickness="0.5dp"
-            app:dividerColor="?attr/dividerColorMy">
-        </com.google.android.material.divider.MaterialDivider>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
             >
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_marginStart="16dp"
                 android:src="@drawable/ic_baseline_calendar_today_24">
             </ImageView>
             <TextView
@@ -36,13 +38,21 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
                 android:layout_gravity="center"
-                android:textSize="16sp"
-                android:hint="No date"
+                android:textSize="18sp"
                 android:text="@{incoming.incomingDateText}"
                 >
             </TextView>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/delete_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:gravity="top"
+                style="@style/Widget.Material3.Button.IconButton"
+                android:text="Remove">
+            </com.google.android.material.button.MaterialButton>
 
         </LinearLayout>
 
@@ -50,15 +60,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
+            android:layout_marginVertical="8dp">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_baseline_currency_ruble_24">
             </ImageView>
-            <TextView
+            <EditText
                 android:id="@+id/incoming_value"
                 android:text="@{incoming.incomingValue}"
                 android:background="@android:color/transparent"
@@ -67,11 +76,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:hint="No incoming value"
+                android:hint="Incoming value"
                 android:inputType="number"
                 >
-            </TextView>
+            </EditText>
 
         </LinearLayout>
 
@@ -79,15 +87,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            >
+            android:layout_marginVertical="8dp">
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_notes_24"
-                android:layout_marginStart="16dp"
-                >
+                android:src="@drawable/ic_baseline_notes_24">
             </ImageView>
-            <TextView
+            <EditText
                 android:id="@+id/incoming_desc"
                 android:text="@{incoming.incomingDescription}"
                 android:layout_width="match_parent"
@@ -96,16 +102,19 @@
                 android:layout_gravity="center"
                 android:background="@android:color/transparent"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:hint="No description"
+                android:hint="Add description"
                 android:inputType="textMultiLine"
                 android:nestedScrollingEnabled="true"
+                android:lines="3"
+                android:minLines="1"
+                android:maxLines="3"
                 android:overScrollMode="always"
                 android:scrollbarStyle="insideInset"
                 android:scrollbars="vertical"
                 >
-            </TextView>
+            </EditText>
 
         </LinearLayout>
 
     </LinearLayout>
+</layout>
