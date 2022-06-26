@@ -14,7 +14,9 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:dividerThickness="0.5dp"
-            app:dividerColor="?attr/dividerColorMy">
+            app:dividerColor="?attr/dividerColorMy"
+            app:dividerInsetStart="16dp"
+            app:dividerInsetEnd="16dp">
         </com.google.android.material.divider.MaterialDivider>
 
         <LinearLayout

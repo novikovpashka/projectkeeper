@@ -195,6 +195,17 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    fun deleteProject (project: Project) {
+        projectsToRestore.clear()
+        projectsToRestore.add(project)
+        for (project in projectsToRestore) projectsRepository.deleteProject(project)
+        _snackbar.value = projectsToRestore.get(0).name + " deleted"
+        viewModelScope.launch {
+            delay(5000)
+            _snackbar.value = null
+        }
+    }
+
     private suspend fun loadProjectsObserved (value: QuerySnapshot, error: FirebaseFirestoreException?): List<Project> {
         return suspendCoroutine { continuation ->
             val projectsList = mutableListOf<Project>()

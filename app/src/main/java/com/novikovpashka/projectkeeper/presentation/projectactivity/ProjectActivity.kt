@@ -1,5 +1,6 @@
 package com.novikovpashka.projectkeeper.presentation.projectactivity
 
+import android.content.Intent
 import android.graphics.Insets
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -11,9 +12,12 @@ import android.widget.TextView
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.novikovpashka.projectkeeper.Helpers
+import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.data.datafirestore.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityProjectBinding
+import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivity
 
 class ProjectActivity : AppCompatActivity() {
 
@@ -54,7 +58,39 @@ class ProjectActivity : AppCompatActivity() {
         projectDescription.text = project.description
         adapter.submitList(project.incomings)
 
-        toolbar.setNavigationOnClickListener { view: View? -> finish() }
+        toolbar.setNavigationOnClickListener { view: View? ->
+            finish()
+            overridePendingTransition(0, R.anim.slide_to_right)
+        }
+
+        toolbar.setOnMenuItemClickListener {
+            if (it.itemId == R.id.remove_project) {
+                MaterialAlertDialogBuilder(this)
+                    .setMessage("Remove ${project.name}?")
+                    .setPositiveButton("Remove") { dialog, which ->
+                        startMainActivityAndRemoveProject(project)
+                    }
+                    .setNegativeButton("Cancel") { dialog, which ->
+                        dialog.cancel()
+                    }
+                    .show()
+
+                return@setOnMenuItemClickListener true
+            }
+            return@setOnMenuItemClickListener false
+        }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        overridePendingTransition(0, R.anim.slide_to_right)
+    }
+
+    private fun startMainActivityAndRemoveProject(project: Project) {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("projectToRemove", project)
+        startActivity(intent)
+        overridePendingTransition(0, R.anim.slide_to_right)
     }
 
 }

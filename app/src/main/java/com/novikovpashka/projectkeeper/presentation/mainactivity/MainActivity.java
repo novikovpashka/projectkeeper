@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 getSupportFragmentManager().beginTransaction()
                         .setReorderingAllowed(true)
                         .setCustomAnimations(
-                                anim.slide_from_right,
+                                anim.slide_from_right_settings,
                                 anim.slide_to_left,
                                 anim.slide_to_right,
                                 anim.slide_to_right)
@@ -325,8 +325,15 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        Project project = intent.getParcelableExtra("projectToAdd");
-        mainActivityViewModel.addProject(project);
+        if (intent.getParcelableExtra("projectToAdd") != null) {
+            Project project = intent.getParcelableExtra("projectToAdd");
+            mainActivityViewModel.addProject(project);
+        }
+
+        else if (intent.getParcelableExtra("projectToRemove") != null) {
+            mainActivityViewModel.deleteProject(intent.getParcelableExtra("projectToRemove"));
+            Log.v("mytag", "removed");
+        }
     }
 
 
@@ -426,10 +433,11 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         startActivity(intent);
     }
 
-    private void startEditProjectActivity(Project project) {
+    private void startProjectActivity(Project project) {
         Intent intent = new Intent(this, ProjectActivity.class);
         intent.putExtra("Project", project);
         startActivity(intent);
+        overridePendingTransition(anim.slide_from_right, anim.slide_to_left_slow);
     }
 
     @Override
@@ -440,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
     @Override
     public void onItemClick(@NonNull Project project) {
-        startEditProjectActivity(project);
+        startProjectActivity(project);
     }
 
     @Override
