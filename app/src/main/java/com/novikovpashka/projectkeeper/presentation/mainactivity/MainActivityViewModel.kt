@@ -34,13 +34,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         .loadEURRateFromStorage(application.applicationContext))
     val updated: MutableLiveData<String> = MutableLiveData()
 
-    fun loadCurrentCurrency() {
-        currency.value = projectsRepository
-            .loadCurrentCurrencyFromStorage(getApplication<Application>().applicationContext)
-    }
-
     var currentAccentColor = projectsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
-
 
     fun getValueUSDRUB() {
         viewModelScope.launch {
@@ -105,6 +99,8 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     init {
         addProjectsObserver()
+        currency.value = projectsRepository
+            .loadCurrentCurrencyFromStorage(getApplication<Application>().applicationContext)
 
         _projects.addSource(searchTextLiveData) {
             viewModelScope.launch {
@@ -163,7 +159,16 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         projectsRepository.getAllProjects().addSnapshotListener { value, error ->
             if (value != null) {
                 viewModelScope.launch {
-                    _projectsObserved.value = loadProjectsObserved(value, error)
+                    var projectsList = loadProjectsObserved(value, error)
+
+                    if (sortParamLiveData.value == SortParam.BY_NAME) projectsList.sortBy { it.name.lowercase(
+                        Locale.getDefault()
+                    ) }
+                    else projectsList.sortBy { it.dateAdded }
+
+                    if (orderParamLiveData.value == OrderParam.DESCENDING) projectsList.reverse()
+
+                    _projectsObserved.value = projectsList
                 }
             }
         }
@@ -171,6 +176,10 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun addProject (project: Project) {
         projectsRepository.addProject(project)
+    }
+
+    fun updateProject (project: Project) {
+        projectsRepository.updateProject(project)
     }
 
     fun deleteProjects () {
@@ -198,7 +207,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     fun deleteProject (project: Project) {
         projectsToRestore.clear()
         projectsToRestore.add(project)
-        for (project in projectsToRestore) projectsRepository.deleteProject(project)
+        projectsRepository.deleteProject(project)
         _snackbar.value = projectsToRestore.get(0).name + " deleted"
         viewModelScope.launch {
             delay(5000)
@@ -206,7 +215,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    private suspend fun loadProjectsObserved (value: QuerySnapshot, error: FirebaseFirestoreException?): List<Project> {
+    private suspend fun loadProjectsObserved (value: QuerySnapshot, error: FirebaseFirestoreException?): MutableList<Project> {
         return suspendCoroutine { continuation ->
             val projectsList = mutableListOf<Project>()
             for (obj in value) {
@@ -216,8 +225,6 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
                 )
                     projectsList.add(project)
             }
-            if (sortParamLiveData.value == SortParam.BY_NAME) projectsList.sortBy { it.name }
-            else projectsList.sortBy { it.dateAdded }
             continuation.resume(projectsList)
         }
     }

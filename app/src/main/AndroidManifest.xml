@@ -24,10 +24,14 @@
         </activity>
         <activity
             android:name="com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivity"
-            android:exported="false"
+            android:exported="true"
             android:launchMode="singleTask" />
         <activity
             android:name=".presentation.projectactivity.ProjectActivity"
+            android:exported="false"
+            android:noHistory="false" />
+        <activity
+            android:name=".presentation.editprojectactivity.EditProjectActivity"
             android:exported="false"
             android:noHistory="false" />
         <activity
@@ -37,7 +41,7 @@
         <activity
             android:name=".presentation.addprojectactivity.AddProjectActivity"
             android:exported="false"
-            android:noHistory="false" />
+            android:noHistory="true" />
     </application>
 
 </manifest>

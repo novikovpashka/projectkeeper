@@ -25,7 +25,7 @@ class Helpers {
         fun convertPriceProject(price: Double): String {
             val formatter = NumberFormat.getInstance()
             formatter.maximumFractionDigits = 2
-            return formatter.format(price)
+            return "₽${formatter.format(price)}"
 
         }
     }

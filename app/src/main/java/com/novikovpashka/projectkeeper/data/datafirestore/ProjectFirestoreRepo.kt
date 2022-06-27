@@ -109,6 +109,16 @@ class ProjectFirestoreRepo {
             .add(project)
     }
 
+    fun updateProject(project: Project) {
+        db.collection("Users").document(user).collection("Projects")
+            .whereEqualTo("dateAdded", project.dateAdded).get()
+            .addOnSuccessListener { queryDocumentSnapshots ->
+                for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {
+                    documentSnapshot.reference.set(project)
+                }
+            }
+    }
+
     fun deleteProject(project: Project) {
         db.collection("Users").document(user).collection("Projects")
             .whereEqualTo("dateAdded", project.dateAdded).get()

@@ -1,10 +1,12 @@
 package com.novikovpashka.projectkeeper.presentation.projectactivity
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.Visibility
 import com.novikovpashka.projectkeeper.Helpers
 import com.novikovpashka.projectkeeper.data.datafirestore.Incoming
 import com.novikovpashka.projectkeeper.databinding.IncomingItemBinding
@@ -27,7 +29,10 @@ class IncomingListAdapter() : ListAdapter<Incoming, RecyclerView.ViewHolder>(Inc
         fun bind(item: Incoming) {
             binding.incomingDate.text = Helpers.convertDate(item.incomingDate)
             binding.incomingValue.text = Helpers.convertPriceProject(item.incomingValue)
-            binding.incomingDesc.text = item.incomingDescription
+            if (item.incomingDescription.isNotEmpty()) {
+                binding.incomingDesc.text = item.incomingDescription
+            }
+            else binding.incomingDesc.visibility = View.GONE
         }
     }
 

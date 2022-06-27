@@ -15,91 +15,54 @@
             android:layout_marginBottom="16dp"
             app:dividerThickness="0.5dp"
             app:dividerColor="?attr/dividerColorMy"
-            app:dividerInsetStart="16dp"
-            app:dividerInsetEnd="16dp">
+            >
         </com.google.android.material.divider.MaterialDivider>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
             >
-            <ImageView
+
+            <TextView
+                android:id="@+id/incoming_value"
+                android:text="@{incoming.incomingValue}"
+                android:background="@android:color/transparent"
+                android:textSize="14sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="16dp"
-                android:src="@drawable/ic_baseline_calendar_today_24">
-            </ImageView>
+                android:hint="₽"
+                >
+            </TextView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:text=" at "
+                >
+            </TextView>
             <TextView
                 android:id="@+id/incoming_date"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_gravity="center"
-                android:textSize="16sp"
-                android:hint="No date"
+                android:textSize="14sp"
+                android:hint="Date"
                 android:text="@{incoming.incomingDateText}"
                 >
             </TextView>
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_currency_ruble_24">
-            </ImageView>
-            <TextView
-                android:id="@+id/incoming_value"
-                android:text="@{incoming.incomingValue}"
-                android:background="@android:color/transparent"
-                android:textSize="16sp"
-                android:layout_gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:hint="No incoming value"
-                android:inputType="number"
-                >
-            </TextView>
 
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_notes_24"
-                android:layout_marginStart="16dp"
-                >
-            </ImageView>
             <TextView
                 android:id="@+id/incoming_desc"
                 android:text="@{incoming.incomingDescription}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:layout_gravity="center"
+                android:textSize="14sp"
                 android:background="@android:color/transparent"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:hint="No description"
+                android:layout_marginTop="4dp"
+                android:minLines="0"
                 android:inputType="textMultiLine"
                 android:nestedScrollingEnabled="true"
                 android:overScrollMode="always"
@@ -107,7 +70,5 @@
                 android:scrollbars="vertical"
                 >
             </TextView>
-
-        </LinearLayout>
 
     </LinearLayout>

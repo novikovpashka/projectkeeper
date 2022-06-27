@@ -332,7 +332,10 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
         else if (intent.getParcelableExtra("projectToRemove") != null) {
             mainActivityViewModel.deleteProject(intent.getParcelableExtra("projectToRemove"));
-            Log.v("mytag", "removed");
+        }
+
+        else if (intent.getParcelableExtra("projectToUpdate") != null) {
+            mainActivityViewModel.updateProject(intent.getParcelableExtra("projectToUpdate"));
         }
     }
 
@@ -389,10 +392,10 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 format((int) (Math.random() * 200000)/1000*1000));
 
         List<Incoming> incomings = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 20; i++) {
             String incomingDescription = faker.harryPotter().quote();
             double incomingValue = Double.parseDouble(new DecimalFormat("####")
-                    .format((int) (Math.random() * price)/3/1000*1000));
+                    .format((int) (Math.random() * price)/20/1000*1000));
             Incoming incoming = new Incoming(
                     incomingDescription,
                     incomingValue,

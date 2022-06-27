@@ -35,6 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="true"
             >
 
             <LinearLayout
@@ -42,15 +44,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
+                android:layout_marginHorizontal="16dp"
                 >
 
                 <TextView
                     android:id="@+id/project_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="56dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="16dp"
                     android:background="@android:color/transparent"
                     android:textSize="24sp"
                     android:hint="Project name"
@@ -61,76 +61,54 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginTop="2dp"
+                    >
 
-                    <ImageView
+                    <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_baseline_currency_ruble_24">
-                    </ImageView>
+                        android:inputType="number"
+                        android:textSize="16sp"
+                        android:layout_gravity="center_vertical"
+                        android:text="Price: "
+                        android:background="@android:color/transparent"
+                        >
+                    </TextView>
+
                     <TextView
                         android:id="@+id/project_price"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:layout_marginStart="16dp"
                         android:textSize="16sp"
-                        android:layout_gravity="center"
-                        android:hint="Project price"
+                        android:layout_gravity="center_vertical"
+                        android:hint="price"
                         android:background="@android:color/transparent"
                         >
                     </TextView>
                 </LinearLayout>
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/project_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="12dp">
+                    android:layout_marginTop="4dp"
+                    android:textSize="14sp"
+                    android:layout_gravity="center_vertical"
+                    android:hint="No description"
+                    android:inputType="textMultiLine"
+                    android:overScrollMode="always"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+                    android:background="@android:color/transparent">
+                </TextView>
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_baseline_notes_24">
-                    </ImageView>
-                    <TextView
-                        android:id="@+id/project_description"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:textSize="16sp"
-                        android:layout_gravity="center|start"
-                        android:hint="No description"
-                        android:inputType="textMultiLine"
-                        android:overScrollMode="always"
-                        android:scrollbarStyle="insideInset"
-                        android:scrollbars="vertical"
-                        android:background="@android:color/transparent">
-                    </TextView>
-                </LinearLayout>
-
-                <com.google.android.material.divider.MaterialDivider
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    app:dividerThickness="0.5dp"
-                    app:dividerColor="?attr/dividerColorMy"
-                    app:dividerInsetStart="16dp"
-                    app:dividerInsetEnd="16dp">
-                </com.google.android.material.divider.MaterialDivider>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="56dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginTop="16dp"
                     android:background="@android:color/transparent"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:text="Incomigs"
                     android:layout_gravity="start">
                 </TextView>
@@ -139,6 +117,7 @@
                     android:id="@+id/recycler"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginTop="16dp"
                     tools:listitem="@layout/incoming_item"
                     android:paddingBottom="20dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

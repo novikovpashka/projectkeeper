@@ -2,7 +2,7 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    >
 
     <data>
         <variable
@@ -12,7 +12,7 @@
 
 <com.google.android.material.card.MaterialCardView
     android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:id="@+id/card"
     style="@style/Widget.Material3.CardView.Filled"
     android:elevation="0dp"
@@ -20,119 +20,122 @@
     app:cardCornerRadius="0dp"
     android:checkable="true">
 
-<androidx.constraintlayout.widget.ConstraintLayout
+<LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:background="@android:color/transparent">
 
     <TextView
         android:id="@+id/item_name"
-        android:layout_width="250dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:layout_marginHorizontal="16dp"
         android:background="@android:color/transparent"
         android:ellipsize="end"
         android:fontFamily="sans-serif-black"
         android:textColor="?attr/titleItem"
-        android:gravity="top|start"
         android:lines="1"
         android:hint="Project name"
         android:text="@{project.name}"
         android:textSize="16sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp"
-        tools:layout_editor_absoluteX="48dp"
         android:transitionName="titleTransition"/>
 
-    <TextView
-        android:id="@+id/item_totalprice"
-        android:layout_width="200dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:gravity="center|start"
-        android:lines="1"
-        android:text="@{String.valueOf(project.price)}"
-        android:background="@android:color/transparent"
-        android:textSize="16sp"
-        app:layout_constraintStart_toEndOf="@+id/item_totalprice_text"
-        app:layout_constraintTop_toBottomOf="@+id/item_name" />
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        >
 
-    <TextView
-        android:id="@+id/item_totalprice_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:ellipsize="end"
-        android:gravity="center|start"
-        android:lines="1"
-        android:text="Total price: "
-        android:textSize="16sp"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/item_name"
-        tools:layout_editor_absoluteX="48dp" />
-    <TextView
-        android:id="@+id/item_incomings"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:gravity="center|start"
-        android:lines="1"
-        android:text="100 000 р."
-        android:textColor="?attr/incomingColor"
-        android:fontFamily="sans-serif-medium"
-        android:background="@android:color/transparent"
-        android:layout_marginTop="5dp"
-        android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@+id/item_incomings_text"
-        app:layout_constraintTop_toBottomOf="@+id/item_totalprice" />
+        <TextView
+            android:id="@+id/item_totalprice_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="Total price: "
+            android:textSize="14sp"
+            />
 
-    <TextView
-        android:id="@+id/item_incomings_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:background="@android:color/transparent"
-        android:ellipsize="end"
-        android:gravity="center|start"
-        android:lines="1"
-        android:text="Incomings: "
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/item_totalprice"
-        tools:layout_editor_absoluteX="48dp" />
-    <TextView
-        android:id="@+id/item_left"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:fontFamily="sans-serif-medium"
-        android:gravity="center|start"
-        android:lines="1"
-        android:text="100 000 р."
-        android:background="@android:color/transparent"
-        android:textColor="?attr/leftColor"
-        android:textSize="14sp"
-        android:layout_marginBottom="12dp"
-        app:layout_constraintStart_toEndOf="@+id/item_left_text"
-        app:layout_constraintTop_toBottomOf="@+id/item_incomings" />
+        <TextView
+            android:id="@+id/item_totalprice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:hint="Price"
+            android:fontFamily="sans-serif-medium"
+            android:lines="1"
+            android:text="@{String.valueOf(project.price)}"
+            android:background="@android:color/transparent"
+            android:textSize="14sp"
+            />
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/item_left_text"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:ellipsize="end"
-        android:gravity="center|start"
-        android:lines="1"
-        android:text="Left: "
-        android:textSize="14sp"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginStart="16dp"
-        app:layout_constraintTop_toBottomOf="@+id/item_incomings"
-        tools:layout_editor_absoluteX="48dp" />
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="4dp"
+        >
+        <TextView
+            android:id="@+id/item_incomings_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:ellipsize="end"
+            android:gravity="center|start"
+            android:lines="1"
+            android:text="Incomings: "
+            android:textSize="14sp"
+            />
+        <TextView
+            android:id="@+id/item_incomings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="1"
+            android:hint="No incomings"
+            android:textColor="?attr/incomingColor"
+            android:fontFamily="sans-serif-medium"
+            android:background="@android:color/transparent"
+            android:textSize="14sp"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginHorizontal="16dp"
+        >
+        <TextView
+            android:id="@+id/item_left_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:ellipsize="end"
+            android:lines="1"
+            android:text="Left: "
+            android:textSize="14sp"
+            />
+        <TextView
+            android:id="@+id/item_left"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center|start"
+            android:lines="1"
+            android:text="100 000 р."
+            android:background="@android:color/transparent"
+            android:textColor="?attr/leftColor"
+            android:textSize="14sp"
+            />
+    </LinearLayout>
+
 
     <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
@@ -147,7 +150,7 @@
 
     </com.google.android.material.divider.MaterialDivider>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
 </layout>
