@@ -59,10 +59,8 @@ class EditProjectViewModel(application: Application) : AndroidViewModel(applicat
         return projectsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
     }
 
-    fun parseProject(name: String, price: String, description: String): Project? {
+    fun parseProject(name: String, price: String, description: String, dateStamp: Long, dateAdded: Long): Project? {
         val incomingList = mutableListOf<Incoming>()
-        Log.v("mytag", "name is $name")
-        Log.v("mytag", "price is $price")
 
         if (name.isEmpty()) {
             _snackbar.value = "Project name can not be empty"
@@ -93,8 +91,29 @@ class EditProjectViewModel(application: Application) : AndroidViewModel(applicat
             name = name,
             price = price.toDouble(),
             description = description,
-            incomings = incomingList
+            incomings = incomingList,
+            dateStamp = dateStamp,
+            dateAdded = dateAdded
         )
+    }
+
+    fun parseAndPutIncoming(incomingsProject: List<Incoming>) {
+
+        for (incoming in incomingsProject) {
+            val incomingDescription = incoming.incomingDescription
+            val incomingValue = incoming.incomingValue.toInt().toString()
+            val incomingDate = incoming.incomingDate
+            val dateStamp = incoming.dateStamp
+            incomings.add(
+                ItemIncoming(
+                incomingDescription = incomingDescription,
+                incomingValue = incomingValue,
+                incomingDate = incomingDate,
+                dateStamp = dateStamp
+                )
+            )
+        }
+
     }
 
     data class ItemIncoming (

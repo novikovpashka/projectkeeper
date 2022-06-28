@@ -7,7 +7,7 @@
     <data>
         <variable
             name="incoming"
-            type="com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectViewModel.ItemIncoming"/>
+            type="com.novikovpashka.projectkeeper.presentation.editprojectactivity.EditProjectViewModel.ItemIncoming"/>
     </data>
 
     <LinearLayout android:layout_width="match_parent"

@@ -27,7 +27,7 @@ class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapt
 
         if (position != super.getItemCount()) {
             val incoming = getItem(position)
-//            (holder as IncomingViewHolder).bind(incoming)
+            (holder as IncomingViewHolder).bind(incoming)
         }
     }
 
@@ -49,12 +49,12 @@ class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapt
     inner class IncomingViewHolder(
         val binding: IncomingItemEditBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-//        fun bind(item: EditProjectViewModel.ItemIncoming) {
-//            binding.apply {
-//                incoming = item
-//                executePendingBindings()
-//            }
-//        }
+        fun bind(item: EditProjectViewModel.ItemIncoming) {
+            binding.apply {
+                incoming = item
+                executePendingBindings()
+            }
+        }
         init {
             binding.incomingDesc.addTextChangedListener(object: CustomTextWatcher() {
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {

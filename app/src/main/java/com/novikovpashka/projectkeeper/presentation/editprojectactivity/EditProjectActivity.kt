@@ -53,7 +53,16 @@ class EditProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClick
         recyclerView = binding.recycler
         incomingAdapter = IncomingListAdapter(this)
 
+
+        val project: Project = intent.getParcelableExtra("projectToEdit")!!
+        binding.projectNameEditText.setText(project.name)
+        binding.projectPriceEditText.setText(project.price.toInt().toString())
+        binding.projectDescriptionEditText.setText(project.description)
+
+        viewModel.parseAndPutIncoming(project.incomings)
+
         initRecycler()
+
 
         viewModel.snackbar.observe(this) { s: String? ->
             Snackbar.make(binding.root, s!!, BaseTransientBottomBar.LENGTH_LONG).show()
@@ -80,12 +89,15 @@ class EditProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClick
 
         binding.addActivityToolbar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == R.id.add_project) {
-                val project = viewModel.parseProject(
+                val projectToUpdate = viewModel.parseProject(
                     name = binding.projectNameEditText.text.toString(),
                     price = binding.projectPriceEditText.text.toString(),
-                    description = binding.projectDescriptionEditText.text.toString())
-                if (project != null) {
-                    startMainActivity(project)
+                    description = binding.projectDescriptionEditText.text.toString(),
+                    dateStamp = project.dateStamp,
+                    dateAdded = project.dateAdded
+                    )
+                if (projectToUpdate != null) {
+                    startMainActivityAndUpdateProject(projectToUpdate)
                     return@setOnMenuItemClickListener true
                 }
                 return@setOnMenuItemClickListener false
@@ -99,12 +111,6 @@ class EditProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClick
             }
             false
         }
-    }
-
-    private fun startMainActivity(project: Project) {
-        val intent = Intent(this@EditProjectActivity, MainActivity::class.java)
-        intent.putExtra("projectToAdd", project)
-        startActivity(intent)
     }
 
     private fun initRecycler() {
@@ -192,6 +198,11 @@ class EditProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClick
         val intent = Intent(this, MainActivity::class.java)
         intent.putExtra("projectToUpdate", project)
         startActivity(intent)
+        overridePendingTransition(0, R.anim.slide_to_right)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
         overridePendingTransition(0, R.anim.slide_to_right)
     }
 

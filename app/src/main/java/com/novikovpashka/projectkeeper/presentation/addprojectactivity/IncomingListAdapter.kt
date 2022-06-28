@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
-import com.novikovpashka.projectkeeper.databinding.IncomingItemEditBinding
-import com.novikovpashka.projectkeeper.databinding.IncomingItemEditLastBinding
+import com.novikovpashka.projectkeeper.databinding.IncomingItemAddBinding
+import com.novikovpashka.projectkeeper.databinding.IncomingItemAddLastBinding
 
 class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapter<AddProjectViewModel.ItemIncoming, RecyclerView.ViewHolder>(IncomingDiffCallback()) {
 
@@ -34,20 +34,20 @@ class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapt
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return if (viewType == 0) {
             IncomingViewHolder(
-                IncomingItemEditBinding.inflate(
+                IncomingItemAddBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
             )
         } else
             ButtonViewHolder(
-                IncomingItemEditLastBinding.inflate(
+                IncomingItemAddLastBinding.inflate(
                     LayoutInflater.from(parent.context), parent, false
                 )
             )
     }
 
     inner class IncomingViewHolder(
-        val binding: IncomingItemEditBinding
+        val binding: IncomingItemAddBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: AddProjectViewModel.ItemIncoming) {
             binding.apply {
@@ -79,7 +79,7 @@ class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapt
     }
 
     inner class ButtonViewHolder(
-        binding: IncomingItemEditLastBinding
+        binding: IncomingItemAddLastBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         val addButton: MaterialButton = binding.add
         init {

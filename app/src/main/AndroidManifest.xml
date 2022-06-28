@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -29,18 +30,18 @@
         <activity
             android:name=".presentation.projectactivity.ProjectActivity"
             android:exported="false"
-            android:noHistory="false" />
+            android:noHistory="true" />
         <activity
             android:name=".presentation.editprojectactivity.EditProjectActivity"
             android:exported="false"
-            android:noHistory="false" />
+            android:noHistory="true" />
         <activity
             android:name=".presentation.loginactivity.LoginActivity"
             android:exported="false"
             android:noHistory="true" />
         <activity
             android:name=".presentation.addprojectactivity.AddProjectActivity"
-            android:exported="false"
+            android:exported="true"
             android:noHistory="true" />
     </application>
 
