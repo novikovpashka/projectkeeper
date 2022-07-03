@@ -6,8 +6,9 @@
         android:id="@+id/search"
         android:icon="@drawable/ic_baseline_search_24"
         android:title="search"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="ifRoom|collapseActionView">
 
+    </item>
     <item
         android:id="@+id/sort"
         android:icon="@drawable/ic_baseline_sort_list_24"

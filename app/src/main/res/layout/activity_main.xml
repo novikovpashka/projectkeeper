@@ -28,8 +28,20 @@
                 app:menu="@menu/topappbar_menu"
                 app:navigationIcon="@drawable/ic_baseline_menu_24"
                 >
+                <EditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:visibility="gone"
+                    android:inputType="text"
+                    android:hint="Search project"
+                    android:layout_marginEnd="16dp"
+                    android:background="@null"
+                    >
+                </EditText>
             </com.google.android.material.appbar.MaterialToolbar>
-            
+
         </com.google.android.material.appbar.AppBarLayout>
 
 

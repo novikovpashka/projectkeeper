@@ -46,6 +46,7 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="enableEdgeToEdge">true</item>
         <item name="android:windowAnimationStyle">@style/WindowAnimationTransition</item>
+        <item name="windowActionModeOverlay">true</item>
 
     </style>
 

@@ -1,15 +1,20 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -56,6 +61,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements RadioListener, OnItemClickListener, SettingsFragment.SettingsListener {
     private FloatingActionButton addButton;
@@ -73,6 +79,10 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     private TextView usdrub;
     private TextView eurrub;
     private TextView lastupdate;
+
+    private EditText searchText;
+
+    private androidx.appcompat.view.ActionMode mActionMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +104,11 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
             binding.addButton.setOnApplyWindowInsetsListener((v, insets) -> {
                 Insets mInsets = insets.getInsets(WindowInsets.Type.systemBars());
-                CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                CoordinatorLayout.LayoutParams params =
+                        new CoordinatorLayout.LayoutParams(
+                                ViewGroup.LayoutParams.WRAP_CONTENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT
+                        );
                 params.bottomMargin = mInsets.bottom + dpToPx(16);
                 params.rightMargin = dpToPx(16);
                 params.gravity = Gravity.END | Gravity.BOTTOM;
@@ -110,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             getWindow().setNavigationBarColor(Color.BLACK);
         }
 
-
 //        searchText = binding.searchMain.searchInput;
 //        sortButton = binding.searchMain.filter;
 //        cancelSearch = binding.searchMain.cancelSearch;
@@ -125,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         mAuth = FirebaseAuth.getInstance();
         recyclerView = binding.recyclerView;
         projectAdapter = new ProjectListAdapter(this);
+        searchText = binding.searchEditText;
 
         usdrub = navigationView.getHeaderView(0)
                 .findViewById(id.usdrub_value);
@@ -132,8 +146,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 .findViewById(id.eurrub_value);
         lastupdate = navigationView.getHeaderView(0)
                 .findViewById(id.last_updated);
-
-
 
         if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
@@ -153,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         activateDrawer();
     }
 
+
     private void setToolbarListeners() {
         materialToolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == id.sort) {
@@ -168,10 +181,12 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
                 }
-
             }
             else if (item.getItemId() == id.delete) {
                 mainActivityViewModel.deleteProjects();
+            }
+            else if (item.getItemId() == id.search) {
+                setSearchMode();
             }
             return false;
         });
@@ -210,27 +225,23 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             return false;
         });
 
-//        searchText.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable editable) {
-//                mainActivityViewModel.getSearchTextLiveData().setValue(editable.toString().trim().
-//                        toLowerCase(Locale.ROOT));
-//                if (!editable.toString().equals("")) {
-//                    sortCollapse();
-//                }
-//                else sortExpand();
-//            }
-//        });
+        searchText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mainActivityViewModel.getSearchTextLiveData().setValue(editable.toString().trim().
+                        toLowerCase(Locale.ROOT));
+            }
+        });
 
 //        cancelSearch.setOnClickListener(view -> {
 //            searchText.setText("");
@@ -309,8 +320,8 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         mainActivityViewModel.getSnackbar().observe(this, s ->  {
             if (s != null) {
                 Snackbar.make(coordinatorLayout, s, 5000).
-                    setAction("UNDO", view -> mainActivityViewModel.
-                            restoreDeletedProjects()).show();
+                        setAction("UNDO", view -> mainActivityViewModel.
+                                restoreDeletedProjects()).show();
             }
         });
 
@@ -339,15 +350,15 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         }
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
         drawerLayout.closeDrawer(Gravity.LEFT, false);
+        if (searchText.getText().toString().isEmpty()) {
+            stopSearchMode();
+        }
     }
 
-
-    /**Add projects menu**/
     public void showAddPopupMenu(View v) {
         PopupMenu popupMenu = new PopupMenu(v.getContext(), v);
         popupMenu.getMenuInflater().inflate(menu.main_add_menu, popupMenu.getMenu());
@@ -357,10 +368,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 startAddProjectActivity();
                 return true;
             }
-            else if (item.getItemId() == id.add_random_10) {
-//                addTenRandomProjects();
-                return true;
-            }
             else if (item.getItemId() == id.add_random_1) {
                 addOneRandomProject();
                 return true;
@@ -368,20 +375,6 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             return false;
         });
     }
-
-    /**Add 10 random**/
-//    private void addTenRandomProjects() {
-//        for (int i = 0; i < 10; i++) {
-//            Faker faker = new Faker();
-//            String name = faker.country().capital();
-//            double price = Double.parseDouble(new DecimalFormat("####").format((int) (Math.random() * 200000)/1000*1000));
-//            double incoming = Double.parseDouble(new DecimalFormat("####").format((int) (Math.random() * price)/1000*1000));
-//            ArrayList<Double> incomings = new ArrayList<>();
-//            incomings.add(incoming);
-//            Project project = new Project(name, price, incomings);
-//            mainActivityViewModel.addProject(project);
-//        }
-//    }
 
     /**Add 1 random**/
     private void addOneRandomProject() {
@@ -409,26 +402,10 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         mainActivityViewModel.addProject(project);
     }
 
-//    private void sortCollapse() {
-//        cancelSearch.setVisibility(View.VISIBLE);
-//        sortButton.setClickable(false);
-//        sortButton.animate().alpha(0).rotation(45).setDuration(100);
-//        cancelSearch.setClickable(true);
-//        cancelSearch.animate().alpha(1).rotation(0).setDuration(100);
-//    }
-//
-//    private void sortExpand() {
-//        sortButton.setClickable(true);
-//        sortButton.animate().alpha(1).rotation(0).setDuration(100);
-//        cancelSearch.setClickable(false);
-//        cancelSearch.animate().alpha(0).rotation(-45).setDuration(100);
-//    }
-
     private void startAddProjectActivity() {
         Intent intent = new Intent(this, AddProjectActivity.class);
         startActivity(intent);
     }
-
 
     private void startStartActivity() {
         Intent intent = new Intent(this, StartActivity.class);
@@ -482,8 +459,9 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
     public void setSelectedMode() {
         addButton.hide();
+        searchText.setVisibility(View.GONE);
         materialToolbar.getMenu().clear();
-        materialToolbar.inflateMenu(menu.topappbar_menu_contextual);
+        materialToolbar.inflateMenu(menu.topappbar_menu_delete);
         materialToolbar.setNavigationIcon(R.drawable.ic_baseline_close_24);
         materialToolbar.setNavigationOnClickListener(v -> {
             for (int x : mainActivityViewModel.clearSelectedProjects()) {
@@ -498,6 +476,37 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             projectAdapter.notifyItemChanged(x);
         }
         materialToolbar.getMenu().clear();
+        if (!searchText.getText().toString().isEmpty()) {
+            setSearchMode();
+        }
+        else {
+            materialToolbar.inflateMenu(menu.topappbar_menu);
+            materialToolbar.setNavigationIcon(R.drawable.ic_baseline_menu_24);
+            materialToolbar.setNavigationOnClickListener(view ->
+                    drawerLayout.openDrawer(GravityCompat.START));
+            addButton.show();
+        }
+    }
+
+    public void setSearchMode() {
+        addButton.hide();
+        materialToolbar.getMenu().clear();
+        materialToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+        searchText.setVisibility(View.VISIBLE);
+        materialToolbar.setNavigationOnClickListener(v -> stopSearchMode());
+        searchText.requestFocus();
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(searchText, 0);
+    }
+
+    public void stopSearchMode() {
+        materialToolbar.getMenu().clear();
+        searchText.setText("");
+        searchText.setVisibility(View.GONE);
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(
+                MainActivity.this.getWindow().getDecorView().getWindowToken(),0
+        );
         materialToolbar.inflateMenu(menu.topappbar_menu);
         materialToolbar.setNavigationIcon(R.drawable.ic_baseline_menu_24);
         materialToolbar.setNavigationOnClickListener(view ->
@@ -534,4 +543,5 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         projectAdapter.setCurrency(currency);
         projectAdapter.notifyDataSetChanged();
     }
+
 }

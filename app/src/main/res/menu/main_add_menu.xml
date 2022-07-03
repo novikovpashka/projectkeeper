@@ -3,9 +3,6 @@
     <item android:title="Add project"
         android:id="@+id/add_project">
     </item>
-    <item android:title="Add 10 random projects"
-        android:id="@+id/add_random_10">
-    </item>
     <item android:title="Add random project"
         android:id="@+id/add_random_1">
     </item>
