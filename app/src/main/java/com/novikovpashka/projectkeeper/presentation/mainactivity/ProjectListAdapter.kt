@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.Helpers
-import com.novikovpashka.projectkeeper.data.datafirestore.Project
+import com.novikovpashka.projectkeeper.data.dataprojects.Project
 import com.novikovpashka.projectkeeper.databinding.ItemViewBinding
 
 class ProjectListAdapter(private val listener: OnItemClickListener) : ListAdapter<Project, RecyclerView.ViewHolder>(ProjectDiffCallback()) {
@@ -92,7 +92,7 @@ class ProjectListAdapter(private val listener: OnItemClickListener) : ListAdapte
 
     private class ProjectDiffCallback : DiffUtil.ItemCallback<Project>() {
         override fun areItemsTheSame(oldItem: Project, newItem: Project): Boolean {
-            return oldItem.dateAdded == newItem.dateAdded
+            return oldItem.dateStamp == newItem.dateStamp
         }
         override fun areContentsTheSame(oldItem: Project, newItem: Project): Boolean {
             return oldItem == newItem

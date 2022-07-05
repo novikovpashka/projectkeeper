@@ -1,4 +1,4 @@
-package com.novikovpashka.projectkeeper.presentation.settingsfragment
+package com.novikovpashka.projectkeeper.presentation.mainactivity
 
 import android.content.Context
 import android.graphics.Insets
@@ -15,13 +15,9 @@ import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.databinding.FragmentSettingsBinding
 
-class SettingsFragment : Fragment(),AccentColorAdapter.OnColorListener {
+class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
 
-    companion object {
-        fun newInstance() = SettingsFragment()
-    }
-
-    private lateinit var viewModel: SettingsViewModel
+    private lateinit var viewModel: SharedViewModel
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
     private lateinit var settingsListener: SettingsListener
@@ -32,7 +28,7 @@ class SettingsFragment : Fragment(),AccentColorAdapter.OnColorListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             binding.appbarlayout.setOnApplyWindowInsetsListener { v, insets ->
@@ -46,7 +42,7 @@ class SettingsFragment : Fragment(),AccentColorAdapter.OnColorListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this).get(SettingsViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
         accentColor = viewModel.accentColor.value!!
         recyclerView = binding.recycler
         accentColorAdapter = AccentColorAdapter(viewModel.getAccentColors(), this)

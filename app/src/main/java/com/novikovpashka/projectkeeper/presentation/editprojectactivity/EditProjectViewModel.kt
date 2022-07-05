@@ -5,10 +5,9 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import com.novikovpashka.projectkeeper.data.datafirestore.Incoming
-import com.novikovpashka.projectkeeper.data.datafirestore.Project
-import com.novikovpashka.projectkeeper.data.datafirestore.ProjectFirestoreRepo
+import com.novikovpashka.projectkeeper.data.dataprojects.Incoming
+import com.novikovpashka.projectkeeper.data.dataprojects.Project
+import com.novikovpashka.projectkeeper.data.dataprojects.SettingsRepo
 import java.lang.NumberFormatException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -16,7 +15,7 @@ import java.util.*
 class EditProjectViewModel(application: Application) : AndroidViewModel(application) {
     private val incomings = mutableListOf<ItemIncoming>()
     private val _incomingsLiveData = MutableLiveData<List<ItemIncoming>>()
-    private val projectsRepository = ProjectFirestoreRepo.instance!!
+    private val settingsRepository = SettingsRepo.instance!!
 
     val incomingsLiveData: LiveData<List<ItemIncoming>>
     get() = _incomingsLiveData
@@ -56,10 +55,10 @@ class EditProjectViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun getAccentColor(): Int {
-        return projectsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
+        return settingsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
     }
 
-    fun parseProject(name: String, price: String, description: String, dateStamp: Long, dateAdded: Long): Project? {
+    fun parseProject(name: String, price: String, description: String, dateStamp: Long): Project? {
         val incomingList = mutableListOf<Incoming>()
 
         if (name.isEmpty()) {
@@ -87,14 +86,15 @@ class EditProjectViewModel(application: Application) : AndroidViewModel(applicat
                 return null
             }
         }
-        return Project (
+
+        var project = Project(
             name = name,
             price = price.toDouble(),
             description = description,
-            incomings = incomingList,
-            dateStamp = dateStamp,
-            dateAdded = dateAdded
+            incomings = incomingList
         )
+        project.dateStamp = dateStamp
+        return project
     }
 
     fun parseAndPutIncoming(incomingsProject: List<Incoming>) {

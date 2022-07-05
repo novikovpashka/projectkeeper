@@ -1,4 +1,4 @@
-package com.novikovpashka.projectkeeper.presentation.settingsfragment
+package com.novikovpashka.projectkeeper.presentation.mainactivity
 
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +9,7 @@ import com.novikovpashka.projectkeeper.databinding.ColorItemBinding
 
 class AccentColorAdapter (private val colorList: MutableList<Int>, onColorListener: OnColorListener) : RecyclerView.Adapter<AccentColorAdapter.ColorHolder>() {
 
-    var mOnColorListener: OnColorListener
+    private var mOnColorListener: OnColorListener
     var currentAccentColor: Int = 999
 
     init{
@@ -20,7 +20,7 @@ class AccentColorAdapter (private val colorList: MutableList<Int>, onColorListen
         val colorCircle: ImageView = binding.colorItem
         val colorCircleSelect: ImageView = binding.colorItemSelect
 
-        var mOnColorListener: OnColorListener
+        private var mOnColorListener: OnColorListener
 
         init {
             colorCircle.setOnClickListener(this)

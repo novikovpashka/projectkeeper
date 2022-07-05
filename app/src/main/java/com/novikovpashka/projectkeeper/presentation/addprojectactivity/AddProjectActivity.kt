@@ -10,7 +10,6 @@ import android.view.*
 import android.widget.DatePicker
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -18,7 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.novikovpashka.projectkeeper.R
-import com.novikovpashka.projectkeeper.data.datafirestore.Project
+import com.novikovpashka.projectkeeper.data.dataprojects.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityAddProjectBinding
 import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivity
 import java.text.SimpleDateFormat

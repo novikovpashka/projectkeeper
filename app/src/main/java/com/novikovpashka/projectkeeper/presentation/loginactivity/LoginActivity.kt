@@ -14,7 +14,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.novikovpashka.projectkeeper.R
-import com.novikovpashka.projectkeeper.data.datafirestore.ProjectFirestoreRepo
 import com.novikovpashka.projectkeeper.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {

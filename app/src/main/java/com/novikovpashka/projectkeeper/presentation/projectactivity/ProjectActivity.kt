@@ -15,7 +15,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.novikovpashka.projectkeeper.Helpers
 import com.novikovpashka.projectkeeper.R
-import com.novikovpashka.projectkeeper.data.datafirestore.Project
+import com.novikovpashka.projectkeeper.data.dataprojects.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityProjectBinding
 import com.novikovpashka.projectkeeper.presentation.editprojectactivity.EditProjectActivity
 import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivity

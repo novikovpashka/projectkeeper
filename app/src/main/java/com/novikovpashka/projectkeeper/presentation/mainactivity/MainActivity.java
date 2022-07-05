@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.javafaker.Faker;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -45,16 +46,15 @@ import com.novikovpashka.projectkeeper.R;
 import com.novikovpashka.projectkeeper.R.anim;
 import com.novikovpashka.projectkeeper.R.id;
 import com.novikovpashka.projectkeeper.R.menu;
-import com.novikovpashka.projectkeeper.data.datafirestore.Incoming;
-import com.novikovpashka.projectkeeper.data.datafirestore.Project;
+import com.novikovpashka.projectkeeper.data.dataprojects.Incoming;
+import com.novikovpashka.projectkeeper.data.dataprojects.Project;
 import com.novikovpashka.projectkeeper.databinding.ActivityMainBinding;
 import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectActivity;
 import com.novikovpashka.projectkeeper.presentation.projectactivity.ProjectActivity;
 import com.novikovpashka.projectkeeper.presentation.mainactivity.BottomSortDialog.RadioListener;
-import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivityViewModel.OrderParam;
-import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivityViewModel.SortParam;
+import com.novikovpashka.projectkeeper.presentation.mainactivity.SharedViewModel.OrderParam;
+import com.novikovpashka.projectkeeper.presentation.mainactivity.SharedViewModel.SortParam;
 import com.novikovpashka.projectkeeper.presentation.mainactivity.ProjectListAdapter.OnItemClickListener;
-import com.novikovpashka.projectkeeper.presentation.settingsfragment.SettingsFragment;
 import com.novikovpashka.projectkeeper.presentation.startactivity.StartActivity;
 
 import java.text.DecimalFormat;
@@ -71,10 +71,11 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     private MaterialToolbar materialToolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
+    private AppBarLayout appBarLayout;
 
     private FirebaseAuth mAuth;
     private ProjectListAdapter projectAdapter;
-    private MainActivityViewModel mainActivityViewModel;
+    private SharedViewModel sharedViewModel;
 
     private TextView usdrub;
     private TextView eurrub;
@@ -82,17 +83,18 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
     private EditText searchText;
 
-    private androidx.appcompat.view.ActionMode mActionMode;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.v("mytag", "main oncreate");
-        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
-        setAccentColor(mainActivityViewModel.loadAccentColor());
+        sharedViewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        setAccentColor(sharedViewModel.loadAccentColor());
+
 
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        appBarLayout = binding.appbarlayout;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -155,8 +157,8 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         setToolbarListeners();
 
         addButton.setOnClickListener(this::showAddPopupMenu);
-        mainActivityViewModel.getValueUSDRUB();
-        mainActivityViewModel.getValueEURRUB();
+        sharedViewModel.loadRateUSDRUB();
+        sharedViewModel.loadRateEURRUB();
     }
 
     @Override
@@ -171,9 +173,9 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             if (item.getItemId() == id.sort) {
                 BottomSortDialog bottomSortDialog = new BottomSortDialog();
                 Bundle bundle = new Bundle();
-                bundle.putSerializable("currentSortParam", mainActivityViewModel.
+                bundle.putSerializable("currentSortParam", sharedViewModel.
                         getSortParamLiveData().getValue());
-                bundle.putSerializable("currentOrderParam", mainActivityViewModel.
+                bundle.putSerializable("currentOrderParam", sharedViewModel.
                         getOrderParamLiveData().getValue());
                 bottomSortDialog.setArguments(bundle);
                 bottomSortDialog.show(getSupportFragmentManager(), "filter_dialog");
@@ -183,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
                 }
             }
             else if (item.getItemId() == id.delete) {
-                mainActivityViewModel.deleteProjects();
+                sharedViewModel.deleteSelectedProjects();
             }
             else if (item.getItemId() == id.search) {
                 setSearchMode();
@@ -238,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mainActivityViewModel.getSearchTextLiveData().setValue(editable.toString().trim().
+                sharedViewModel.getSearchTextLiveData().setValue(editable.toString().trim().
                         toLowerCase(Locale.ROOT));
             }
         });
@@ -257,13 +259,13 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         recyclerView.setAdapter(projectAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mainActivityViewModel.getProjects().observe(this, projects ->
+        sharedViewModel.getProjects().observe(this, projects ->
                 projectAdapter.submitList(projects));
 
-        mainActivityViewModel.getShimmerActive().observe(this, aBoolean ->
+        sharedViewModel.getShimmerActive().observe(this, aBoolean ->
                 shimmerProjects.setVisibility(aBoolean ? View.VISIBLE : View.GONE ));
 
-        mainActivityViewModel.getUSDRUB().observe(this, s -> {
+        sharedViewModel.getUSDRUB().observe(this, s -> {
             String result = s + "₽";
             usdrub.setText(result);
             try {
@@ -274,12 +276,12 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             }
         });
 
-        mainActivityViewModel.getCurrency().observe(this, currency -> {
+        sharedViewModel.getCurrency().observe(this, currency -> {
             projectAdapter.setCurrency(currency);
             projectAdapter.notifyDataSetChanged();
         });
 
-        mainActivityViewModel.getEURRUB().observe(this, s -> {
+        sharedViewModel.getEURRUB().observe(this, s -> {
             String result = s + "₽";
             eurrub.setText(result);
             try {
@@ -290,9 +292,9 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             }
         });
 
-        mainActivityViewModel.getUpdated().observe(this, s -> lastupdate.setText(s));
+        sharedViewModel.getUpdated().observe(this, s -> lastupdate.setText(s));
 
-        mainActivityViewModel.getSelectMode().observe(this, aBoolean -> {
+        sharedViewModel.getSelectMode().observe(this, aBoolean -> {
             boolean prevValue = projectAdapter.getSelectMode();
             projectAdapter.setSelectMode(aBoolean);
             if(aBoolean) {
@@ -303,29 +305,29 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             }
         });
 
-        mainActivityViewModel.getProjectsToDelete().observe(this, projects -> {
+        sharedViewModel.getProjectsToDelete().observe(this, projects -> {
             projectAdapter.getSelectedProject().clear();
             if (!projects.isEmpty()) {
                 projectAdapter.getSelectedProject().addAll(projects);
             }
         });
 
-        mainActivityViewModel.getProjectsIdToDelete().observe(this, integers -> {
+        sharedViewModel.getProjectsIdToDelete().observe(this, integers -> {
             projectAdapter.getSelectedId().clear();
             if (!integers.isEmpty()) {
                 projectAdapter.getSelectedId().addAll(integers);
             }
         });
 
-        mainActivityViewModel.getSnackbar().observe(this, s ->  {
+        sharedViewModel.getSnackbar().observe(this, s ->  {
             if (s != null) {
                 Snackbar.make(coordinatorLayout, s, 5000).
-                        setAction("UNDO", view -> mainActivityViewModel.
+                        setAction("UNDO", view -> sharedViewModel.
                                 restoreDeletedProjects()).show();
             }
         });
 
-        mainActivityViewModel.getTitle().observe(this, s ->  {
+        sharedViewModel.getTitle().observe(this, s ->  {
             if (s != null) {
                 materialToolbar.setTitle(s);
             }
@@ -338,15 +340,15 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         super.onNewIntent(intent);
         if (intent.getParcelableExtra("projectToAdd") != null) {
             Project project = intent.getParcelableExtra("projectToAdd");
-            mainActivityViewModel.addProject(project);
+            sharedViewModel.addProject(project);
         }
 
         else if (intent.getParcelableExtra("projectToRemove") != null) {
-            mainActivityViewModel.deleteProject(intent.getParcelableExtra("projectToRemove"));
+            sharedViewModel.deleteProject(intent.getParcelableExtra("projectToRemove"));
         }
 
         else if (intent.getParcelableExtra("projectToUpdate") != null) {
-            mainActivityViewModel.updateProject(intent.getParcelableExtra("projectToUpdate"));
+            sharedViewModel.updateProject(intent.getParcelableExtra("projectToUpdate"));
         }
     }
 
@@ -392,14 +394,13 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
             Incoming incoming = new Incoming(
                     incomingDescription,
                     incomingValue,
-                    new Date().getTime(),
                     new Date().getTime()
             );
             incomings.add(incoming);
         }
 
-        Project project = new Project(name, price, description, incomings, new Date().getTime());
-        mainActivityViewModel.addProject(project);
+        Project project = new Project(name, price, description, incomings);
+        sharedViewModel.addProject(project);
     }
 
     private void startAddProjectActivity() {
@@ -422,8 +423,8 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
     @Override
     public void applySortClicked(SortParam sortParam, OrderParam orderParam) {
-        mainActivityViewModel.getSortParamLiveData().setValue(sortParam);
-        mainActivityViewModel.getOrderParamLiveData().setValue(orderParam);
+        sharedViewModel.getSortParamLiveData().setValue(sortParam);
+        sharedViewModel.getOrderParamLiveData().setValue(orderParam);
     }
 
     @Override
@@ -433,23 +434,23 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
 
     @Override
     public void showActionMenu() {
-        mainActivityViewModel.getSelectMode().setValue(true);
+        sharedViewModel.getSelectMode().setValue(true);
     }
 
     @Override
     public void closeActionMenu() {
-        mainActivityViewModel.getSelectMode().setValue(false);
-        mainActivityViewModel.clearSelectedProjects();
+        sharedViewModel.getSelectMode().setValue(false);
+        sharedViewModel.clearSelectedProjects();
     }
 
     @Override
     public void addProjectToDelete(@NonNull Project project, int position) {
-        mainActivityViewModel.addProjectToDelete(project, position);
+        sharedViewModel.addProjectToDelete(project, position);
     }
 
     @Override
     public void removeProjectToDelete(@NonNull Project project, int position) {
-        mainActivityViewModel.removeProjectToDelete(project, position);
+        sharedViewModel.removeProjectToDelete(project, position);
     }
 
 
@@ -464,7 +465,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
         materialToolbar.inflateMenu(menu.topappbar_menu_delete);
         materialToolbar.setNavigationIcon(R.drawable.ic_baseline_close_24);
         materialToolbar.setNavigationOnClickListener(v -> {
-            for (int x : mainActivityViewModel.clearSelectedProjects()) {
+            for (int x : sharedViewModel.clearSelectedProjects()) {
                 projectAdapter.notifyItemChanged(x);
             }
             addButton.show();
@@ -472,7 +473,7 @@ public class MainActivity extends AppCompatActivity implements RadioListener, On
     }
 
     public void stopSelectMode() {
-        for (int x : mainActivityViewModel.clearSelectedProjects()) {
+        for (int x : sharedViewModel.clearSelectedProjects()) {
             projectAdapter.notifyItemChanged(x);
         }
         materialToolbar.getMenu().clear();

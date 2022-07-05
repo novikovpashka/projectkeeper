@@ -17,8 +17,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.novikovpashka.projectkeeper.R
-import com.novikovpashka.projectkeeper.data.datafirestore.Project
-import com.novikovpashka.projectkeeper.databinding.ActivityAddProjectBinding
+import com.novikovpashka.projectkeeper.data.dataprojects.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityEditProjectBinding
 import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivity
 import java.text.SimpleDateFormat
@@ -93,8 +92,7 @@ class EditProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClick
                     name = binding.projectNameEditText.text.toString(),
                     price = binding.projectPriceEditText.text.toString(),
                     description = binding.projectDescriptionEditText.text.toString(),
-                    dateStamp = project.dateStamp,
-                    dateAdded = project.dateAdded
+                    project.dateStamp
                     )
                 if (projectToUpdate != null) {
                     startMainActivityAndUpdateProject(projectToUpdate)

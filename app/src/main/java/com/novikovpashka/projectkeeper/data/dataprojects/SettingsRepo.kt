@@ -1,38 +1,22 @@
-package com.novikovpashka.projectkeeper.data.datafirestore
+package com.novikovpashka.projectkeeper.data.dataprojects
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.data.apicurrency.RetrofitInstance
 import retrofit2.Response
 
-class ProjectFirestoreRepo {
+class SettingsRepo {
 
-    private val db = FirebaseFirestore.getInstance()
-    private val user = FirebaseAuth.getInstance().currentUser?.email.toString()
-
-    suspend fun getUSDRUB(context: Context): Response<String> {
+    suspend fun getRateUSDRUB(context: Context): Response<String> {
         return RetrofitInstance.invoke(context).getUSD()
     }
 
-    suspend fun getEURRUB(context: Context): Response<String> {
+    suspend fun getRateEURRUB(context: Context): Response<String> {
         return RetrofitInstance.invoke(context).getEUR()
-    }
-
-    fun saveCurrentThemeToStorage(context: Context) {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs",
-            AppCompatActivity.MODE_PRIVATE
-        )
-        val editor = sharedPreferences.edit()
-        editor.putInt("theme", AppCompatDelegate.getDefaultNightMode())
-        editor.apply()
     }
 
     fun saveUSDRateToStorage(context: Context, USD: String) {
@@ -99,45 +83,25 @@ class ProjectFirestoreRepo {
         return accentColor
     }
 
-    fun getAllProjects(): CollectionReference {
-        return db.collection("Users").
-            document(user).collection("Projects")
-    }
-
-    fun addProject(project: Project) {
-        db.collection("Users").document(user).collection("Projects")
-            .add(project)
-    }
-
-    fun updateProject(project: Project) {
-        db.collection("Users").document(user).collection("Projects")
-            .whereEqualTo("dateAdded", project.dateAdded).get()
-            .addOnSuccessListener { queryDocumentSnapshots ->
-                for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {
-                    documentSnapshot.reference.set(project)
-                }
-            }
-    }
-
-    fun deleteProject(project: Project) {
-        db.collection("Users").document(user).collection("Projects")
-            .whereEqualTo("dateAdded", project.dateAdded).get()
-            .addOnSuccessListener { queryDocumentSnapshots ->
-                for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {
-                    documentSnapshot.reference.delete()
-                }
-            }
+    fun saveCurrentThemeToStorage(context: Context) {
+        val sharedPreferences = context.getSharedPreferences("sharedPrefs",
+            AppCompatActivity.MODE_PRIVATE
+        )
+        val editor = sharedPreferences.edit()
+        editor.putInt("theme", AppCompatDelegate.getDefaultNightMode())
+        editor.apply()
     }
 
     companion object {
-        private var projectFirestoreRepo: ProjectFirestoreRepo? = null
+        private var settingsRepo: SettingsRepo? = null
 
-        val instance: ProjectFirestoreRepo?
+        val instance: SettingsRepo?
             get() {
-                if (projectFirestoreRepo == null) {
-                    projectFirestoreRepo = ProjectFirestoreRepo()
+                if (settingsRepo == null) {
+                    settingsRepo = SettingsRepo()
                 }
-                return projectFirestoreRepo
+                return settingsRepo
             }
     }
+
 }
