@@ -31,21 +31,21 @@ class BottomSortDialog : BottomSheetDialogFragment() {
 
         val bundle = arguments
         val currentSortParam =
-            bundle!!.getSerializable("currentSortParam") as SharedViewModel.SortParam?
-        if (currentSortParam == SharedViewModel.SortParam.BY_NAME) buttonName.isChecked = true
+            bundle!!.getSerializable("currentSortParam") as SortParam?
+        if (currentSortParam == SortParam.BY_NAME) buttonName.isChecked = true
         else buttonDate.isChecked = true
 
         val currentOrderParam =
-            bundle.getSerializable("currentOrderParam") as SharedViewModel.OrderParam?
-        if (currentOrderParam == SharedViewModel.OrderParam.ASCENDING)
+            bundle.getSerializable("currentOrderParam") as OrderParam?
+        if (currentOrderParam == OrderParam.ASCENDING)
             buttonAscending.isChecked = true
         else buttonDescending.isChecked = true
 
         bottomSortMainBinding.applySort.setOnClickListener {
-            val sortParam = if (buttonDate.isChecked) SharedViewModel.SortParam.BY_DATE_ADDED
-            else SharedViewModel.SortParam.BY_NAME
-            val orderParam = if (buttonAscending.isChecked) SharedViewModel.OrderParam.ASCENDING
-            else SharedViewModel.OrderParam.DESCENDING
+            val sortParam = if (buttonDate.isChecked) SortParam.BY_DATE_ADDED
+            else SortParam.BY_NAME
+            val orderParam = if (buttonAscending.isChecked) OrderParam.ASCENDING
+            else OrderParam.DESCENDING
             radioListener!!.applySortClicked(sortParam, orderParam)
             dismiss()
         }
@@ -54,7 +54,7 @@ class BottomSortDialog : BottomSheetDialogFragment() {
     }
 
     interface RadioListener {
-        fun applySortClicked(sortParam: SharedViewModel.SortParam, orderParam: SharedViewModel.OrderParam)
+        fun applySortClicked(sortParam: SortParam, orderParam: OrderParam)
     }
 
     override fun onAttach(context: Context) {

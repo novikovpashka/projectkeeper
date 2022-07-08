@@ -4,6 +4,7 @@ import android.content.Context
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
     operator fun invoke (context: Context): CurrencyApi {
@@ -12,7 +13,9 @@ object RetrofitInstance {
             NetworkConnectionInterceptor(context)
 
         val okHttpClient by lazy {
-            OkHttpClient.Builder().addInterceptor(networkConnectionInterceptor).build()
+            OkHttpClient.Builder()
+                .addInterceptor(networkConnectionInterceptor)
+                .build()
         }
 
         return Retrofit.Builder()

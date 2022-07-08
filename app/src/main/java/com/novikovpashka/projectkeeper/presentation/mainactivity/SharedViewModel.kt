@@ -5,7 +5,6 @@ import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
@@ -33,18 +32,22 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     private val _projectsObserved = MutableLiveData<List<Project>>()
 
     val searchTextLiveData = MutableLiveData("")
-    val sortParamLiveData = MutableLiveData(SortParam.BY_DATE_ADDED)
-    val orderParamLiveData = MutableLiveData(OrderParam.ASCENDING)
+    val sortParamLiveData = MutableLiveData(
+        settingsRepository.loadSortParam(application.applicationContext)
+    )
+    val orderParamLiveData = MutableLiveData(
+        settingsRepository.loadOrderParam(application.applicationContext)
+    )
     val currency = MutableLiveData(CurrencyList.RUB)
     val selectMode = MutableLiveData(false)
 
-    val USDRUB = MutableLiveData(settingsRepository
+    val usdrubRate = MutableLiveData(settingsRepository
         .loadUSDRateFromStorage(application.applicationContext))
-    val EURRUB = MutableLiveData(settingsRepository
+    val eurrubRate = MutableLiveData(settingsRepository
         .loadEURRateFromStorage(application.applicationContext))
     val updated: MutableLiveData<String> = MutableLiveData()
 
-    val projectsToRestore = mutableListOf<Project>()
+    private val projectsToRestore = mutableListOf<Project>()
 
     val projectsToDelete = MutableLiveData<List<Project>>()
     private val projectsToDeleteList = mutableListOf<Project>()
@@ -56,9 +59,13 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val shimmerActive: LiveData<Boolean>
         get() = _shimmer
 
-    private val _snackbar = MutableLiveData<String?>()
-    val snackbar: LiveData<String?>
-        get() = _snackbar
+    private val _snackbarWithAction = MutableLiveData<String?>()
+    val snackbarWithAction: LiveData<String?>
+        get() = _snackbarWithAction
+
+    private val _snackbarInfo = MutableLiveData<String?>()
+    val snackbarInfo: LiveData<String?>
+        get() = _snackbarInfo
 
     private val _title = MutableLiveData<String?>()
     val title: LiveData<String?>
@@ -77,67 +84,66 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
             _projects.addSource(searchTextLiveData) {
                 viewModelScope.launch {
-                    _projects.value = sortOrFilterProjectsList(
-                        it,
-                        sortParamLiveData.value!!,
-                        orderParamLiveData.value!!
-                    )
+                    _projects.value = sortAndFilterProjectList()
                     _shimmer.value = false
                 }
             }
 
             _projects.addSource(sortParamLiveData) {
                 viewModelScope.launch {
-                    _projects.value = sortOrFilterProjectsList(
-                        searchTextLiveData.value!!,
-                        it,
-                        orderParamLiveData.value!!
-                    )
+                    _projects.value = sortAndFilterProjectList()
                     _shimmer.value = false
                 }
             }
 
             _projects.addSource(orderParamLiveData) {
                 viewModelScope.launch {
-                    _projects.value = sortOrFilterProjectsList(
-                        searchTextLiveData.value!!,
-                        sortParamLiveData.value!!,
-                        it
-                    )
+                    _projects.value = sortAndFilterProjectList()
                     _shimmer.value = false
                 }
             }
         }
     }
 
-    private suspend fun sortOrFilterProjectsList (searchText: String, sortParam: SortParam, orderParam: OrderParam): List<Project> {
+    private suspend fun sortAndFilterProjectList(): List<Project> {
         return suspendCoroutine { continuation ->
             val projectsList = mutableListOf<Project>()
+            //filter projects by searching text
             if (_projectsObserved.value != null) {
-                for (project in _projectsObserved.value!!) {
-                    if (project.name.lowercase(Locale.getDefault())
-                            .contains((searchText))
-                    )
-                        projectsList.add(project)
+                if (searchTextLiveData.value!!.isNotEmpty()) {
+                    for (project in _projectsObserved.value!!) {
+                        if (project.name.lowercase(Locale.getDefault())
+                                .contains((searchTextLiveData.value!!))
+                        )
+                            projectsList.add(project)
+                    }
+                }
+                else projectsList.addAll(_projectsObserved.value!!)
+            }
+            //sort projects
+            when (sortParamLiveData.value!!) {
+                SortParam.BY_NAME -> {
+                    when (orderParamLiveData.value!!) {
+                        OrderParam.ASCENDING -> projectsList.sortBy {it.name.lowercase(Locale.getDefault())}
+                        OrderParam.DESCENDING -> projectsList.sortByDescending {it.name.lowercase(Locale.getDefault())}
+                    }
+                }
+                SortParam.BY_DATE_ADDED -> {
+                    when (orderParamLiveData.value!!) {
+                        OrderParam.ASCENDING -> projectsList.sortBy {it.dateStamp}
+                        OrderParam.DESCENDING -> projectsList.sortByDescending {it.dateStamp}
+                    }
                 }
             }
-
-            if (sortParam == SortParam.BY_NAME) projectsList.sortBy { it.name.lowercase(
-                Locale.getDefault()
-            ) }
-            else projectsList.sortBy { it.dateStamp }
-
-            if (orderParam == OrderParam.DESCENDING) projectsList.reverse()
-
             continuation.resume(projectsList)
         }
     }
 
-    suspend fun addProjectsObserver() {
-        firestoreRepository.getAllProjects().addSnapshotListener { value, error ->
+    private suspend fun addProjectsObserver() {
+        firestoreRepository.getAllProjects().addSnapshotListener { value, _ ->
             if (value != null) {
                 viewModelScope.launch {
-                    val projectsList = loadProjectsObserved(value, error)
+                    val projectsList = loadProjectsObserved(value)
 
                     if (sortParamLiveData.value == SortParam.BY_NAME) projectsList.sortBy { it.name.lowercase(
                         Locale.getDefault()
@@ -164,19 +170,19 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         projectsToRestore.clear()
         projectsToRestore.addAll(projectsToDeleteList)
         if (projectsToRestore.size == 1) {
-            firestoreRepository.deleteProject(projectsToRestore.get(0))
-            _snackbar.value = projectsToRestore.get(0).name + " deleted"
+            firestoreRepository.deleteProject(projectsToRestore[0])
+            _snackbarWithAction.value = projectsToRestore[0].name + " deleted"
             viewModelScope.launch {
                 delay(5000)
-                _snackbar.value = null
+                _snackbarWithAction.value = null
             }
         }
         else {
             firestoreRepository.deleteSeveralProjects(projectsToRestore)
-            _snackbar.value = projectsToRestore.size.toString() + " projects deleted"
+            _snackbarWithAction.value = projectsToRestore.size.toString() + " projects deleted"
             viewModelScope.launch {
                 delay(5000)
-                _snackbar.value = null
+                _snackbarWithAction.value = null
             }
         }
         selectMode.value = false
@@ -186,14 +192,14 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         projectsToRestore.clear()
         projectsToRestore.add(project)
         firestoreRepository.deleteProject(project)
-        _snackbar.value = projectsToRestore.get(0).name + " deleted"
+        _snackbarWithAction.value = projectsToRestore[0].name + " deleted"
         viewModelScope.launch {
             delay(5000)
-            _snackbar.value = null
+            _snackbarWithAction.value = null
         }
     }
 
-    private suspend fun loadProjectsObserved (value: QuerySnapshot, error: FirebaseFirestoreException?): MutableList<Project> {
+    private suspend fun loadProjectsObserved (value: QuerySnapshot): MutableList<Project> {
         return suspendCoroutine { continuation ->
             val projectsList = mutableListOf<Project>()
             for (obj in value) {
@@ -207,36 +213,30 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun loadRateUSDRUB() {
+    fun loadRates() {
         viewModelScope.launch {
             try {
-                val value = settingsRepository.getRateUSDRUB(getApplication<Application>().applicationContext)
-                if (value.isSuccessful) {
-                    USDRUB.value = value.body()
+                val usdrubRateResponce = settingsRepository
+                    .getRateUSDRUB(getApplication<Application>().applicationContext)
+                val eurrubRateResponce = settingsRepository
+                    .getRateEURRUB(getApplication<Application>().applicationContext)
+                if (usdrubRateResponce.isSuccessful && eurrubRateResponce.isSuccessful) {
+                    usdrubRate.value = usdrubRateResponce.body()
+                    eurrubRate.value = eurrubRateResponce.body()
                     val dateFormat = SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss")
                     updated.value = dateFormat.format(Date())
-                    settingsRepository.saveUSDRateToStorage(getApplication<Application>().applicationContext, value.body()!!)
+                    settingsRepository.saveRatesToStorage(
+                        getApplication<Application>().applicationContext,
+                        usdrubRateResponce.body()!!,
+                        eurrubRateResponce.body()!!
+                    )
                 }
             }
             catch (e: NoConnectivityException) {
-                _snackbar.value = e.message
+                _snackbarInfo.value = e.message
             }
-        }
-    }
-
-    fun loadRateEURRUB() {
-        viewModelScope.launch {
-            try {
-                val value = settingsRepository.getRateEURRUB(getApplication<Application>().applicationContext)
-                if (value.isSuccessful) {
-                    EURRUB.value = value.body()
-                    val dateFormat = SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss")
-                    updated.value = dateFormat.format(Date())
-                    settingsRepository.saveEURRateToStorage(getApplication<Application>().applicationContext, value.body()!!)
-                }
-            }
-            catch (e: NoConnectivityException) {
-                _snackbar.value = e.message
+            catch (e: Exception) {
+                _snackbarInfo.value = e.message
             }
         }
     }
@@ -252,6 +252,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         projectsIdToDelete.value = projectsIdToDeleteList
         _title.value = projectsIdToDeleteList.size.toString()
     }
+
     fun removeProjectToDelete (project: Project, position: Int) {
         projectsToDeleteList.remove(project)
         projectsToDelete.value = projectsToDeleteList
@@ -285,7 +286,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     val currentCurrency = MutableLiveData(settingsRepository
         .loadCurrentCurrencyFromStorage(application.applicationContext))
     val currentTheme = MutableLiveData(AppCompatDelegate.getDefaultNightMode())
-    val accentColor = MutableLiveData(settingsRepository.loadAccentColorFromStorage(application.applicationContext))
+    val accentColor = MutableLiveData(settingsRepository
+        .loadAccentColorFromStorage(application.applicationContext))
 
     fun saveAndApplyCurrency (currency: CurrencyList) {
         settingsRepository.saveCurrentCurrencyToStorage(getApplication<Application>()
@@ -300,19 +302,31 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun saveAndApplyAccentColor(color: Int) {
-        settingsRepository.saveAccentColorToStorage(getApplication<Application>().applicationContext, color)
+        settingsRepository.saveAccentColorToStorage(
+            getApplication<Application>().applicationContext,
+            color
+        )
         accentColor.value = color
     }
 
     fun getAccentColors(): MutableList<Int> {
         val colorList: MutableList<Int> = mutableListOf()
         for (x in AccentColors.values()) {
-            colorList.add(ContextCompat.getColor(getApplication<Application>().applicationContext, x.color))
+            colorList.add(ContextCompat.getColor(
+                getApplication<Application>().applicationContext,
+                x.color)
+            )
         }
         return colorList
     }
 
-    enum class SortParam {BY_NAME, BY_DATE_ADDED}
-    enum class OrderParam {ASCENDING, DESCENDING}
+    fun saveSortAndOrderParamsToStorage () {
+        settingsRepository.saveSortAndOrderParamsToStorage(
+            getApplication<Application>().applicationContext,
+            sortParam = sortParamLiveData.value!!,
+            orderParam = orderParamLiveData.value!!
+        )
+    }
+
 }
 

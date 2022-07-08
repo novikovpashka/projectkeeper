@@ -10,7 +10,7 @@ import com.novikovpashka.projectkeeper.Helpers
 import com.novikovpashka.projectkeeper.data.dataprojects.Incoming
 import com.novikovpashka.projectkeeper.databinding.IncomingItemBinding
 
-class IncomingListAdapter() : ListAdapter<Incoming, RecyclerView.ViewHolder>(IncomingDiffCallback()) {
+class IncomingListAdapter : ListAdapter<Incoming, RecyclerView.ViewHolder>(IncomingDiffCallback()) {
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val incoming = getItem(position)

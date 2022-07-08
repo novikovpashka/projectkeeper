@@ -25,7 +25,7 @@ class NetworkConnectionInterceptor(
         return chain.proceed(builder.build())
     }
 
-    fun isInternetAvailable(context: Context): Boolean {
+    private fun isInternetAvailable(context: Context): Boolean {
         var result = false
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -51,8 +51,6 @@ class NetworkConnectionInterceptor(
                 }
             }
         }
-
         return result
-
     }
 }

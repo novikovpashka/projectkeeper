@@ -50,7 +50,7 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
         recyclerView.setHasFixedSize(false)
 
         //set default values without animation
-        when (viewModel.currentCurrency.value) {
+        when (viewModel.currentCurrency.value!!) {
             CurrencyList.RUB -> {
                 binding.rub.isChecked = true
                 binding.currencyGroup.jumpDrawablesToCurrentState()
