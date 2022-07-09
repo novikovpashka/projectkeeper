@@ -5,17 +5,18 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.novikovpashka.projectkeeper.data.dataprojects.Incoming
 import com.novikovpashka.projectkeeper.data.dataprojects.Project
 import com.novikovpashka.projectkeeper.data.dataprojects.SettingsRepo
 import java.lang.NumberFormatException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class EditProjectViewModel(application: Application) : AndroidViewModel(application) {
+class EditProjectViewModel @Inject constructor(private val settingsRepository: SettingsRepo) : ViewModel() {
     private val incomings = mutableListOf<ItemIncoming>()
     private val _incomingsLiveData = MutableLiveData<List<ItemIncoming>>()
-    private val settingsRepository = SettingsRepo.instance!!
 
     val incomingsLiveData: LiveData<List<ItemIncoming>>
     get() = _incomingsLiveData
@@ -55,7 +56,7 @@ class EditProjectViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun getAccentColor(): Int {
-        return settingsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
+        return settingsRepository.loadAccentColorFromStorage()
     }
 
     fun parseProject(name: String, price: String, description: String, dateStamp: Long): Project? {
@@ -87,7 +88,7 @@ class EditProjectViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
 
-        var project = Project(
+        val project = Project(
             name = name,
             price = price.toDouble(),
             description = description,

@@ -16,14 +16,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-
-class SharedViewModel(application: Application) : AndroidViewModel(application) {
+class SharedViewModel @Inject constructor (private val settingsRepository: SettingsRepo) : ViewModel() {
 
     private val firestoreRepository = FirestoreRepo.instance!!
-    private val settingsRepository = SettingsRepo.instance!!
+
 
     val projects: LiveData<List<Project>>
         get() = _projects
@@ -33,18 +33,18 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
 
     val searchTextLiveData = MutableLiveData("")
     val sortParamLiveData = MutableLiveData(
-        settingsRepository.loadSortParam(application.applicationContext)
+        settingsRepository.loadSortParam()
     )
     val orderParamLiveData = MutableLiveData(
-        settingsRepository.loadOrderParam(application.applicationContext)
+        settingsRepository.loadOrderParam()
     )
     val currency = MutableLiveData(CurrencyList.RUB)
     val selectMode = MutableLiveData(false)
 
     val usdrubRate = MutableLiveData(settingsRepository
-        .loadUSDRateFromStorage(application.applicationContext))
+        .loadUSDRateFromStorage())
     val eurrubRate = MutableLiveData(settingsRepository
-        .loadEURRateFromStorage(application.applicationContext))
+        .loadEURRateFromStorage())
     val updated: MutableLiveData<String> = MutableLiveData()
 
     private val projectsToRestore = mutableListOf<Project>()
@@ -74,8 +74,7 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     init {
         viewModelScope.launch {
             addProjectsObserver()
-            currency.value = settingsRepository
-                .loadCurrentCurrencyFromStorage(getApplication<Application>().applicationContext)
+            currency.value = settingsRepository.loadCurrentCurrencyFromStorage()
 
             _projects.addSource(_projectsObserved) {
                 _projects.value = it
@@ -217,16 +216,15 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             try {
                 val usdrubRateResponce = settingsRepository
-                    .getRateUSDRUB(getApplication<Application>().applicationContext)
+                    .getRateUSDRUB()
                 val eurrubRateResponce = settingsRepository
-                    .getRateEURRUB(getApplication<Application>().applicationContext)
+                    .getRateEURRUB()
                 if (usdrubRateResponce.isSuccessful && eurrubRateResponce.isSuccessful) {
                     usdrubRate.value = usdrubRateResponce.body()
                     eurrubRate.value = eurrubRateResponce.body()
                     val dateFormat = SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss")
                     updated.value = dateFormat.format(Date())
                     settingsRepository.saveRatesToStorage(
-                        getApplication<Application>().applicationContext,
                         usdrubRateResponce.body()!!,
                         eurrubRateResponce.body()!!
                     )
@@ -242,7 +240,8 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun loadAccentColor(): Int {
-        return settingsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
+//        return settingsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
+        return 0
     }
 
     fun addProjectToDelete (project: Project, position: Int) {
@@ -284,48 +283,51 @@ class SharedViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     val currentCurrency = MutableLiveData(settingsRepository
-        .loadCurrentCurrencyFromStorage(application.applicationContext))
+        .loadCurrentCurrencyFromStorage())
     val currentTheme = MutableLiveData(AppCompatDelegate.getDefaultNightMode())
     val accentColor = MutableLiveData(settingsRepository
-        .loadAccentColorFromStorage(application.applicationContext))
+        .loadAccentColorFromStorage())
 
     fun saveAndApplyCurrency (currency: CurrencyList) {
-        settingsRepository.saveCurrentCurrencyToStorage(getApplication<Application>()
-            .applicationContext, currency)
+        settingsRepository.saveCurrentCurrencyToStorage(currency)
         currentCurrency.value = currency
     }
 
     fun saveCurrentTheme () {
-        settingsRepository.saveCurrentThemeToStorage(getApplication<Application>()
-            .applicationContext)
+        settingsRepository.saveCurrentThemeToStorage()
         currentTheme.value = AppCompatDelegate.getDefaultNightMode()
     }
 
     fun saveAndApplyAccentColor(color: Int) {
-        settingsRepository.saveAccentColorToStorage(
-            getApplication<Application>().applicationContext,
-            color
-        )
-        accentColor.value = color
+        settingsRepository.saveAccentColorToStorage(color)
+//        accentColor.value = color
     }
 
-    fun getAccentColors(): MutableList<Int> {
-        val colorList: MutableList<Int> = mutableListOf()
-        for (x in AccentColors.values()) {
-            colorList.add(ContextCompat.getColor(
-                getApplication<Application>().applicationContext,
-                x.color)
-            )
-        }
-        return colorList
-    }
+//    fun getAccentColors(): MutableList<Int> {
+//        val colorList: MutableList<Int> = mutableListOf()
+//        for (x in AccentColors.values()) {
+//            colorList.add(ContextCompat.getColor(
+//                getApplication<Application>().applicationContext,
+//                x.color)
+//            )
+//        }
+//        return colorList
+//    }
 
     fun saveSortAndOrderParamsToStorage () {
         settingsRepository.saveSortAndOrderParamsToStorage(
-            getApplication<Application>().applicationContext,
             sortParam = sortParamLiveData.value!!,
             orderParam = orderParamLiveData.value!!
         )
+    }
+
+    class Factory @Inject constructor(
+        private val settingsRepo: SettingsRepo
+    ): ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return SharedViewModel(settingsRepo) as T
+        }
     }
 
 }

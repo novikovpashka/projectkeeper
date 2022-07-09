@@ -45,7 +45,7 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
         viewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
         accentColor = viewModel.accentColor.value!!
         recyclerView = binding.recycler
-        accentColorAdapter = AccentColorAdapter(viewModel.getAccentColors(), this)
+//        accentColorAdapter = AccentColorAdapter(viewModel.getAccentColors(), this)
         recyclerView.adapter = accentColorAdapter
         recyclerView.setHasFixedSize(false)
 

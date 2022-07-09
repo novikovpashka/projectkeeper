@@ -1,5 +1,6 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import com.novikovpashka.projectkeeper.presentation.mainactivity.BottomSortDialog.RadioListener
 import com.novikovpashka.projectkeeper.presentation.mainactivity.SettingsFragment.SettingsListener
@@ -44,10 +45,12 @@ import com.novikovpashka.projectkeeper.presentation.startactivity.StartActivity
 import com.novikovpashka.projectkeeper.presentation.projectactivity.ProjectActivity
 import com.novikovpashka.projectkeeper.R
 import androidx.core.content.ContextCompat
+import com.novikovpashka.projectkeeper.MainApp
 import com.novikovpashka.projectkeeper.databinding.ActivityMainBinding
 import java.lang.Exception
 import java.text.DecimalFormat
 import java.util.*
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnItemClickListener,
     SettingsListener {
@@ -65,10 +68,16 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
     private lateinit var eurrubRate: TextView
     private lateinit var lastupdate: TextView
     private lateinit var searchText: EditText
+
+    @Inject
+    lateinit var factory: SharedViewModel.Factory
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        sharedViewModel = ViewModelProvider(this)[SharedViewModel::class.java]
+        (application as MainApp).appComponent.inject(this)
+        sharedViewModel = ViewModelProvider(this, factory)[SharedViewModel::class.java]
         setAccentColor(sharedViewModel.loadAccentColor())
         super.onCreate(savedInstanceState)
+
         val binding = ActivityMainBinding.inflate(
             layoutInflater
         )

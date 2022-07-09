@@ -1,48 +1,45 @@
 package com.novikovpashka.projectkeeper.data.dataprojects
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
+import com.novikovpashka.projectkeeper.data.apicurrency.CurrencyApi
 import com.novikovpashka.projectkeeper.data.apicurrency.RetrofitInstance
 import com.novikovpashka.projectkeeper.presentation.mainactivity.OrderParam
 import com.novikovpashka.projectkeeper.presentation.mainactivity.SortParam
 import retrofit2.Response
+import javax.inject.Inject
 
-class SettingsRepo {
+class SettingsRepo @Inject constructor(private val currencyApi: CurrencyApi, private val sharedPreferences: SharedPreferences){
 
-    suspend fun getRateUSDRUB(context: Context): Response<String> {
-        return RetrofitInstance.invoke(context).getUSD()
+    suspend fun getRateUSDRUB(): Response<String> {
+        return currencyApi.getUSD()
     }
 
-    suspend fun getRateEURRUB(context: Context): Response<String> {
-        return RetrofitInstance.invoke(context).getEUR()
+    suspend fun getRateEURRUB(): Response<String> {
+        return currencyApi.getEUR()
     }
 
-    fun saveRatesToStorage(context: Context, USD: String, EUR: String) {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+    fun saveRatesToStorage(USD: String, EUR: String) {
         val editor = sharedPreferences.edit()
         editor.putString("usdrubRate", USD)
         editor.putString("eurrubRate", EUR)
         editor.apply()
     }
 
-    fun loadUSDRateFromStorage(context: Context): String {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+    fun loadUSDRateFromStorage(): String {
         return sharedPreferences.getString("usdrubRate", "No data")!!
     }
 
-    fun loadEURRateFromStorage(context: Context): String {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+    fun loadEURRateFromStorage(): String {
         return sharedPreferences.getString("eurrubRate", "No data")!!
     }
 
-    fun saveCurrentCurrencyToStorage (context: Context, currency: CurrencyList) {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs",
-            AppCompatActivity.MODE_PRIVATE
-        )
+    fun saveCurrentCurrencyToStorage (currency: CurrencyList) {
         val editor = sharedPreferences.edit()
         val currentCurrency: String = when (currency) {
             CurrencyList.RUB -> CurrencyList.RUB.name
@@ -53,8 +50,7 @@ class SettingsRepo {
         editor.apply()
     }
 
-    fun loadCurrentCurrencyFromStorage(context: Context): CurrencyList {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+    fun loadCurrentCurrencyFromStorage(): CurrencyList {
         return when (sharedPreferences.getString("currency", "RUB")) {
             CurrencyList.USD.name -> CurrencyList.USD
             CurrencyList.EUR.name -> CurrencyList.EUR
@@ -62,45 +58,36 @@ class SettingsRepo {
         }
     }
 
-    fun saveAccentColorToStorage (context: Context, color: Int) {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs",
-            AppCompatActivity.MODE_PRIVATE
-        )
+    fun saveAccentColorToStorage (color: Int) {
         val editor = sharedPreferences.edit()
         editor.putInt("accentcolor", color)
         editor.apply()
     }
 
-    fun loadAccentColorFromStorage(context: Context): Int {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
-        return sharedPreferences.getInt(
-            "accentcolor",
-            ContextCompat.getColor(context, AccentColors.MYORANGE.color)
-        )
+    fun loadAccentColorFromStorage(): Int {
+//        return sharedPreferences.getInt(
+//            "accentcolor",
+//            ContextCompat.getColor(context, AccentColors.MYORANGE.color)
+//        )
+        return 0
     }
 
-    fun saveCurrentThemeToStorage(context: Context) {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs",
-            AppCompatActivity.MODE_PRIVATE
-        )
+    fun saveCurrentThemeToStorage() {
         val editor = sharedPreferences.edit()
         editor.putInt("theme", AppCompatDelegate.getDefaultNightMode())
         editor.apply()
     }
 
-    fun saveSortAndOrderParamsToStorage (context: Context,
-                                         sortParam: SortParam,
+    fun saveSortAndOrderParamsToStorage (sortParam: SortParam,
                                          orderParam: OrderParam
     ) {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString("sortparam", sortParam.name)
         editor.putString("orderparam", orderParam.name)
         editor.apply()
     }
 
-    fun loadSortParam(context: Context): SortParam {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+    fun loadSortParam(): SortParam {
         val sortParam = sharedPreferences.getString(
             "sortparam",
             SortParam.BY_DATE_ADDED.name
@@ -113,8 +100,7 @@ class SettingsRepo {
         }
     }
 
-    fun loadOrderParam(context: Context): OrderParam {
-        val sharedPreferences = context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
+    fun loadOrderParam(): OrderParam {
         val orderParam = sharedPreferences.getString(
             "orderparam",
             OrderParam.ASCENDING.name
@@ -125,16 +111,16 @@ class SettingsRepo {
         }
     }
 
-    companion object {
-        private var settingsRepo: SettingsRepo? = null
-
-        val instance: SettingsRepo?
-            get() {
-                if (settingsRepo == null) {
-                    settingsRepo = SettingsRepo()
-                }
-                return settingsRepo
-            }
-    }
+//    companion object {
+//        private var settingsRepo: SettingsRepo? = null
+//
+//        val instance: SettingsRepo?
+//            get() {
+//                if (settingsRepo == null) {
+//                    settingsRepo = SettingsRepo()
+//                }
+//                return settingsRepo
+//            }
+//    }
 
 }
