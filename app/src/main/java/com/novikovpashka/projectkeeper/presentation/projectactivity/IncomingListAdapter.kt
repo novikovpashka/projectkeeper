@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.novikovpashka.projectkeeper.Helpers
-import com.novikovpashka.projectkeeper.data.dataprojects.Incoming
+import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.databinding.IncomingItemBinding
 
 class IncomingListAdapter : ListAdapter<Incoming, RecyclerView.ViewHolder>(IncomingDiffCallback()) {

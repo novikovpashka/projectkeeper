@@ -1,20 +1,21 @@
 package com.novikovpashka.projectkeeper.presentation.editprojectactivity
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.novikovpashka.projectkeeper.data.dataprojects.Incoming
-import com.novikovpashka.projectkeeper.data.dataprojects.Project
-import com.novikovpashka.projectkeeper.data.dataprojects.SettingsRepo
+import androidx.lifecycle.ViewModelProvider
+import com.novikovpashka.projectkeeper.data.model.Incoming
+import com.novikovpashka.projectkeeper.data.model.Project
+import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
+import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectViewModel
+import java.lang.IllegalStateException
 import java.lang.NumberFormatException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class EditProjectViewModel @Inject constructor(private val settingsRepository: SettingsRepo) : ViewModel() {
+class EditProjectViewModel @Inject constructor(private val settingsRepository: SettingsRepository) : ViewModel() {
     private val incomings = mutableListOf<ItemIncoming>()
     private val _incomingsLiveData = MutableLiveData<List<ItemIncoming>>()
 
@@ -49,10 +50,6 @@ class EditProjectViewModel @Inject constructor(private val settingsRepository: S
 
     fun saveIncomingDateText(value: String, index: Int) {
         incomings[index].incomingDateText = value
-    }
-
-    fun saveIncomingDate(value: Long, index: Int) {
-        incomings[index].incomingDate = value
     }
 
     fun getAccentColor(): Int {
@@ -126,6 +123,20 @@ class EditProjectViewModel @Inject constructor(private val settingsRepository: S
         init {
             val simpleDateFormat = SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH)
             incomingDateText = simpleDateFormat.format(incomingDate).toString()
+        }
+    }
+
+    class Factory @Inject constructor(
+        private val settingsRepository: SettingsRepository
+    ): ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(EditProjectViewModel::class.java)) {
+                return EditProjectViewModel(
+                    settingsRepository
+                ) as T
+            }
+            else throw IllegalStateException("Unknown ViewModel class")
         }
     }
 

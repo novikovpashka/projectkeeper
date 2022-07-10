@@ -1,29 +1,30 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity
 
-
-import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.*
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.QuerySnapshot
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.data.apicurrency.NoConnectivityException
-import com.novikovpashka.projectkeeper.data.dataprojects.Project
-import com.novikovpashka.projectkeeper.data.dataprojects.FirestoreRepo
-import com.novikovpashka.projectkeeper.data.dataprojects.SettingsRepo
+import com.novikovpashka.projectkeeper.data.model.Project
+import com.novikovpashka.projectkeeper.data.repository.CurrencyRepository
+import com.novikovpashka.projectkeeper.data.repository.FirestoreRepository
+import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class SharedViewModel @Inject constructor (private val settingsRepository: SettingsRepo) : ViewModel() {
-
-    private val firestoreRepository = FirestoreRepo.instance!!
-
+class SharedViewModel @Inject constructor (
+    private val firestoreRepository: FirestoreRepository,
+    private val settingsRepository: SettingsRepository,
+    private val currencyRepository: CurrencyRepository,
+) : ViewModel() {
 
     val projects: LiveData<List<Project>>
         get() = _projects
@@ -215,10 +216,8 @@ class SharedViewModel @Inject constructor (private val settingsRepository: Setti
     fun loadRates() {
         viewModelScope.launch {
             try {
-                val usdrubRateResponce = settingsRepository
-                    .getRateUSDRUB()
-                val eurrubRateResponce = settingsRepository
-                    .getRateEURRUB()
+                val usdrubRateResponce = currencyRepository.getRateUSDRUB()
+                val eurrubRateResponce = currencyRepository.getRateEURRUB()
                 if (usdrubRateResponce.isSuccessful && eurrubRateResponce.isSuccessful) {
                     usdrubRate.value = usdrubRateResponce.body()
                     eurrubRate.value = eurrubRateResponce.body()
@@ -240,8 +239,7 @@ class SharedViewModel @Inject constructor (private val settingsRepository: Setti
     }
 
     fun loadAccentColor(): Int {
-//        return settingsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
-        return 0
+        return settingsRepository.loadAccentColorFromStorage()
     }
 
     fun addProjectToDelete (project: Project, position: Int) {
@@ -282,11 +280,13 @@ class SharedViewModel @Inject constructor (private val settingsRepository: Setti
         projectsToRestore.clear()
     }
 
-    val currentCurrency = MutableLiveData(settingsRepository
-        .loadCurrentCurrencyFromStorage())
+    val currentCurrency = MutableLiveData(
+        settingsRepository.loadCurrentCurrencyFromStorage()
+    )
     val currentTheme = MutableLiveData(AppCompatDelegate.getDefaultNightMode())
-    val accentColor = MutableLiveData(settingsRepository
-        .loadAccentColorFromStorage())
+    val accentColor = MutableLiveData(
+        settingsRepository.loadAccentColorFromStorage()
+    )
 
     fun saveAndApplyCurrency (currency: CurrencyList) {
         settingsRepository.saveCurrentCurrencyToStorage(currency)
@@ -298,21 +298,20 @@ class SharedViewModel @Inject constructor (private val settingsRepository: Setti
         currentTheme.value = AppCompatDelegate.getDefaultNightMode()
     }
 
-    fun saveAndApplyAccentColor(color: Int) {
-        settingsRepository.saveAccentColorToStorage(color)
-//        accentColor.value = color
+    fun getAccentColorsList(): MutableList<Int> {
+        val colorList: MutableList<Int> = mutableListOf()
+        for (x in AccentColors.values()) {
+            colorList.add(
+                x.color
+            )
+        }
+        return colorList
     }
 
-//    fun getAccentColors(): MutableList<Int> {
-//        val colorList: MutableList<Int> = mutableListOf()
-//        for (x in AccentColors.values()) {
-//            colorList.add(ContextCompat.getColor(
-//                getApplication<Application>().applicationContext,
-//                x.color)
-//            )
-//        }
-//        return colorList
-//    }
+    fun saveAndApplyAccentColor(color: Int) {
+        settingsRepository.saveAccentColorToStorage(color)
+        accentColor.value = color
+    }
 
     fun saveSortAndOrderParamsToStorage () {
         settingsRepository.saveSortAndOrderParamsToStorage(
@@ -322,11 +321,20 @@ class SharedViewModel @Inject constructor (private val settingsRepository: Setti
     }
 
     class Factory @Inject constructor(
-        private val settingsRepo: SettingsRepo
+        private val firestoreRepository: FirestoreRepository,
+        private val settingsRepository: SettingsRepository,
+        private val currencyRepository: CurrencyRepository
     ): ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return SharedViewModel(settingsRepo) as T
+            if (modelClass.isAssignableFrom(SharedViewModel::class.java)) {
+                return SharedViewModel(
+                    firestoreRepository,
+                    settingsRepository,
+                    currencyRepository
+                ) as T
+            }
+            else throw IllegalStateException("Unknown ViewModel class")
         }
     }
 

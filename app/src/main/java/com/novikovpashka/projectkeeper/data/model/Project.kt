@@ -1,4 +1,4 @@
-package com.novikovpashka.projectkeeper.data.dataprojects
+package com.novikovpashka.projectkeeper.data.model
 
 import android.os.Parcel
 import android.os.Parcelable
@@ -36,21 +36,4 @@ data class Project (
         }
     }
 }
-
-
-//@Parcelize
-//data class Project (
-//    var name: String = "",
-//    var price: Double = 0.0,
-//    var description: String = "",
-//    var incomings: MutableList<Incoming> = mutableListOf(),
-//    var dateAdded: Long = Date().time,
-//    val dateStamp: Long = Date().time) : Parcelable {
-//    constructor(
-//        name: String = "",
-//        price: Double = 0.0,
-//        description: String = "",
-//        incomings: MutableList<Incoming> = mutableListOf(),
-//        dateAdded: Long = Date().time) : this(name, price, description, incomings, dateAdded, Date().time)
-//}
 

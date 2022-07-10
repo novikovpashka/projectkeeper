@@ -7,7 +7,7 @@
     <data>
         <variable
             name="project"
-            type="com.novikovpashka.projectkeeper.data.dataprojects.Project"/>
+            type="com.novikovpashka.projectkeeper.data.model.Project"/>
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

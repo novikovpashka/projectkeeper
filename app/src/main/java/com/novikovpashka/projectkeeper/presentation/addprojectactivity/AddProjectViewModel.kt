@@ -1,24 +1,30 @@
 package com.novikovpashka.projectkeeper.presentation.addprojectactivity
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.novikovpashka.projectkeeper.data.dataprojects.Incoming
-import com.novikovpashka.projectkeeper.data.dataprojects.Project
-import com.novikovpashka.projectkeeper.data.dataprojects.SettingsRepo
+import androidx.lifecycle.ViewModelProvider
+import com.novikovpashka.projectkeeper.data.model.Incoming
+import com.novikovpashka.projectkeeper.data.model.Project
+import com.novikovpashka.projectkeeper.data.repository.CurrencyRepository
+import com.novikovpashka.projectkeeper.data.repository.FirestoreRepository
+import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
+import com.novikovpashka.projectkeeper.presentation.mainactivity.SharedViewModel
+import java.lang.IllegalStateException
 import java.lang.NumberFormatException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class AddProjectViewModel(private val settingsRepository: SettingsRepo) : ViewModel() {
+class AddProjectViewModel @Inject constructor(
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
     private val incomings = mutableListOf<ItemIncoming>()
     private val _incomingsLiveData = MutableLiveData<List<ItemIncoming>>()
 
     val incomingsLiveData: LiveData<List<ItemIncoming>>
-    get() = _incomingsLiveData
+        get() = _incomingsLiveData
 
     private val _snackbar = MutableLiveData<String?>()
     val snackbar: LiveData<String?>
@@ -50,13 +56,8 @@ class AddProjectViewModel(private val settingsRepository: SettingsRepo) : ViewMo
         incomings[index].incomingDateText = value
     }
 
-    fun saveIncomingDate(value: Long, index: Int) {
-        incomings[index].incomingDate = value
-    }
-
     fun getAccentColor(): Int {
-        return 0
-//        return settingsRepository.loadAccentColorFromStorage(getApplication<Application>().applicationContext)
+        return settingsRepository.loadAccentColorFromStorage()
     }
 
     fun parseProject(name: String, price: String, description: String): Project? {
@@ -109,4 +110,17 @@ class AddProjectViewModel(private val settingsRepository: SettingsRepo) : ViewMo
         }
     }
 
+    class Factory @Inject constructor(
+        private val settingsRepository: SettingsRepository
+    ): ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(AddProjectViewModel::class.java)) {
+                return AddProjectViewModel(
+                    settingsRepository
+                ) as T
+            }
+            else throw IllegalStateException("Unknown ViewModel class")
+        }
+    }
 }

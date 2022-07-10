@@ -4,13 +4,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.novikovpashka.projectkeeper.databinding.ColorItemBinding
 
 class AccentColorAdapter (private val colorList: MutableList<Int>, onColorListener: OnColorListener) : RecyclerView.Adapter<AccentColorAdapter.ColorHolder>() {
 
     private var mOnColorListener: OnColorListener
-    var currentAccentColor: Int = 999
+    var currentAccentColor: Int = 0
 
     init{
         mOnColorListener = onColorListener
@@ -39,12 +40,14 @@ class AccentColorAdapter (private val colorList: MutableList<Int>, onColorListen
     }
 
     override fun onBindViewHolder(holder: ColorHolder, position: Int) {
-        holder.colorCircle.setColorFilter(colorList[position])
+        holder.colorCircle.setColorFilter(ContextCompat.getColor(
+            holder.colorCircle.context,
+            colorList[position]
+        ))
         if (colorList[position] == currentAccentColor) {
             holder.colorCircleSelect.visibility = View.VISIBLE
         }
         else holder.colorCircleSelect.visibility = View.GONE
-
     }
 
     override fun getItemCount(): Int {
@@ -54,5 +57,4 @@ class AccentColorAdapter (private val colorList: MutableList<Int>, onColorListen
     interface OnColorListener {
         fun onColorPick(color: Int)
     }
-
 }

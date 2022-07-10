@@ -1,4 +1,4 @@
-package com.novikovpashka.projectkeeper.data.dataprojects
+package com.novikovpashka.projectkeeper.data.model
 
 import android.os.Parcel
 import android.os.Parcelable

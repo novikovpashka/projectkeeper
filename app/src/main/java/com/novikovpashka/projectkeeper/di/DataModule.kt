@@ -2,8 +2,7 @@ package com.novikovpashka.projectkeeper.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.novikovpashka.projectkeeper.data.apicurrency.CurrencyApi
-import com.novikovpashka.projectkeeper.data.dataprojects.SettingsRepo
+import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -17,5 +16,9 @@ class DataModule {
         return context.getSharedPreferences("sharedPrefs", Context.MODE_PRIVATE)
     }
 
+    @Provides
+    fun provideFirebaseAuth(): FirebaseAuth {
+        return FirebaseAuth.getInstance()
+    }
 
 }

@@ -1,28 +1,16 @@
-package com.novikovpashka.projectkeeper.data.dataprojects
+package com.novikovpashka.projectkeeper.data.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
-import com.novikovpashka.projectkeeper.data.apicurrency.CurrencyApi
-import com.novikovpashka.projectkeeper.data.apicurrency.RetrofitInstance
 import com.novikovpashka.projectkeeper.presentation.mainactivity.OrderParam
 import com.novikovpashka.projectkeeper.presentation.mainactivity.SortParam
-import retrofit2.Response
 import javax.inject.Inject
 
-class SettingsRepo @Inject constructor(private val currencyApi: CurrencyApi, private val sharedPreferences: SharedPreferences){
-
-    suspend fun getRateUSDRUB(): Response<String> {
-        return currencyApi.getUSD()
-    }
-
-    suspend fun getRateEURRUB(): Response<String> {
-        return currencyApi.getEUR()
-    }
+class SettingsRepository @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context){
 
     fun saveRatesToStorage(USD: String, EUR: String) {
         val editor = sharedPreferences.edit()
@@ -65,11 +53,10 @@ class SettingsRepo @Inject constructor(private val currencyApi: CurrencyApi, pri
     }
 
     fun loadAccentColorFromStorage(): Int {
-//        return sharedPreferences.getInt(
-//            "accentcolor",
-//            ContextCompat.getColor(context, AccentColors.MYORANGE.color)
-//        )
-        return 0
+        return sharedPreferences.getInt(
+            "accentcolor",
+            AccentColors.MYORANGE.color
+        )
     }
 
     fun saveCurrentThemeToStorage() {
@@ -110,17 +97,5 @@ class SettingsRepo @Inject constructor(private val currencyApi: CurrencyApi, pri
             else -> OrderParam.ASCENDING
         }
     }
-
-//    companion object {
-//        private var settingsRepo: SettingsRepo? = null
-//
-//        val instance: SettingsRepo?
-//            get() {
-//                if (settingsRepo == null) {
-//                    settingsRepo = SettingsRepo()
-//                }
-//                return settingsRepo
-//            }
-//    }
 
 }

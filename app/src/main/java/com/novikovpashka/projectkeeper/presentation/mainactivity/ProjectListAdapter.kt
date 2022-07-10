@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.Helpers
-import com.novikovpashka.projectkeeper.data.dataprojects.Project
+import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.databinding.ItemViewBinding
 
 class ProjectListAdapter(private val listener: OnItemClickListener) : ListAdapter<Project, RecyclerView.ViewHolder>(ProjectDiffCallback()) {

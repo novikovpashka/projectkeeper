@@ -1,21 +1,13 @@
-package com.novikovpashka.projectkeeper.data.dataprojects
+package com.novikovpashka.projectkeeper.data.repository
 
-import android.content.Context
-import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.novikovpashka.projectkeeper.AccentColors
-import com.novikovpashka.projectkeeper.CurrencyList
-import com.novikovpashka.projectkeeper.data.apicurrency.RetrofitInstance
-import retrofit2.Response
+import com.novikovpashka.projectkeeper.data.model.Project
+import javax.inject.Inject
 
-class FirestoreRepo {
+class FirestoreRepository @Inject constructor(){
 
     private val db = FirebaseFirestore.getInstance()
     private val user = FirebaseAuth.getInstance().currentUser?.email.toString()
@@ -41,7 +33,6 @@ class FirestoreRepo {
     }
 
     fun deleteProject(project: Project) {
-        Log.v("mytag", project.dateStamp.toString())
         db.collection("Users").document(user).collection("Projects")
             .whereEqualTo("dateStamp", project.dateStamp).get()
             .addOnSuccessListener { queryDocumentSnapshots ->
@@ -64,14 +55,14 @@ class FirestoreRepo {
     }
 
     companion object {
-        private var firestoreRepo: FirestoreRepo? = null
+        private var firestoreRepository: FirestoreRepository? = null
 
-        val instance: FirestoreRepo?
+        val instance: FirestoreRepository?
             get() {
-                if (firestoreRepo == null) {
-                    firestoreRepo = FirestoreRepo()
+                if (firestoreRepository == null) {
+                    firestoreRepository = FirestoreRepository()
                 }
-                return firestoreRepo
+                return firestoreRepository
             }
     }
 }

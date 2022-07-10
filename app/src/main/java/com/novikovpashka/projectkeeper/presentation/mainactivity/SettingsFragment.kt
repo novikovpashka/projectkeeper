@@ -4,16 +4,18 @@ import android.content.Context
 import android.graphics.Insets
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
+import com.novikovpashka.projectkeeper.MainApp
 import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.databinding.FragmentSettingsBinding
+import javax.inject.Inject
 
 class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
 
@@ -24,6 +26,9 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var accentColorAdapter: AccentColorAdapter
     private var accentColor: Int = 0
+
+    @Inject
+    lateinit var factory: SharedViewModel.Factory
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,10 +47,13 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+
+        (requireActivity().application as MainApp).appComponent.inject(this)
+        viewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
         accentColor = viewModel.accentColor.value!!
         recyclerView = binding.recycler
-//        accentColorAdapter = AccentColorAdapter(viewModel.getAccentColors(), this)
+
+        accentColorAdapter = AccentColorAdapter(viewModel.getAccentColorsList(), this)
         recyclerView.adapter = accentColorAdapter
         recyclerView.setHasFixedSize(false)
 
@@ -89,7 +97,7 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
         }
 
         viewModel.currentCurrency.observe(viewLifecycleOwner) {
-            when (it) {
+            when (it!!) {
                 CurrencyList.RUB -> binding.rub.isChecked = true
                 CurrencyList.USD -> binding.usd.isChecked = true
                 CurrencyList.EUR -> binding.eur.isChecked = true
@@ -102,7 +110,7 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
             setAccentColor(it)
         }
 
-        binding.currencyGroup.setOnCheckedChangeListener { group, checkedId ->
+        binding.currencyGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 binding.rub.id -> {
                     viewModel.saveAndApplyCurrency(CurrencyList.RUB)
@@ -119,7 +127,7 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
             }
         }
 
-        binding.themeGroup.setOnCheckedChangeListener { group, checkedId ->
+        binding.themeGroup.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 binding.useSystem.id -> AppCompatDelegate
                     .setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -131,7 +139,6 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
 
         binding.settingsToolbar.setNavigationOnClickListener {
             settingsListener.activateDrawer()
-//            requireActivity().onBackPressed()
             requireActivity().supportFragmentManager.popBackStack()
         }
 
@@ -157,31 +164,31 @@ class SettingsFragment : Fragment(), AccentColorAdapter.OnColorListener {
         viewModel.saveAndApplyAccentColor(color)
     }
 
-    fun setAccentColor(color: Int) {
+    private fun setAccentColor(color: Int) {
         when (color) {
-            ContextCompat.getColor(activity!!.applicationContext, R.color.myOrange) -> {
-                context!!.theme.applyStyle(R.style.Theme_Default, true)
+            R.color.myOrange -> {
+                requireContext().theme.applyStyle(R.style.Theme_Default, true)
             }
 
-            ContextCompat.getColor(activity!!.applicationContext, R.color.myRed) -> {
-                context!!.theme.applyStyle(R.style.Theme_Default_Red, true)
+            R.color.myRed -> {
+                requireContext().theme.applyStyle(R.style.Theme_Default_Red, true)
             }
 
-            ContextCompat.getColor(activity!!.applicationContext, R.color.myGreen) -> {
-                context!!.theme.applyStyle(R.style.Theme_Default_Green, true)
+            R.color.myGreen -> {
+                requireContext().theme.applyStyle(R.style.Theme_Default_Green, true)
             }
 
-            ContextCompat.getColor(activity!!.applicationContext, R.color.myPurple) -> {
-                context!!.theme.applyStyle(R.style.Theme_Default_Purple, true)
+            R.color.myPurple -> {
+                requireContext().theme.applyStyle(R.style.Theme_Default_Purple, true)
             }
 
-            ContextCompat.getColor(activity!!.applicationContext, R.color.myBlue) -> {
-                context!!.theme.applyStyle(R.style.Theme_Default_Blue, true)
+            R.color.myBlue -> {
+                requireContext().theme.applyStyle(R.style.Theme_Default_Blue, true)
             }
         }
+
         if (color != accentColor) {
-            activity!!.recreate()
-            Log.v("mytag", "color applied")
+            requireActivity().recreate()
         }
     }
 

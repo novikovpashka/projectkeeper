@@ -1,6 +1,5 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import com.novikovpashka.projectkeeper.presentation.mainactivity.BottomSortDialog.RadioListener
 import com.novikovpashka.projectkeeper.presentation.mainactivity.SettingsFragment.SettingsListener
@@ -28,7 +27,7 @@ import android.content.DialogInterface
 import android.text.TextWatcher
 import android.text.Editable
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.novikovpashka.projectkeeper.data.dataprojects.Project
+import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.google.android.material.snackbar.Snackbar
 import android.content.Intent
@@ -39,7 +38,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.PopupMenu
 import com.novikovpashka.projectkeeper.R.menu
 import com.github.javafaker.Faker
-import com.novikovpashka.projectkeeper.data.dataprojects.Incoming
+import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectActivity
 import com.novikovpashka.projectkeeper.presentation.startactivity.StartActivity
 import com.novikovpashka.projectkeeper.presentation.projectactivity.ProjectActivity
@@ -61,7 +60,6 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
     private lateinit var materialToolbar: MaterialToolbar
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
-    private lateinit var mAuth: FirebaseAuth
     private lateinit var projectAdapter: ProjectListAdapter
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var usdrubRate: TextView
@@ -71,6 +69,9 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
 
     @Inject
     lateinit var factory: SharedViewModel.Factory
+
+    @Inject
+    lateinit var mAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MainApp).appComponent.inject(this)
@@ -460,20 +461,20 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
 
     private fun setAccentColor(color: Int) {
         when (color) {
-            ContextCompat.getColor(this, R.color.myOrange) -> {
-                theme.applyStyle(R.style.Theme_Default, true)
+            R.color.myOrange -> {
+                this.theme.applyStyle(R.style.Theme_Default, true)
             }
-            ContextCompat.getColor(this, R.color.myRed) -> {
-                theme.applyStyle(R.style.Theme_Default_Red, true)
+            R.color.myRed -> {
+                this.theme.applyStyle(R.style.Theme_Default_Red, true)
             }
-            ContextCompat.getColor(this, R.color.myGreen) -> {
-                theme.applyStyle(R.style.Theme_Default_Green, true)
+            R.color.myGreen -> {
+                this.theme.applyStyle(R.style.Theme_Default_Green, true)
             }
-            ContextCompat.getColor(this, R.color.myPurple) -> {
-                theme.applyStyle(R.style.Theme_Default_Purple, true)
+            R.color.myPurple -> {
+                this.theme.applyStyle(R.style.Theme_Default_Purple, true)
             }
-            ContextCompat.getColor(this, R.color.myBlue) -> {
-                theme.applyStyle(R.style.Theme_Default_Blue, true)
+            R.color.myBlue -> {
+                this.theme.applyStyle(R.style.Theme_Default_Blue, true)
             }
         }
     }
