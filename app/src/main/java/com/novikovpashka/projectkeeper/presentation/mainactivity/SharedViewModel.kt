@@ -2,7 +2,6 @@ package com.novikovpashka.projectkeeper.presentation.mainactivity
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.*
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.QuerySnapshot
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
@@ -13,7 +12,6 @@ import com.novikovpashka.projectkeeper.data.repository.FirestoreRepository
 import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.IllegalStateException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject

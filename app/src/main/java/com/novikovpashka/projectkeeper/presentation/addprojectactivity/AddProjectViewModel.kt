@@ -7,12 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.data.model.Project
-import com.novikovpashka.projectkeeper.data.repository.CurrencyRepository
-import com.novikovpashka.projectkeeper.data.repository.FirestoreRepository
 import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
-import com.novikovpashka.projectkeeper.presentation.mainactivity.SharedViewModel
-import java.lang.IllegalStateException
-import java.lang.NumberFormatException
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject

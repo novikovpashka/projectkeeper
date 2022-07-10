@@ -1,7 +1,6 @@
 package com.novikovpashka.projectkeeper
 
 import android.app.Application
-import android.content.Context
 import com.novikovpashka.projectkeeper.di.AppComponent
 import com.novikovpashka.projectkeeper.di.DaggerAppComponent
 

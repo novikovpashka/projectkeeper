@@ -6,11 +6,10 @@ import android.content.Intent
 import android.graphics.Insets
 import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.MenuItem
+import android.view.WindowInsets
 import android.widget.DatePicker
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +20,6 @@ import com.novikovpashka.projectkeeper.MainApp
 import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityEditProjectBinding
-import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectViewModel
 import com.novikovpashka.projectkeeper.presentation.mainactivity.MainActivity
 import java.text.SimpleDateFormat
 import java.util.*

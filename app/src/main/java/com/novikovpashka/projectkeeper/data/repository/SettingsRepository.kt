@@ -3,7 +3,6 @@ package com.novikovpashka.projectkeeper.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.presentation.mainactivity.OrderParam
