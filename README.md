@@ -5,7 +5,7 @@ Main goal of this app is to help to manage your incomings of freelance projects.
 
 customer: how much i own you?
 
-you: *starting to recall all incomings, counting, opening bank app, recall the price you were agreed*
+you: &ast;*starting to recall all incomings, counting, opening bank app, recall the price you were agreed*&ast;
 
 This simple app is gives you a possibility to add projects, with price of it, add incomings with dates, and count the remainder that custumer owe you.
 
