@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
-import com.github.javafaker.Faker
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -35,7 +35,6 @@ import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.MainApp
 import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.R.*
-import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityMainBinding
 import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectActivity
@@ -43,12 +42,11 @@ import com.novikovpashka.projectkeeper.presentation.mainactivity.BottomSortDialo
 import com.novikovpashka.projectkeeper.presentation.mainactivity.SettingsFragment.SettingsListener
 import com.novikovpashka.projectkeeper.presentation.projectactivity.ProjectActivity
 import com.novikovpashka.projectkeeper.presentation.startactivity.StartActivity
-import java.text.DecimalFormat
-import java.util.*
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnItemClickListener,
     SettingsListener {
+    private lateinit var appBarLayout: AppBarLayout
     private lateinit var addButton: FloatingActionButton
     private lateinit var recyclerView: RecyclerView
     private lateinit var shimmerProjects: ShimmerFrameLayout
@@ -72,49 +70,18 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MainApp).appComponent.inject(this)
         sharedViewModel = ViewModelProvider(this, factory)[SharedViewModel::class.java]
-        setAccentColor(sharedViewModel.loadAccentColor())
+        setAccentColorAndNightMode(sharedViewModel.loadAccentColor())
+
         super.onCreate(savedInstanceState)
-
-        val binding = ActivityMainBinding.inflate(
-            layoutInflater
-        )
+        val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            binding.appbarlayout.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
-                val mInsets = insets.getInsets(WindowInsets.Type.systemBars())
-                v.setPadding(0, mInsets.top, 0, 0)
-                insets
-            }
-            binding.addButton.setOnApplyWindowInsetsListener { _: View?, insets: WindowInsets ->
-                val mInsets = insets.getInsets(WindowInsets.Type.systemBars())
-                val params = CoordinatorLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-                params.bottomMargin = mInsets.bottom + dpToPx(16)
-                params.rightMargin = dpToPx(16)
-                params.gravity = Gravity.END or Gravity.BOTTOM
-                binding.addButton.layoutParams = params
-                insets
-            }
-        } else {
-            val windowInsetsController = ViewCompat.getWindowInsetsController(window.decorView)
-            if (windowInsetsController != null) {
-                windowInsetsController.isAppearanceLightStatusBars = false
-            }
-            window.statusBarColor = Color.BLACK
-            window.navigationBarColor = Color.BLACK
-        }
 
+        appBarLayout = binding.appbarlayout
         addButton = binding.addButton
-        addButton.setOnClickListener { v: View -> showAddPopupMenu(v) }
-
         coordinatorLayout = binding.coordinator
         materialToolbar = binding.materialToolbar
         drawerLayout = binding.drawerLayout
         shimmerProjects = binding.shimmerProjects
-        shimmerProjects.visibility = View.VISIBLE
         navigationView = binding.navigationView
         mAuth = FirebaseAuth.getInstance()
         recyclerView = binding.recyclerView
@@ -128,14 +95,32 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         lastupdate = navigationView.getHeaderView(0)
             .findViewById(id.last_updated)
 
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        setInsets()
+        setClickListeners()
+        initRecycler()
+        initViewModelObservers()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        drawerLayout.closeDrawer(Gravity.LEFT, false)
+        if (searchText.text.toString().isEmpty()) {
+            stopSearchMode()
         }
+    }
 
-        initRecyclerAndObservers()
-        setToolbarListeners()
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
 
-        sharedViewModel.loadRates()
+        intent.getParcelableExtra<Project>("projectToAdd")?.let {
+            sharedViewModel.addProject(it)
+        }
+        intent.getParcelableExtra<Project>("projectToRemove")?.let {
+            sharedViewModel.deleteProject(it)
+        }
+        intent.getParcelableExtra<Project>("projectToUpdate")?.let {
+            sharedViewModel.updateProject(it)
+        }
     }
 
     override fun onBackPressed() {
@@ -143,7 +128,53 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         activateDrawer()
     }
 
-    private fun setToolbarListeners() {
+    override fun applySortClicked(sortParam: SortParam, orderParam: OrderParam) {
+        sharedViewModel.sortParamLiveData.value = sortParam
+        sharedViewModel.orderParamLiveData.value = orderParam
+        sharedViewModel.saveSortAndOrderParamsToStorage()
+    }
+
+    override fun onItemClick(project: Project) {
+        val intent = Intent(this, ProjectActivity::class.java)
+        intent.putExtra("Project", project)
+        startActivity(intent)
+        overridePendingTransition(anim.slide_from_right, anim.slide_to_left_slow)
+    }
+
+    override fun showActionMenu() {
+        sharedViewModel.selectMode.value = true
+    }
+
+    override fun closeActionMenu() {
+        sharedViewModel.selectMode.value = false
+        sharedViewModel.clearSelectedProjects()
+    }
+
+    override fun addProjectToDelete(project: Project, position: Int) {
+        sharedViewModel.addProjectToDelete(project, position)
+    }
+
+    override fun removeProjectToDelete(project: Project, position: Int) {
+        sharedViewModel.removeProjectToDelete(project, position)
+    }
+
+    override fun activateDrawer() {
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+    }
+
+    override fun recreateActivity() {
+        recreate()
+    }
+
+    override fun currencyChanged(currency: CurrencyList) {
+        projectAdapter.currency = currency
+        projectAdapter.notifyDataSetChanged()
+    }
+
+    private fun setClickListeners() {
+
+        addButton.setOnClickListener { v: View -> showAddPopupMenu(v) }
+
         materialToolbar.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == id.sort) {
                 val bottomSortDialog = BottomSortDialog()
@@ -168,11 +199,13 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
             }
             false
         }
+
         materialToolbar.setNavigationOnClickListener {
             drawerLayout.openDrawer(
                 GravityCompat.START
             )
         }
+
         navigationView.setNavigationItemSelectedListener { item: MenuItem ->
             if (item.itemId == id.settings) {
                 supportFragmentManager.beginTransaction()
@@ -195,12 +228,15 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
                     .setNegativeButton("Stay") { dialog: DialogInterface, _: Int -> dialog.cancel() }
                     .setPositiveButton("Log out") { _: DialogInterface?, _: Int ->
                         mAuth.signOut()
-                        startStartActivity()
+                        val intent = Intent(this, StartActivity::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
                     }
                     .show()
             }
             false
         }
+
         searchText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
             override fun onTextChanged(charSequence: CharSequence, i: Int, i1: Int, i2: Int) {}
@@ -211,18 +247,25 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         })
     }
 
-    private fun initRecyclerAndObservers() {
+    private fun initRecycler() {
+
         recyclerView.setHasFixedSize(true)
         recyclerView.adapter = projectAdapter
         recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+
+    private fun initViewModelObservers() {
+
         sharedViewModel.projects.observe(this) { projects: List<Project?> ->
             projectAdapter.submitList(
                 projects
             )
         }
+
         sharedViewModel.shimmerActive.observe(this) { aBoolean: Boolean ->
             shimmerProjects.visibility = if (aBoolean) View.VISIBLE else View.GONE
         }
+
         sharedViewModel.usdrubRate.observe(this) { s: String ->
             val result = s + "₽"
             usdrubRate.text = result
@@ -231,10 +274,12 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
             } catch (ignored: Exception) {
             }
         }
+
         sharedViewModel.currency.observe(this) { currency: CurrencyList? ->
             projectAdapter.currency = currency!!
             projectAdapter.notifyDataSetChanged()
         }
+
         sharedViewModel.eurrubRate.observe(this) { s: String ->
             val result = s + "₽"
             eurrubRate.text = result
@@ -243,7 +288,9 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
             } catch (ignored: Exception) {
             }
         }
-        sharedViewModel.updated.observe(this) { s: String? -> lastupdate.text = s }
+
+        sharedViewModel.ratesUpdatedDate.observe(this) { s: String? -> lastupdate.text = s }
+
         sharedViewModel.selectMode.observe(this) { aBoolean: Boolean ->
             val prevValue = projectAdapter.selectMode
             projectAdapter.selectMode = aBoolean
@@ -253,18 +300,21 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
                 if (prevValue) stopSelectMode()
             }
         }
+
         sharedViewModel.projectsToDelete.observe(this) { projects: List<Project> ->
             projectAdapter.selectedProject.clear()
             if (projects.isNotEmpty()) {
                 projectAdapter.selectedProject.addAll(projects)
             }
         }
+
         sharedViewModel.projectsIdToDelete.observe(this) { integers: List<Int> ->
             projectAdapter.selectedId.clear()
             if (integers.isNotEmpty()) {
                 projectAdapter.selectedId.addAll(integers)
             }
         }
+
         sharedViewModel.snackbarWithAction.observe(this) { s: String? ->
             if (s != null) {
                 Snackbar.make(coordinatorLayout, s, 5000)
@@ -272,35 +322,17 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
                     .show()
             }
         }
+
         sharedViewModel.snackbarInfo.observe(this) { s: String? ->
             if (s != null) {
                 Snackbar.make(coordinatorLayout, s, 5000).show()
             }
         }
+
         sharedViewModel.title.observe(this) { s: String? ->
             if (s != null) {
                 materialToolbar.title = s
             } else materialToolbar.title = "Projects"
-        }
-    }
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        if (intent.getParcelableExtra<Parcelable?>("projectToAdd") != null) {
-            val project = intent.getParcelableExtra<Project>("projectToAdd")
-            sharedViewModel.addProject(project!!)
-        } else if (intent.getParcelableExtra<Parcelable?>("projectToRemove") != null) {
-            sharedViewModel.deleteProject(intent.getParcelableExtra("projectToRemove")!!)
-        } else if (intent.getParcelableExtra<Parcelable?>("projectToUpdate") != null) {
-            sharedViewModel.updateProject(intent.getParcelableExtra("projectToUpdate")!!)
-        }
-    }
-
-    override fun onStop() {
-        super.onStop()
-        drawerLayout.closeDrawer(Gravity.LEFT, false)
-        if (searchText.text.toString().isEmpty()) {
-            stopSearchMode()
         }
     }
 
@@ -310,87 +342,15 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         popupMenu.show()
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             if (item.itemId == id.add_project) {
-                startAddProjectActivity()
+                val intent = Intent(this, AddProjectActivity::class.java)
+                startActivity(intent)
                 return@setOnMenuItemClickListener true
             } else if (item.itemId == id.add_random_1) {
-                addOneRandomProject()
+                sharedViewModel.addRandomProject()
                 return@setOnMenuItemClickListener true
             }
             false
         }
-    }
-
-    /**Add 1 random */
-    private fun addOneRandomProject() {
-        val faker = Faker()
-        val name = faker.country().capital()
-        val description = faker.harryPotter().quote()
-        val price =
-            DecimalFormat("####").format(((Math.random() * 200000).toInt() / 1000 * 1000).toLong())
-                .toDouble()
-        val incomings: MutableList<Incoming> = ArrayList()
-        for (i in 0..19) {
-            val incomingDescription = faker.harryPotter().quote()
-            val incomingValue = DecimalFormat("####")
-                .format(((Math.random() * price).toInt() / 20 / 1000 * 1000).toLong()).toDouble()
-            val incoming = Incoming(
-                incomingDescription,
-                incomingValue,
-                Date().time
-            )
-            incomings.add(incoming)
-        }
-        val project = Project(name, price, description, incomings)
-        sharedViewModel.addProject(project)
-    }
-
-    private fun startAddProjectActivity() {
-        val intent = Intent(this, AddProjectActivity::class.java)
-        startActivity(intent)
-    }
-
-    private fun startStartActivity() {
-        val intent = Intent(this, StartActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-    }
-
-    private fun startProjectActivity(project: Project) {
-        val intent = Intent(this, ProjectActivity::class.java)
-        intent.putExtra("Project", project)
-        startActivity(intent)
-        overridePendingTransition(anim.slide_from_right, anim.slide_to_left_slow)
-    }
-
-    override fun applySortClicked(sortParam: SortParam, orderParam: OrderParam) {
-        sharedViewModel.sortParamLiveData.value = sortParam
-        sharedViewModel.orderParamLiveData.value = orderParam
-        sharedViewModel.saveSortAndOrderParamsToStorage()
-    }
-
-    override fun onItemClick(project: Project) {
-        startProjectActivity(project)
-    }
-
-    override fun showActionMenu() {
-        sharedViewModel.selectMode.value = true
-    }
-
-    override fun closeActionMenu() {
-        sharedViewModel.selectMode.value = false
-        sharedViewModel.clearSelectedProjects()
-    }
-
-    override fun addProjectToDelete(project: Project, position: Int) {
-        sharedViewModel.addProjectToDelete(project, position)
-    }
-
-    override fun removeProjectToDelete(project: Project, position: Int) {
-        sharedViewModel.removeProjectToDelete(project, position)
-    }
-
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
     }
 
     private fun setSelectedMode() {
@@ -455,36 +415,63 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         addButton.show()
     }
 
-    private fun setAccentColor(color: Int) {
+    private fun setAccentColorAndNightMode(color: Int) {
+
         when (color) {
             R.color.myOrange -> {
-                this.theme.applyStyle(R.style.Theme_Default, true)
+                this.theme.applyStyle(style.Theme_Default, true)
             }
             R.color.myRed -> {
-                this.theme.applyStyle(R.style.Theme_Default_Red, true)
+                this.theme.applyStyle(style.Theme_Default_Red, true)
             }
             R.color.myGreen -> {
-                this.theme.applyStyle(R.style.Theme_Default_Green, true)
+                this.theme.applyStyle(style.Theme_Default_Green, true)
             }
             R.color.myPurple -> {
-                this.theme.applyStyle(R.style.Theme_Default_Purple, true)
+                this.theme.applyStyle(style.Theme_Default_Purple, true)
             }
             R.color.myBlue -> {
-                this.theme.applyStyle(R.style.Theme_Default_Blue, true)
+                this.theme.applyStyle(style.Theme_Default_Blue, true)
             }
+        }
+
+        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
     }
 
-    override fun activateDrawer() {
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+    private fun setInsets() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            appBarLayout.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
+                val mInsets = insets.getInsets(WindowInsets.Type.systemBars())
+                v.setPadding(0, mInsets.top, 0, 0)
+                insets
+            }
+            addButton.setOnApplyWindowInsetsListener { _: View?, insets: WindowInsets ->
+                val mInsets = insets.getInsets(WindowInsets.Type.systemBars())
+                val params = CoordinatorLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                params.bottomMargin = mInsets.bottom + dpToPx(16)
+                params.rightMargin = dpToPx(16)
+                params.gravity = Gravity.END or Gravity.BOTTOM
+                addButton.layoutParams = params
+                insets
+            }
+        } else {
+
+            ViewCompat.getWindowInsetsController(window.decorView)?.let{
+                it.isAppearanceLightStatusBars = false
+            }
+            window.statusBarColor = Color.TRANSPARENT
+            window.navigationBarColor = Color.BLACK
+        }
     }
 
-    override fun recreateActivity() {
-        recreate()
-    }
-
-    override fun currencyChanged(currency: CurrencyList) {
-        projectAdapter.currency = currency
-        projectAdapter.notifyDataSetChanged()
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
     }
 }

@@ -6,12 +6,14 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.data.apicurrency.NoConnectivityException
+import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.data.repository.CurrencyRepository
 import com.novikovpashka.projectkeeper.data.repository.FirestoreRepository
 import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -44,7 +46,7 @@ class SharedViewModel @Inject constructor (
         .loadUSDRateFromStorage())
     val eurrubRate = MutableLiveData(settingsRepository
         .loadEURRateFromStorage())
-    val updated: MutableLiveData<String> = MutableLiveData()
+    val ratesUpdatedDate: MutableLiveData<String> = MutableLiveData()
 
     private val projectsToRestore = mutableListOf<Project>()
 
@@ -71,6 +73,7 @@ class SharedViewModel @Inject constructor (
         get() = _title
 
     init {
+        loadRatesAndSaveToStorage()
         viewModelScope.launch {
             addProjectsObserver()
             currency.value = settingsRepository.loadCurrentCurrencyFromStorage()
@@ -143,12 +146,20 @@ class SharedViewModel @Inject constructor (
                 viewModelScope.launch {
                     val projectsList = loadProjectsObserved(value)
 
-                    if (sortParamLiveData.value == SortParam.BY_NAME) projectsList.sortBy { it.name.lowercase(
-                        Locale.getDefault()
-                    ) }
-                    else projectsList.sortBy { it.dateStamp }
-
-                    if (orderParamLiveData.value == OrderParam.DESCENDING) projectsList.reverse()
+                    when (sortParamLiveData.value!!) {
+                        SortParam.BY_NAME -> {
+                            when (orderParamLiveData.value!!) {
+                                OrderParam.ASCENDING -> projectsList.sortBy {it.name.lowercase(Locale.getDefault())}
+                                OrderParam.DESCENDING -> projectsList.sortByDescending {it.name.lowercase(Locale.getDefault())}
+                            }
+                        }
+                        SortParam.BY_DATE_ADDED -> {
+                            when (orderParamLiveData.value!!) {
+                                OrderParam.ASCENDING -> projectsList.sortBy {it.dateStamp}
+                                OrderParam.DESCENDING -> projectsList.sortByDescending {it.dateStamp}
+                            }
+                        }
+                    }
 
                     _projectsObserved.value = projectsList
                 }
@@ -211,7 +222,7 @@ class SharedViewModel @Inject constructor (
         }
     }
 
-    fun loadRates() {
+    fun loadRatesAndSaveToStorage() {
         viewModelScope.launch {
             try {
                 val usdrubRateResponce = currencyRepository.getRateUSDRUB()
@@ -220,7 +231,7 @@ class SharedViewModel @Inject constructor (
                     usdrubRate.value = usdrubRateResponce.body()
                     eurrubRate.value = eurrubRateResponce.body()
                     val dateFormat = SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss")
-                    updated.value = dateFormat.format(Date())
+                    ratesUpdatedDate.value = dateFormat.format(Date())
                     settingsRepository.saveRatesToStorage(
                         usdrubRateResponce.body()!!,
                         eurrubRateResponce.body()!!
@@ -239,6 +250,7 @@ class SharedViewModel @Inject constructor (
     fun loadAccentColor(): Int {
         return settingsRepository.loadAccentColorFromStorage()
     }
+
 
     fun addProjectToDelete (project: Project, position: Int) {
         projectsToDeleteList.add(project)
@@ -299,9 +311,7 @@ class SharedViewModel @Inject constructor (
     fun getAccentColorsList(): MutableList<Int> {
         val colorList: MutableList<Int> = mutableListOf()
         for (x in AccentColors.values()) {
-            colorList.add(
-                x.color
-            )
+            colorList.add(x.color)
         }
         return colorList
     }
@@ -316,6 +326,36 @@ class SharedViewModel @Inject constructor (
             sortParam = sortParamLiveData.value!!,
             orderParam = orderParamLiveData.value!!
         )
+    }
+
+    fun addRandomProject() {
+        viewModelScope.launch {
+            addProject(getRandomProject())
+        }
+    }
+
+    private suspend fun getRandomProject(): Project {
+        return suspendCoroutine { continuation ->
+            val name = "Test" + (Math.random() * 100000).toInt()
+            val description = "Project description" + (Math.random() * 1000000).toInt()
+            val price =
+                DecimalFormat("####").format(((Math.random() * 200000).toInt() / 1000 * 1000).toLong())
+                    .toDouble()
+            val incomings: MutableList<Incoming> = ArrayList()
+            for (i in 0..19) {
+                val incomingDescription = "Incoming description" + (Math.random() * 1000000).toInt()
+
+                val incomingValue = DecimalFormat("####")
+                    .format(((Math.random() * price).toInt() / 20 / 1000 * 1000).toLong()).toDouble()
+                val incoming = Incoming(
+                    incomingDescription,
+                    incomingValue,
+                    Date().time
+                )
+                incomings.add(incoming)
+            }
+            continuation.resume(Project(name, price, description, incomings))
+        }
     }
 
     class Factory @Inject constructor(

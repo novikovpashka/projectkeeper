@@ -63,11 +63,10 @@
         <com.facebook.shimmer.ShimmerFrameLayout
             android:id="@+id/shimmer_projects"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:layout_constraintTop_toBottomOf="@id/material_toolbar"
-            android:layout_marginTop="48dp"
             app:shimmer_base_color="?android:attr/colorControlNormal"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
             <LinearLayout
@@ -89,8 +88,6 @@
 
             </LinearLayout>
         </com.facebook.shimmer.ShimmerFrameLayout>
-
-
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/addButton"
