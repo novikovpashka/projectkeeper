@@ -1,74 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    android:orientation="vertical">
+
+    <com.google.android.material.divider.MaterialDivider
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginBottom="16dp"
-        >
+        app:dividerColor="?attr/dividerColorMy"
+        app:dividerThickness="0.5dp" />
 
-        <com.google.android.material.divider.MaterialDivider
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/incoming_value"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:dividerThickness="0.5dp"
-            app:dividerColor="?attr/dividerColorMy"
-            >
-        </com.google.android.material.divider.MaterialDivider>
+            android:background="@android:color/transparent"
+            android:hint="₽"
+            android:text="@{incoming.incomingValue}"
+            android:textSize="14sp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
+            android:text=" at "
+            android:textSize="14sp" />
 
-            <TextView
-                android:id="@+id/incoming_value"
-                android:text="@{incoming.incomingValue}"
-                android:background="@android:color/transparent"
-                android:textSize="14sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="₽"
-                >
-            </TextView>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:text=" at "
-                >
-            </TextView>
-            <TextView
-                android:id="@+id/incoming_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:hint="Date"
-                android:text="@{incoming.incomingDateText}"
-                >
-            </TextView>
-
-        </LinearLayout>
-
-
-            <TextView
-                android:id="@+id/incoming_desc"
-                android:text="@{incoming.incomingDescription}"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:background="@android:color/transparent"
-                android:layout_marginTop="4dp"
-                android:minLines="0"
-                android:inputType="textMultiLine"
-                android:nestedScrollingEnabled="true"
-                android:overScrollMode="always"
-                android:scrollbarStyle="insideInset"
-                android:scrollbars="vertical"
-                >
-            </TextView>
+        <TextView
+            android:id="@+id/incoming_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Date"
+            android:text="@{incoming.incomingDateText}"
+            android:textSize="14sp" />
 
     </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/incoming_desc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@android:color/transparent"
+        android:inputType="textMultiLine"
+        android:minLines="0"
+        android:nestedScrollingEnabled="true"
+        android:overScrollMode="always"
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical"
+        android:text="@{incoming.incomingDescription}"
+        android:textSize="14sp" />
+
+</LinearLayout>

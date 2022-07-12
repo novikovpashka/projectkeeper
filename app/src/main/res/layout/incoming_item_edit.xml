@@ -1,118 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
         <variable
             name="incoming"
-            type="com.novikovpashka.projectkeeper.presentation.editprojectactivity.EditProjectViewModel.ItemIncoming"/>
+            type="com.novikovpashka.projectkeeper.presentation.editprojectactivity.EditProjectViewModel.ItemIncoming" />
     </data>
 
-    <LinearLayout android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/stroke_incoming"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="16dp"
         android:layout_marginHorizontal="16dp"
         android:layout_marginVertical="8dp"
-        >
+        android:background="@drawable/stroke_incoming"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            >
+            android:orientation="horizontal">
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_calendar_today_24">
-            </ImageView>
+                android:src="@drawable/ic_baseline_calendar_today_24" />
+
             <TextView
                 android:id="@+id/incoming_date"
                 android:layout_width="0dp"
-                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_gravity="center"
-                android:textSize="18sp"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
                 android:text="@{incoming.incomingDateText}"
-                >
-            </TextView>
+                android:textSize="18sp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/delete_item"
+                style="@style/Widget.Material3.Button.IconButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top"
                 android:gravity="top"
-                style="@style/Widget.Material3.Button.IconButton"
-                android:text="Remove">
-            </com.google.android.material.button.MaterialButton>
+                android:text="Remove" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginVertical="8dp">
+            android:layout_marginVertical="8dp"
+            android:orientation="horizontal">
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_baseline_currency_ruble_24">
-            </ImageView>
+                android:src="@drawable/ic_baseline_currency_ruble_24" />
+
             <EditText
                 android:id="@+id/incoming_value"
-                android:text="@{incoming.incomingValue}"
-                android:background="@android:color/transparent"
-                android:textSize="16sp"
-                android:layout_gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_marginStart="16dp"
+                android:background="@android:color/transparent"
                 android:hint="Incoming value"
                 android:inputType="number"
-                >
-            </EditText>
+                android:text="@{incoming.incomingValue}"
+                android:textSize="16sp" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginVertical="8dp">
+            android:layout_marginVertical="8dp"
+            android:orientation="horizontal">
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_baseline_notes_24">
-            </ImageView>
+                android:src="@drawable/ic_baseline_notes_24"
+                android:contentDescription="TODO" />
+
             <EditText
                 android:id="@+id/incoming_desc"
-                android:text="@{incoming.incomingDescription}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
                 android:layout_gravity="center"
-                android:background="@android:color/transparent"
                 android:layout_marginStart="16dp"
+                android:background="@android:color/transparent"
                 android:hint="Add description"
                 android:inputType="textMultiLine"
-                android:nestedScrollingEnabled="true"
                 android:lines="3"
-                android:minLines="1"
                 android:maxLines="3"
+                android:minLines="1"
+                android:nestedScrollingEnabled="true"
                 android:overScrollMode="always"
                 android:scrollbarStyle="insideInset"
                 android:scrollbars="vertical"
-                >
-            </EditText>
+                android:text="@{incoming.incomingDescription}"
+                android:textSize="16sp"
+                android:autofillHints="" />
 
         </LinearLayout>
 

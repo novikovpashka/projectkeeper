@@ -1,4 +1,5 @@
 <resources>
+
     <style name="Theme.Default" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/def_theme_light_primary</item>
         <item name="colorOnPrimary">@color/def_theme_light_onPrimary</item>
@@ -78,13 +79,13 @@
     </style>
 
     <style name="NavigationDrawerTextStyle" parent="android:Widget.TextView">
-            <item name="android:fontFamily">sans-serif-medium</item>
-            <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="NavigationDrawerHeaderTextStyle" parent="android:Widget.TextView">
-            <item name="android:fontFamily">sans-serif-black</item>
-            <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif-black</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="WindowAnimationTransition">

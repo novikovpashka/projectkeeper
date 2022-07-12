@@ -1,130 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:tools="http://schemas.android.com/tools"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    xmlns:tools="http://schemas.android.com/tools">
+
     <data>
+
         <variable
             name="project"
-            type="com.novikovpashka.projectkeeper.data.model.Project"/>
+            type="com.novikovpashka.projectkeeper.data.model.Project" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinator"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
+
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbarlayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
+
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
+                style="@style/Widget.Material3.Toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                style="@style/Widget.Material3.Toolbar"
-                app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
                 app:menu="@menu/project_bar_menu"
-                >
-            </com.google.android.material.appbar.MaterialToolbar>
+                app:navigationIcon="@drawable/ic_baseline_arrow_back_24" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            android:scrollbars="vertical"
             android:fadeScrollbars="true"
-            >
+            android:scrollbars="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <LinearLayout
                 android:id="@+id/linearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
-                >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/project_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="start"
                     android:background="@android:color/transparent"
-                    android:textSize="24sp"
                     android:hint="Project name"
-                    android:layout_gravity="start">
-                </TextView>
+                    android:textSize="24sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginTop="2dp"
-                    >
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:inputType="number"
-                        android:textSize="16sp"
                         android:layout_gravity="center_vertical"
-                        android:text="Price: "
                         android:background="@android:color/transparent"
-                        >
-                    </TextView>
+                        android:inputType="number"
+                        android:text="Price: "
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/project_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="16sp"
                         android:layout_gravity="center_vertical"
-                        android:hint="price"
                         android:background="@android:color/transparent"
-                        >
-                    </TextView>
+                        android:hint="price"
+                        android:textSize="16sp" />
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/project_description"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textSize="14sp"
                     android:layout_gravity="center_vertical"
+                    android:layout_marginTop="4dp"
+                    android:background="@android:color/transparent"
                     android:hint="No description"
                     android:inputType="textMultiLine"
                     android:overScrollMode="always"
                     android:scrollbarStyle="insideInset"
                     android:scrollbars="vertical"
-                    android:background="@android:color/transparent">
-                </TextView>
+                    android:textSize="14sp" />
 
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="start"
                     android:layout_marginTop="16dp"
                     android:background="@android:color/transparent"
-                    android:textSize="18sp"
                     android:text="Incomigs"
-                    android:layout_gravity="start">
-                </TextView>
+                    android:textSize="18sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="16dp"
-                    tools:listitem="@layout/incoming_item"
-                    android:paddingBottom="20dp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     android:clipToPadding="false"
                     android:overScrollMode="never"
-                    >
-                </androidx.recyclerview.widget.RecyclerView>
+                    android:paddingBottom="20dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/incoming_item" />
 
             </LinearLayout>
 

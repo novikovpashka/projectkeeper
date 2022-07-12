@@ -9,19 +9,15 @@
         android:id="@+id/color_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/color_picker"
         android:layout_gravity="center"
-        >
-    </ImageView>
+        android:src="@drawable/color_picker" />
 
     <ImageView
         android:id="@+id/color_item_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/color_picker_selection"
         android:layout_gravity="center"
-        android:visibility="gone"
-        >
-    </ImageView>
+        android:src="@drawable/color_picker_selection"
+        android:visibility="gone" />
 
 </FrameLayout>

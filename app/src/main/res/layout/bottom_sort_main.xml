@@ -2,49 +2,43 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:fitsSystemWindows="false"
-        >
+        android:orientation="vertical">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_pull"
             android:layout_gravity="center"
-            android:layout_marginTop="12dp">
-        </ImageView>
+            android:layout_marginTop="12dp"
+            android:src="@drawable/ic_pull" />
 
         <RadioGroup
             android:id="@+id/sort_sheet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checkedButton="@id/by_date"
             android:layout_marginBottom="8dp"
-            >
+            android:checkedButton="@id/by_date">
 
             <RadioButton
                 android:id="@+id/by_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="By date added"
-                android:layoutDirection="rtl"
-                android:textAlignment="textStart"
                 android:layout_marginHorizontal="16dp"
-                >
-            </RadioButton>
+                android:layoutDirection="rtl"
+                android:text="By date added"
+                android:textAlignment="textStart" />
 
             <RadioButton
                 android:id="@+id/by_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="By name"
+                android:layout_marginHorizontal="16dp"
                 android:layoutDirection="rtl"
-                android:textAlignment="textStart"
-                android:layout_marginHorizontal="16dp">
-            </RadioButton>
+                android:text="By name"
+                android:textAlignment="textStart" />
         </RadioGroup>
 
         <com.google.android.material.divider.MaterialDivider
@@ -58,41 +52,37 @@
             android:id="@+id/sort_order"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checkedButton="@id/ascending"
-            >
+            android:checkedButton="@id/ascending">
 
             <RadioButton
                 android:id="@+id/ascending"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:layout_marginHorizontal="16dp"
-                android:text="Ascending"
+                android:layout_marginTop="8dp"
                 android:layoutDirection="rtl"
-                android:textAlignment="textStart">
-            </RadioButton>
+                android:text="Ascending"
+                android:textAlignment="textStart" />
 
             <RadioButton
                 android:id="@+id/descending"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Descending"
-                android:layoutDirection="rtl"
-                android:textAlignment="textStart"
                 android:layout_marginHorizontal="16dp"
-                >
-            </RadioButton>
+                android:layoutDirection="rtl"
+                android:text="Descending"
+                android:textAlignment="textStart" />
         </RadioGroup>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/apply_sort"
+            style="@style/ThemeOverlay.Material3.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginVertical="8dp"
-            android:layout_marginEnd="16dp"
             android:layout_gravity="end"
-            style="@style/ThemeOverlay.Material3.Button.TextButton"
+            android:layout_marginVertical="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
             android:text="Apply">
 
         </com.google.android.material.button.MaterialButton>

@@ -9,26 +9,22 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbarlayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/settings_toolbar"
+            style="@style/Widget.Material3.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            style="@style/Widget.Material3.Toolbar"
-            app:title="Settings"
             app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-            >
-        </com.google.android.material.appbar.MaterialToolbar>
+            app:title="Settings" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="none"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:id="@+id/linearLayout"
@@ -40,47 +36,44 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
-                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
                 android:text="Theme"
-                android:fontFamily="sans-serif-medium">
-            </TextView>
+                android:textSize="16sp" />
 
             <RadioGroup
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:id="@+id/theme_group"
-                >
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <RadioButton
                     android:id="@+id/use_system"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
                     android:layoutDirection="rtl"
-                    android:textAlignment="textStart"
                     android:text="Use system"
-                    android:layout_marginHorizontal="16dp">
-                </RadioButton>
+                    android:textAlignment="textStart" />
+
                 <RadioButton
                     android:id="@+id/light"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
                     android:layoutDirection="rtl"
-                    android:textAlignment="textStart"
                     android:text="Light"
-                    android:layout_marginHorizontal="16dp">
-                </RadioButton>
+                    android:textAlignment="textStart" />
+
                 <RadioButton
                     android:id="@+id/dark"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
                     android:layoutDirection="rtl"
-                    android:textAlignment="textStart"
                     android:text="Dark"
-                    android:layout_marginHorizontal="16dp">
-                </RadioButton>
+                    android:textAlignment="textStart" />
             </RadioGroup>
 
             <com.google.android.material.divider.MaterialDivider
@@ -88,51 +81,48 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginVertical="8dp"
-                app:dividerColor="?attr/dividerColorMy">
-            </com.google.android.material.divider.MaterialDivider>
+                app:dividerColor="?attr/dividerColorMy" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginVertical="8dp"
-                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
                 android:text="Currency"
-                android:fontFamily="sans-serif-medium">
-            </TextView>
+                android:textSize="16sp" />
 
             <RadioGroup
+                android:id="@+id/currency_group"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/currency_group">
+                android:layout_height="wrap_content">
 
                 <RadioButton
                     android:id="@+id/rub"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
                     android:layoutDirection="rtl"
-                    android:textAlignment="textStart"
                     android:text="RUB"
-                    android:layout_marginHorizontal="16dp">
-                </RadioButton>
+                    android:textAlignment="textStart" />
+
                 <RadioButton
                     android:id="@+id/usd"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
                     android:layoutDirection="rtl"
-                    android:textAlignment="textStart"
                     android:text="USD"
-                    android:layout_marginHorizontal="16dp">
-                </RadioButton>
+                    android:textAlignment="textStart" />
+
                 <RadioButton
                     android:id="@+id/eur"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
                     android:layoutDirection="rtl"
-                    android:textAlignment="textStart"
                     android:text="EUR"
-                    android:layout_marginHorizontal="16dp">
-                </RadioButton>
+                    android:textAlignment="textStart" />
             </RadioGroup>
 
             <com.google.android.material.divider.MaterialDivider
@@ -140,39 +130,33 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginVertical="8dp"
-                app:dividerColor="?attr/dividerColorMy">
-            </com.google.android.material.divider.MaterialDivider>
+                app:dividerColor="?attr/dividerColorMy" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginVertical="8dp"
-                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
                 android:text="Accent color"
-                android:fontFamily="sans-serif-medium">
-            </TextView>
+                android:textSize="16sp" />
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:scrollbars="none"
                 android:layout_marginVertical="8dp"
-                >
+                android:scrollbars="none">
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler"
                     android:layout_width="wrap_content"
-                    android:layout_marginStart="8dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
                     android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/color_item"
-                    >
-                </androidx.recyclerview.widget.RecyclerView>
+                    tools:listitem="@layout/color_item" />
 
             </HorizontalScrollView>
-
 
 
         </LinearLayout>
