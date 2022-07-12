@@ -76,32 +76,28 @@ class SharedViewModel @Inject constructor (
         loadRatesAndSaveToStorage()
         viewModelScope.launch {
             addProjectsObserver()
-            currency.value = settingsRepository.loadCurrentCurrencyFromStorage()
+        }
+        currency.value = settingsRepository.loadCurrentCurrencyFromStorage()
 
-            _projects.addSource(_projectsObserved) {
-                _projects.value = it
-                _shimmer.value = false
+        _projects.addSource(_projectsObserved) {
+            _projects.value = it
+        }
+
+        _projects.addSource(searchTextLiveData) {
+            viewModelScope.launch {
+                _projects.value = sortAndFilterProjectList()
             }
+        }
 
-            _projects.addSource(searchTextLiveData) {
-                viewModelScope.launch {
-                    _projects.value = sortAndFilterProjectList()
-                    _shimmer.value = false
-                }
+        _projects.addSource(sortParamLiveData) {
+            viewModelScope.launch {
+                _projects.value = sortAndFilterProjectList()
             }
+        }
 
-            _projects.addSource(sortParamLiveData) {
-                viewModelScope.launch {
-                    _projects.value = sortAndFilterProjectList()
-                    _shimmer.value = false
-                }
-            }
-
-            _projects.addSource(orderParamLiveData) {
-                viewModelScope.launch {
-                    _projects.value = sortAndFilterProjectList()
-                    _shimmer.value = false
-                }
+        _projects.addSource(orderParamLiveData) {
+            viewModelScope.launch {
+                _projects.value = sortAndFilterProjectList()
             }
         }
     }
@@ -136,6 +132,7 @@ class SharedViewModel @Inject constructor (
                     }
                 }
             }
+            _shimmer.value = false
             continuation.resume(projectsList)
         }
     }
@@ -160,8 +157,8 @@ class SharedViewModel @Inject constructor (
                             }
                         }
                     }
-
                     _projectsObserved.value = projectsList
+                    _shimmer.value = false
                 }
             }
         }

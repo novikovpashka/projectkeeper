@@ -1,6 +1,7 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -19,9 +20,11 @@ class ProjectListAdapter(private val listener: OnItemClickListener) : ListAdapte
     var usdRate = 0.0
     var eurRate = 0.0
 
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val project = getItem(position)
         (holder as ProjectViewHolder).bind(project)
+        if (position == currentList.size - 1) holder.binding.divider.visibility = View.GONE
         holder.binding.card.isChecked = selectedProject.contains(project)
         holder.binding.itemTotalprice.text = Helpers.convertPrice(project.price, currency, usdRate, eurRate)
 

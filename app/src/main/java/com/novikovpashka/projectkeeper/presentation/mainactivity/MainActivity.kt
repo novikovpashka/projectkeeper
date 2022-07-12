@@ -2,14 +2,11 @@ package com.novikovpashka.projectkeeper.presentation.mainactivity
 
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.os.Parcelable
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
@@ -17,15 +14,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -37,7 +31,9 @@ import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.R.*
 import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityMainBinding
+import com.novikovpashka.projectkeeper.extensions.setInsets
 import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectActivity
+import com.novikovpashka.projectkeeper.presentation.base.MyToolbar
 import com.novikovpashka.projectkeeper.presentation.mainactivity.BottomSortDialog.RadioListener
 import com.novikovpashka.projectkeeper.presentation.mainactivity.SettingsFragment.SettingsListener
 import com.novikovpashka.projectkeeper.presentation.projectactivity.ProjectActivity
@@ -51,7 +47,7 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
     private lateinit var recyclerView: RecyclerView
     private lateinit var shimmerProjects: ShimmerFrameLayout
     private lateinit var coordinatorLayout: CoordinatorLayout
-    private lateinit var materialToolbar: MaterialToolbar
+    private lateinit var materialToolbar: MyToolbar
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private lateinit var projectAdapter: ProjectListAdapter
@@ -86,7 +82,7 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         mAuth = FirebaseAuth.getInstance()
         recyclerView = binding.recyclerView
         projectAdapter = ProjectListAdapter(this)
-        searchText = binding.searchEditText
+        searchText = materialToolbar.searchText
 
         usdrubRate = navigationView.getHeaderView(0)
             .findViewById(id.usdrub_value)
@@ -97,8 +93,10 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
 
         setInsets()
         setClickListeners()
-        initRecycler()
         initViewModelObservers()
+
+        recyclerView.setHasFixedSize(true)
+        recyclerView.adapter = projectAdapter
     }
 
     override fun onStop() {
@@ -111,7 +109,6 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-
         intent.getParcelableExtra<Project>("projectToAdd")?.let {
             sharedViewModel.addProject(it)
         }
@@ -196,6 +193,8 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
                 sharedViewModel.deleteSelectedProjects()
             } else if (item.itemId == id.search) {
                 setSearchMode()
+            } else if (item.itemId == id.clear_text) {
+                searchText.setText("")
             }
             false
         }
@@ -229,7 +228,8 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
                     .setPositiveButton("Log out") { _: DialogInterface?, _: Int ->
                         mAuth.signOut()
                         val intent = Intent(this, StartActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        intent.flags =
+                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                         startActivity(intent)
                     }
                     .show()
@@ -247,32 +247,14 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         })
     }
 
-    private fun initRecycler() {
-
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = projectAdapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
-    }
-
     private fun initViewModelObservers() {
 
-        sharedViewModel.projects.observe(this) { projects: List<Project?> ->
-            projectAdapter.submitList(
-                projects
-            )
+        sharedViewModel.projects.observe(this) { projects: List<Project> ->
+            projectAdapter.submitList(projects)
         }
 
         sharedViewModel.shimmerActive.observe(this) { aBoolean: Boolean ->
             shimmerProjects.visibility = if (aBoolean) View.VISIBLE else View.GONE
-        }
-
-        sharedViewModel.usdrubRate.observe(this) { s: String ->
-            val result = s + "₽"
-            usdrubRate.text = result
-            try {
-                projectAdapter.usdRate = s.toDouble()
-            } catch (ignored: Exception) {
-            }
         }
 
         sharedViewModel.currency.observe(this) { currency: CurrencyList? ->
@@ -280,12 +262,21 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
             projectAdapter.notifyDataSetChanged()
         }
 
+        sharedViewModel.usdrubRate.observe(this) { s: String ->
+            try {
+                projectAdapter.usdRate = s.toDouble()
+                usdrubRate.text = s + "₽"
+            } catch (ignored: Exception) {
+                usdrubRate.text = "No data"
+            }
+        }
+
         sharedViewModel.eurrubRate.observe(this) { s: String ->
-            val result = s + "₽"
-            eurrubRate.text = result
             try {
                 projectAdapter.eurRate = s.toDouble()
+                eurrubRate.text = s + "₽"
             } catch (ignored: Exception) {
+                eurrubRate.text = "No data"
             }
         }
 
@@ -316,16 +307,16 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         }
 
         sharedViewModel.snackbarWithAction.observe(this) { s: String? ->
-            if (s != null) {
-                Snackbar.make(coordinatorLayout, s, 5000)
+            s?.let {
+                Snackbar.make(coordinatorLayout, it, 5000)
                     .setAction("UNDO") { sharedViewModel.restoreDeletedProjects() }
                     .show()
             }
         }
 
         sharedViewModel.snackbarInfo.observe(this) { s: String? ->
-            if (s != null) {
-                Snackbar.make(coordinatorLayout, s, 5000).show()
+            s?.let {
+                Snackbar.make(coordinatorLayout, it, 5000).show()
             }
         }
 
@@ -355,10 +346,7 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
 
     private fun setSelectedMode() {
         addButton.hide()
-        searchText.visibility = View.GONE
-        materialToolbar.menu.clear()
-        materialToolbar.inflateMenu(menu.topappbar_menu_delete)
-        materialToolbar.setNavigationIcon(R.drawable.ic_baseline_close_24)
+        materialToolbar.setSelectMode()
         materialToolbar.setNavigationOnClickListener {
             for (x in sharedViewModel.clearSelectedProjects()) {
                 projectAdapter.notifyItemChanged(x)
@@ -371,16 +359,12 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         for (x in sharedViewModel.clearSelectedProjects()) {
             projectAdapter.notifyItemChanged(x)
         }
-        materialToolbar.menu.clear()
         if (searchText.text.toString().isNotEmpty()) {
             setSearchMode()
         } else {
-            materialToolbar.inflateMenu(menu.topappbar_menu)
-            materialToolbar.setNavigationIcon(R.drawable.ic_baseline_menu_24)
+            materialToolbar.setDefaultMode()
             materialToolbar.setNavigationOnClickListener {
-                drawerLayout.openDrawer(
-                    GravityCompat.START
-                )
+                drawerLayout.openDrawer(GravityCompat.START)
             }
             addButton.show()
         }
@@ -388,29 +372,14 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
 
     private fun setSearchMode() {
         addButton.hide()
-        materialToolbar.menu.clear()
-        materialToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-        searchText.visibility = View.VISIBLE
+        materialToolbar.setSearchMode()
         materialToolbar.setNavigationOnClickListener { stopSearchMode() }
-        searchText.requestFocus()
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(searchText, 0)
     }
 
     private fun stopSearchMode() {
-        materialToolbar.menu.clear()
-        searchText.setText("")
-        searchText.visibility = View.GONE
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(
-            this@MainActivity.window.decorView.windowToken, 0
-        )
-        materialToolbar.inflateMenu(menu.topappbar_menu)
-        materialToolbar.setNavigationIcon(R.drawable.ic_baseline_menu_24)
+        materialToolbar.setDefaultMode()
         materialToolbar.setNavigationOnClickListener {
-            drawerLayout.openDrawer(
-                GravityCompat.START
-            )
+            drawerLayout.openDrawer(GravityCompat.START)
         }
         addButton.show()
     }
@@ -441,37 +410,7 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
     }
 
     private fun setInsets() {
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            appBarLayout.setOnApplyWindowInsetsListener { v: View, insets: WindowInsets ->
-                val mInsets = insets.getInsets(WindowInsets.Type.systemBars())
-                v.setPadding(0, mInsets.top, 0, 0)
-                insets
-            }
-            addButton.setOnApplyWindowInsetsListener { _: View?, insets: WindowInsets ->
-                val mInsets = insets.getInsets(WindowInsets.Type.systemBars())
-                val params = CoordinatorLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-                params.bottomMargin = mInsets.bottom + dpToPx(16)
-                params.rightMargin = dpToPx(16)
-                params.gravity = Gravity.END or Gravity.BOTTOM
-                addButton.layoutParams = params
-                insets
-            }
-        } else {
-
-            ViewCompat.getWindowInsetsController(window.decorView)?.let{
-                it.isAppearanceLightStatusBars = false
-            }
-            window.statusBarColor = Color.TRANSPARENT
-            window.navigationBarColor = Color.BLACK
-        }
-    }
-
-    private fun dpToPx(dp: Int): Int {
-        return (dp * resources.displayMetrics.density).toInt()
+        appBarLayout.setInsets()
+        addButton.setInsets()
     }
 }
