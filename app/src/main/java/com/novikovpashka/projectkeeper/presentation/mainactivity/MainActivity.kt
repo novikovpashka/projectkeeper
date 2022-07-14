@@ -1,49 +1,42 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity
 
-import android.content.DialogInterface
 import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.Gravity
+import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
-import androidx.core.view.WindowCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.MainApp
-import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.R.*
 import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityMainBinding
-import com.novikovpashka.projectkeeper.extensions.setInsets
+import com.novikovpashka.projectkeeper.extensions.logOutDialog
+import com.novikovpashka.projectkeeper.extensions.startSettingsFragment
 import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectActivity
+import com.novikovpashka.projectkeeper.presentation.base.MyAppBarLayout
+import com.novikovpashka.projectkeeper.presentation.base.MyFloatingButton
 import com.novikovpashka.projectkeeper.presentation.base.MyToolbar
-import com.novikovpashka.projectkeeper.presentation.mainactivity.BottomSortDialog.RadioListener
-import com.novikovpashka.projectkeeper.presentation.mainactivity.SettingsFragment.SettingsListener
 import com.novikovpashka.projectkeeper.presentation.projectactivity.ProjectActivity
-import com.novikovpashka.projectkeeper.presentation.startactivity.StartActivity
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnItemClickListener,
-    SettingsListener {
-    private lateinit var appBarLayout: AppBarLayout
-    private lateinit var addButton: FloatingActionButton
+class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener {
+    private lateinit var appBarLayout: MyAppBarLayout
+    private lateinit var addButton: MyFloatingButton
     private lateinit var recyclerView: RecyclerView
     private lateinit var shimmerProjects: ShimmerFrameLayout
     private lateinit var coordinatorLayout: CoordinatorLayout
@@ -60,13 +53,10 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
     @Inject
     lateinit var factory: SharedViewModel.Factory
 
-    @Inject
-    lateinit var mAuth: FirebaseAuth
-
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MainApp).appComponent.inject(this)
         sharedViewModel = ViewModelProvider(this, factory)[SharedViewModel::class.java]
-        setAccentColorAndNightMode(sharedViewModel.loadAccentColor())
+        setTheme(sharedViewModel.loadThemeIdFromStorage())
 
         super.onCreate(savedInstanceState)
         val binding = ActivityMainBinding.inflate(layoutInflater)
@@ -79,10 +69,11 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         drawerLayout = binding.drawerLayout
         shimmerProjects = binding.shimmerProjects
         navigationView = binding.navigationView
-        mAuth = FirebaseAuth.getInstance()
         recyclerView = binding.recyclerView
         projectAdapter = ProjectListAdapter(this)
+
         searchText = materialToolbar.searchText
+        searchText.setText(sharedViewModel.searchTextLiveData.value)
 
         usdrubRate = navigationView.getHeaderView(0)
             .findViewById(id.usdrub_value)
@@ -91,7 +82,6 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         lastupdate = navigationView.getHeaderView(0)
             .findViewById(id.last_updated)
 
-        setInsets()
         setClickListeners()
         initViewModelObservers()
 
@@ -102,9 +92,6 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
     override fun onStop() {
         super.onStop()
         drawerLayout.closeDrawer(Gravity.LEFT, false)
-        if (searchText.text.toString().isEmpty()) {
-            stopSearchMode()
-        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -121,14 +108,8 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
     }
 
     override fun onBackPressed() {
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         super.onBackPressed()
-        activateDrawer()
-    }
-
-    override fun applySortClicked(sortParam: SortParam, orderParam: OrderParam) {
-        sharedViewModel.sortParamLiveData.value = sortParam
-        sharedViewModel.orderParamLiveData.value = orderParam
-        sharedViewModel.saveSortAndOrderParamsToStorage()
     }
 
     override fun onItemClick(project: Project) {
@@ -155,84 +136,36 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         sharedViewModel.removeProjectToDelete(project, position)
     }
 
-    override fun activateDrawer() {
-        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-    }
-
-    override fun recreateActivity() {
-        recreate()
-    }
-
-    override fun currencyChanged(currency: CurrencyList) {
-        projectAdapter.currency = currency
-        projectAdapter.notifyDataSetChanged()
-    }
-
     private fun setClickListeners() {
 
         addButton.setOnClickListener { v: View -> showAddPopupMenu(v) }
 
         materialToolbar.setOnMenuItemClickListener { item: MenuItem ->
-            if (item.itemId == id.sort) {
-                val bottomSortDialog = BottomSortDialog()
-                val bundle = Bundle()
-                bundle.putSerializable(
-                    "currentSortParam",
-                    sharedViewModel.sortParamLiveData.value
-                )
-                bundle.putSerializable(
-                    "currentOrderParam",
-                    sharedViewModel.orderParamLiveData.value
-                )
-                bottomSortDialog.arguments = bundle
-                bottomSortDialog.show(supportFragmentManager, "filter_dialog")
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    WindowCompat.setDecorFitsSystemWindows(window, false)
-                }
-            } else if (item.itemId == id.delete) {
-                sharedViewModel.deleteSelectedProjects()
-            } else if (item.itemId == id.search) {
-                setSearchMode()
-            } else if (item.itemId == id.clear_text) {
-                searchText.setText("")
+            when (item.itemId) {
+                id.sort ->
+                    BottomSortDialog().show(supportFragmentManager, "filter_dialog")
+                id.delete ->
+                    sharedViewModel.deleteSelectedProjects()
+                id.search ->
+                    sharedViewModel.toolbarMode.value = SharedViewModel.ToolbarMode.SEARCH
+                id.clear_text ->
+                    searchText.setText("")
             }
             false
         }
 
         materialToolbar.setNavigationOnClickListener {
-            drawerLayout.openDrawer(
-                GravityCompat.START
-            )
+            drawerLayout.openDrawer(GravityCompat.START)
         }
 
         navigationView.setNavigationItemSelectedListener { item: MenuItem ->
             if (item.itemId == id.settings) {
-                supportFragmentManager.beginTransaction()
-                    .setReorderingAllowed(true)
-                    .setCustomAnimations(
-                        anim.slide_from_right_settings,
-                        anim.slide_to_left,
-                        anim.slide_to_right,
-                        anim.slide_to_right
-                    )
-                    .add(id.fragmentContainer, SettingsFragment::class.java, null)
-                    .addToBackStack(null)
-                    .commit()
+                startSettingsFragment().commit()
                 drawerLayout.closeDrawer(Gravity.LEFT, true)
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 return@setNavigationItemSelectedListener true
             } else if (item.itemId == id.logout) {
-                MaterialAlertDialogBuilder(this)
-                    .setMessage("Log out?")
-                    .setNegativeButton("Stay") { dialog: DialogInterface, _: Int -> dialog.cancel() }
-                    .setPositiveButton("Log out") { _: DialogInterface?, _: Int ->
-                        mAuth.signOut()
-                        val intent = Intent(this, StartActivity::class.java)
-                        intent.flags =
-                            Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        startActivity(intent)
-                    }
-                    .show()
+                MaterialAlertDialogBuilder(this).logOutDialog().show()
             }
             false
         }
@@ -257,7 +190,7 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
             shimmerProjects.visibility = if (aBoolean) View.VISIBLE else View.GONE
         }
 
-        sharedViewModel.currency.observe(this) { currency: CurrencyList? ->
+        sharedViewModel.currencyLiveData.observe(this) { currency: CurrencyList? ->
             projectAdapter.currency = currency!!
             projectAdapter.notifyDataSetChanged()
         }
@@ -286,9 +219,13 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
             val prevValue = projectAdapter.selectMode
             projectAdapter.selectMode = aBoolean
             if (aBoolean) {
-                setSelectedMode()
+                sharedViewModel.toolbarMode.value = SharedViewModel.ToolbarMode.SELECT
             } else {
-                if (prevValue) stopSelectMode()
+                if (prevValue) {
+                    if (sharedViewModel.searchTextLiveData.value!!.isNotEmpty()) {
+                        sharedViewModel.toolbarMode.value = SharedViewModel.ToolbarMode.SEARCH
+                    } else sharedViewModel.toolbarMode.value = SharedViewModel.ToolbarMode.DEFAULT
+                }
             }
         }
 
@@ -306,24 +243,30 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
             }
         }
 
-        sharedViewModel.snackbarWithAction.observe(this) { s: String? ->
-            s?.let {
+        sharedViewModel.snackbarWithAction.observe(this) {
+            it?.let {
                 Snackbar.make(coordinatorLayout, it, 5000)
                     .setAction("UNDO") { sharedViewModel.restoreDeletedProjects() }
                     .show()
             }
         }
 
-        sharedViewModel.snackbarInfo.observe(this) { s: String? ->
-            s?.let {
+        sharedViewModel.snackbarInfo.observe(this) {
+            it?.let {
                 Snackbar.make(coordinatorLayout, it, 5000).show()
             }
         }
 
-        sharedViewModel.title.observe(this) { s: String? ->
-            if (s != null) {
-                materialToolbar.title = s
-            } else materialToolbar.title = "Projects"
+        sharedViewModel.title.observe(this) {
+            materialToolbar.title = it ?: "Projects"
+        }
+
+        sharedViewModel.toolbarMode.observe(this) {
+            when (it) {
+                SharedViewModel.ToolbarMode.SEARCH -> setSearchMode()
+                SharedViewModel.ToolbarMode.SELECT -> setSelectedMode()
+                else -> setDefaultMode()
+            }
         }
     }
 
@@ -355,28 +298,18 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         }
     }
 
-    private fun stopSelectMode() {
-        for (x in sharedViewModel.clearSelectedProjects()) {
-            projectAdapter.notifyItemChanged(x)
-        }
-        if (searchText.text.toString().isNotEmpty()) {
-            setSearchMode()
-        } else {
-            materialToolbar.setDefaultMode()
-            materialToolbar.setNavigationOnClickListener {
-                drawerLayout.openDrawer(GravityCompat.START)
-            }
-            addButton.show()
-        }
-    }
-
     private fun setSearchMode() {
         addButton.hide()
         materialToolbar.setSearchMode()
-        materialToolbar.setNavigationOnClickListener { stopSearchMode() }
+        materialToolbar.setNavigationOnClickListener {
+            sharedViewModel.toolbarMode.value = SharedViewModel.ToolbarMode.DEFAULT
+        }
     }
 
-    private fun stopSearchMode() {
+    private fun setDefaultMode() {
+        for (x in sharedViewModel.clearSelectedProjects()) {
+            projectAdapter.notifyItemChanged(x)
+        }
         materialToolbar.setDefaultMode()
         materialToolbar.setNavigationOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
@@ -384,33 +317,4 @@ class MainActivity : AppCompatActivity(), RadioListener, ProjectListAdapter.OnIt
         addButton.show()
     }
 
-    private fun setAccentColorAndNightMode(color: Int) {
-
-        when (color) {
-            R.color.myOrange -> {
-                this.theme.applyStyle(style.Theme_Default, true)
-            }
-            R.color.myRed -> {
-                this.theme.applyStyle(style.Theme_Default_Red, true)
-            }
-            R.color.myGreen -> {
-                this.theme.applyStyle(style.Theme_Default_Green, true)
-            }
-            R.color.myPurple -> {
-                this.theme.applyStyle(style.Theme_Default_Purple, true)
-            }
-            R.color.myBlue -> {
-                this.theme.applyStyle(style.Theme_Default_Blue, true)
-            }
-        }
-
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-        }
-    }
-
-    private fun setInsets() {
-        appBarLayout.setInsets()
-        addButton.setInsets()
-    }
 }

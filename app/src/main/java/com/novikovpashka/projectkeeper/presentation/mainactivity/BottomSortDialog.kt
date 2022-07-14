@@ -1,64 +1,50 @@
 package com.novikovpashka.projectkeeper.presentation.mainactivity
 
-import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
+import androidx.core.view.WindowCompat
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.novikovpashka.projectkeeper.MainApp
 import com.novikovpashka.projectkeeper.databinding.BottomSortMainBinding
+import javax.inject.Inject
 
 class BottomSortDialog : BottomSheetDialogFragment() {
-    private var radioListener: RadioListener? = null
-    private lateinit var buttonDate: RadioButton
-    private lateinit var buttonName: RadioButton
-    private lateinit var buttonAscending: RadioButton
-    private lateinit var buttonDescending: RadioButton
     private lateinit var bottomSortMainBinding: BottomSortMainBinding
+    private lateinit var sharedViewModel: SharedViewModel
+
+
+    @Inject
+    lateinit var factory: SharedViewModel.Factory
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        (requireActivity().application as MainApp).appComponent.inject(this)
+        sharedViewModel = ViewModelProvider(requireActivity(), factory)[SharedViewModel::class.java]
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowCompat.setDecorFitsSystemWindows(requireActivity().window, false)
+        }
+
         bottomSortMainBinding = BottomSortMainBinding.inflate(layoutInflater)
 
-        buttonDate = bottomSortMainBinding.byDate
-        buttonName = bottomSortMainBinding.byName
-        buttonAscending = bottomSortMainBinding.ascending
-        buttonDescending = bottomSortMainBinding.descending
-
-        val bundle = arguments
-        val currentSortParam =
-            bundle!!.getSerializable("currentSortParam") as SortParam?
-        if (currentSortParam == SortParam.BY_NAME) buttonName.isChecked = true
-        else buttonDate.isChecked = true
-
-        val currentOrderParam =
-            bundle.getSerializable("currentOrderParam") as OrderParam?
-        if (currentOrderParam == OrderParam.ASCENDING)
-            buttonAscending.isChecked = true
-        else buttonDescending.isChecked = true
+        bottomSortMainBinding.apply {
+            viewModel = sharedViewModel
+        }
 
         bottomSortMainBinding.applySort.setOnClickListener {
-            val sortParam = if (buttonDate.isChecked) SortParam.BY_DATE_ADDED
-            else SortParam.BY_NAME
-            val orderParam = if (buttonAscending.isChecked) OrderParam.ASCENDING
-            else OrderParam.DESCENDING
-            radioListener!!.applySortClicked(sortParam, orderParam)
+            sharedViewModel.saveSortAndOrderParamsToStorage()
             dismiss()
         }
 
         return bottomSortMainBinding.root
     }
 
-    interface RadioListener {
-        fun applySortClicked(sortParam: SortParam, orderParam: OrderParam)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        radioListener = context as RadioListener
-    }
 }

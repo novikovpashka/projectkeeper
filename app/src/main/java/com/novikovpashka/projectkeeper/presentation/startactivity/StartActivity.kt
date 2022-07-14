@@ -40,7 +40,7 @@ class StartActivity : AppCompatActivity() {
         val context = applicationContext
         val sharedPreferences = context.getSharedPreferences("sharedPrefs", MODE_PRIVATE)
         AppCompatDelegate.setDefaultNightMode(sharedPreferences
-            .getInt("theme", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM))
+            .getInt("nightmode", AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM))
 
         val accentColor = sharedPreferences.getInt("accentcolor",
             ContextCompat.getColor(context, AccentColors.MYORANGE.color))

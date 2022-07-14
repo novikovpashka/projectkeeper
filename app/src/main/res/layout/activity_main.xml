@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.google.android.material.appbar.AppBarLayout
+        <com.novikovpashka.projectkeeper.presentation.base.MyAppBarLayout
             android:id="@+id/appbarlayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -25,7 +25,7 @@
                 app:navigationIcon="@drawable/ic_baseline_menu_24"
                 app:title="@string/app_name" />
 
-        </com.google.android.material.appbar.AppBarLayout>
+        </com.novikovpashka.projectkeeper.presentation.base.MyAppBarLayout>
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -79,7 +79,7 @@
             </LinearLayout>
         </com.facebook.shimmer.ShimmerFrameLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <com.novikovpashka.projectkeeper.presentation.base.MyFloatingButton
             android:id="@+id/addButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

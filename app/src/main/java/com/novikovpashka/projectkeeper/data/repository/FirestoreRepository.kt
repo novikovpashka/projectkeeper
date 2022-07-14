@@ -10,20 +10,20 @@ import javax.inject.Inject
 class FirestoreRepository @Inject constructor(){
 
     private val db = FirebaseFirestore.getInstance()
-    private val user = FirebaseAuth.getInstance().currentUser?.email.toString()
+    private val userEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
 
     fun getAllProjects(): CollectionReference {
         return db.collection("Users").
-            document(user).collection("Projects")
+            document(userEmail).collection("Projects")
     }
 
     fun addProject(project: Project) {
-        db.collection("Users").document(user).collection("Projects")
+        db.collection("Users").document(userEmail).collection("Projects")
             .add(project)
     }
 
     fun updateProject(project: Project) {
-        db.collection("Users").document(user).collection("Projects")
+        db.collection("Users").document(userEmail).collection("Projects")
             .whereEqualTo("dateStamp", project.dateStamp).get()
             .addOnSuccessListener { queryDocumentSnapshots ->
                 for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {
@@ -33,7 +33,7 @@ class FirestoreRepository @Inject constructor(){
     }
 
     fun deleteProject(project: Project) {
-        db.collection("Users").document(user).collection("Projects")
+        db.collection("Users").document(userEmail).collection("Projects")
             .whereEqualTo("dateStamp", project.dateStamp).get()
             .addOnSuccessListener { queryDocumentSnapshots ->
                 for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {
@@ -43,7 +43,7 @@ class FirestoreRepository @Inject constructor(){
     }
 
     fun deleteSeveralProjects(projects: List<Project>) {
-        db.collection("Users").document(user).collection("Projects")
+        db.collection("Users").document(userEmail).collection("Projects")
             .get()
             .addOnSuccessListener { queryDocumentSnapshots ->
                 for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {

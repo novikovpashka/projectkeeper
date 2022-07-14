@@ -8,16 +8,20 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.novikovpashka.projectkeeper.databinding.ColorItemBinding
 
-class AccentColorAdapter (private val colorList: MutableList<Int>, onColorListener: OnColorListener) : RecyclerView.Adapter<AccentColorAdapter.ColorHolder>() {
+class AccentColorAdapter(
+    private val colorList: MutableList<Int>,
+    private val currentAccentColor: Int,
+    onColorListener: OnColorListener
+) : RecyclerView.Adapter<AccentColorAdapter.ColorHolder>() {
 
     private var mOnColorListener: OnColorListener
-    var currentAccentColor: Int = 0
 
-    init{
+    init {
         mOnColorListener = onColorListener
     }
 
-    inner class ColorHolder(binding: ColorItemBinding, onColorListener: OnColorListener) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+    inner class ColorHolder(binding: ColorItemBinding, onColorListener: OnColorListener) :
+        RecyclerView.ViewHolder(binding.root), View.OnClickListener {
         val colorCircle: ImageView = binding.colorItem
         val colorCircleSelect: ImageView = binding.colorItemSelect
 
@@ -36,18 +40,20 @@ class AccentColorAdapter (private val colorList: MutableList<Int>, onColorListen
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ColorHolder {
         return ColorHolder(
             ColorItemBinding.inflate(
-                LayoutInflater.from(parent.context), parent, false), mOnColorListener)
+                LayoutInflater.from(parent.context), parent, false
+            ), mOnColorListener
+        )
     }
 
     override fun onBindViewHolder(holder: ColorHolder, position: Int) {
-        holder.colorCircle.setColorFilter(ContextCompat.getColor(
-            holder.colorCircle.context,
-            colorList[position]
-        ))
-        if (colorList[position] == currentAccentColor) {
-            holder.colorCircleSelect.visibility = View.VISIBLE
-        }
-        else holder.colorCircleSelect.visibility = View.GONE
+        holder.colorCircle.setColorFilter(
+            ContextCompat.getColor(
+                holder.colorCircle.context,
+                colorList[position]
+            )
+        )
+        holder.colorCircleSelect.visibility =
+            if (colorList[position] == currentAccentColor) View.VISIBLE else View.GONE
     }
 
     override fun getItemCount(): Int {

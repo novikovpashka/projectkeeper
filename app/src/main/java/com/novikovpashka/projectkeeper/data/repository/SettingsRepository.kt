@@ -1,15 +1,17 @@
 package com.novikovpashka.projectkeeper.data.repository
 
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
-import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
+import com.novikovpashka.projectkeeper.R
 import com.novikovpashka.projectkeeper.presentation.mainactivity.OrderParam
+import com.novikovpashka.projectkeeper.presentation.mainactivity.SharedViewModel
 import com.novikovpashka.projectkeeper.presentation.mainactivity.SortParam
 import javax.inject.Inject
 
-class SettingsRepository @Inject constructor(private val sharedPreferences: SharedPreferences, private val context: Context){
+class SettingsRepository @Inject constructor(
+    private val sharedPreferences: SharedPreferences,
+    ) {
 
     fun saveRatesToStorage(USD: String, EUR: String) {
         val editor = sharedPreferences.edit()
@@ -26,7 +28,7 @@ class SettingsRepository @Inject constructor(private val sharedPreferences: Shar
         return sharedPreferences.getString("eurrubRate", "No data")!!
     }
 
-    fun saveCurrentCurrencyToStorage (currency: CurrencyList) {
+    fun saveCurrentCurrencyToStorage(currency: CurrencyList) {
         val editor = sharedPreferences.edit()
         val currentCurrency: String = when (currency) {
             CurrencyList.RUB -> CurrencyList.RUB.name
@@ -45,8 +47,25 @@ class SettingsRepository @Inject constructor(private val sharedPreferences: Shar
         }
     }
 
-    fun saveAccentColorToStorage (color: Int) {
+    fun saveAccentColorToStorage(color: Int) {
         val editor = sharedPreferences.edit()
+        when (color) {
+            R.color.myOrange -> {
+                editor.putInt("themeid", R.style.Theme_Default)
+            }
+            R.color.myRed -> {
+                editor.putInt("themeid", R.style.Theme_Default_Red)
+            }
+            R.color.myGreen -> {
+                editor.putInt("themeid", R.style.Theme_Default_Green)
+            }
+            R.color.myPurple -> {
+                editor.putInt("themeid", R.style.Theme_Default_Purple)
+            }
+            R.color.myBlue -> {
+                editor.putInt("themeid", R.style.Theme_Default_Blue)
+            }
+        }
         editor.putInt("accentcolor", color)
         editor.apply()
     }
@@ -54,18 +73,33 @@ class SettingsRepository @Inject constructor(private val sharedPreferences: Shar
     fun loadAccentColorFromStorage(): Int {
         return sharedPreferences.getInt(
             "accentcolor",
-            AccentColors.MYORANGE.color
+            R.color.myOrange
         )
     }
 
-    fun saveCurrentThemeToStorage() {
+    fun loadThemeIdFromStorage(): Int {
+        return sharedPreferences.getInt(
+            "themeid",
+            R.style.Theme_Default
+        )
+    }
+
+    fun saveNightModeToStorage() {
         val editor = sharedPreferences.edit()
-        editor.putInt("theme", AppCompatDelegate.getDefaultNightMode())
+        editor.putInt("nightmode", AppCompatDelegate.getDefaultNightMode())
         editor.apply()
     }
 
-    fun saveSortAndOrderParamsToStorage (sortParam: SortParam,
-                                         orderParam: OrderParam
+    fun loadNightModeFromStorage(): Int {
+        return sharedPreferences.getInt(
+            "nightmode",
+            SharedViewModel.NightMode.AS_SYSTEM.value
+        )
+    }
+
+    fun saveSortAndOrderParamsToStorage(
+        sortParam: SortParam,
+        orderParam: OrderParam
     ) {
         val editor = sharedPreferences.edit()
         editor.putString("sortparam", sortParam.name)
@@ -82,7 +116,8 @@ class SettingsRepository @Inject constructor(private val sharedPreferences: Shar
             SortParam.BY_DATE_ADDED.name -> SortParam.BY_DATE_ADDED
             SortParam.BY_NAME.name -> SortParam.BY_NAME
             else -> {
-                SortParam.BY_DATE_ADDED}
+                SortParam.BY_DATE_ADDED
+            }
         }
     }
 
@@ -93,7 +128,7 @@ class SettingsRepository @Inject constructor(private val sharedPreferences: Shar
         )
         return when (orderParam) {
             OrderParam.ASCENDING.name -> OrderParam.ASCENDING
-            else -> OrderParam.ASCENDING
+            else -> OrderParam.DESCENDING
         }
     }
 
