@@ -2,7 +2,7 @@ package com.novikovpashka.projectkeeper.presentation.mainactivity
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.*
-import com.google.firebase.firestore.DocumentChange
+import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.QuerySnapshot
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
@@ -30,7 +30,6 @@ class SharedViewModel @Inject constructor(
         get() = _projects
     private val _projects = MediatorLiveData<List<Project>>()
 
-    private val _projectsObserved = MutableLiveData<List<Project>>()
     private var currentProjectList = mutableListOf<Project>()
     private var filteredProjectList = mutableListOf<Project>()
 
@@ -53,6 +52,7 @@ class SharedViewModel @Inject constructor(
     }
 
     val selectMode = MutableLiveData(false)
+    val progressBar = MutableLiveData(false)
 
     val usdrubRate = MutableLiveData(settingsRepository.loadUSDRateFromStorage())
     val eurrubRate = MutableLiveData(settingsRepository.loadEURRateFromStorage())
@@ -86,9 +86,9 @@ class SharedViewModel @Inject constructor(
 
     init {
 
-        loadRatesAndSaveToStorage()
+        loadProjects()
 
-        addProjectsObserver()
+        loadRatesAndSaveToStorage()
 
         currencyLiveData.value = settingsRepository.loadCurrentCurrencyFromStorage()
 
@@ -113,32 +113,35 @@ class SharedViewModel @Inject constructor(
             }
         }
 
-        _projects.addSource(_projectsObserved) {
-            _projects.value = _projectsObserved.value
-        }
     }
 
-    private fun addProjectsObserver() {
-        firestoreRepository.getAllProjects().addSnapshotListener { value, _ ->
-            value?.let {
-                currentProjectList = loadProjectsObserved(value)
-                viewModelScope.launch(Dispatchers.Default) {
-                    sortAndFilterProjectList()
-                    _projectsObserved.postValue(filteredProjectList)
-                    _shimmer.postValue(false)
+    private fun loadProjects() = viewModelScope.launch(Dispatchers.Default) {
+        val loadedProjectsList = mutableListOf<Project>()
+        getProjects().addOnSuccessListener {
+            viewModelScope.launch(Dispatchers.Default) {
+                val list = mutableListOf<Deferred<Project>>()
+                for (item in it) {
+                    val job = async {
+                        item.toObject(Project::class.java)
+                    }
+                    list.add(job)
                 }
+                for (project in list) {
+                    loadedProjectsList.add(project.await())
+                }
+                currentProjectList = loadedProjectsList
+                sortAndFilterProjectList()
+                _projects.postValue(filteredProjectList)
+                _shimmer.postValue(false)
             }
         }
     }
 
-    private fun loadProjectsObserved(value: QuerySnapshot): MutableList<Project> {
-        val list = mutableListOf<Project>()
-        for (obj in value) {
-            val project = obj.toObject(Project::class.java)
-            list.add(project)
+    private suspend fun getProjects(): Task<QuerySnapshot> = viewModelScope.async {
+        withContext(Dispatchers.IO) {
+            return@withContext firestoreRepository.getProjects().get()
         }
-        return list
-    }
+    }.await()
 
     private suspend fun sortAndFilterProjectList() = withContext(Dispatchers.IO) {
         val projectsList = mutableListOf<Project>()
@@ -184,46 +187,81 @@ class SharedViewModel @Inject constructor(
         else null
     }
 
+    suspend fun setProjectsPostValue() {
+        sortAndFilterProjectList()
+        _projects.postValue(filteredProjectList)
+    }
+
     fun addProject(project: Project) = viewModelScope.launch(Dispatchers.IO) {
-        firestoreRepository.addProject(project)
+        firestoreRepository.addProject(project).addOnCompleteListener {
+            viewModelScope.launch(Dispatchers.Default) {
+                currentProjectList.add(project)
+                setProjectsPostValue()
+            }
+        }
     }
 
     private fun addSeveralProjects(projects: List<Project>) =
         viewModelScope.launch(Dispatchers.IO) {
-            firestoreRepository.addSeveralProjects(projects)
+            firestoreRepository.addSeveralProjects(projects).addOnCompleteListener {
+                viewModelScope.launch(Dispatchers.Default) {
+                    currentProjectList.addAll(projects)
+                    setProjectsPostValue()
+                }
+            }
         }
 
     fun updateProject(project: Project) = viewModelScope.launch(Dispatchers.IO) {
-        firestoreRepository.updateProject(project)
+        firestoreRepository.updateProject(project).addOnCompleteListener {
+            viewModelScope.launch(Dispatchers.Default) {
+                currentProjectList[currentProjectList.indexOf(project)] = project
+                setProjectsPostValue()
+                makeSnackbarInfo("${project.name} updated")
+            }
+        }
     }
 
     fun deleteProject(project: Project) = viewModelScope.launch {
+        progressBar.value = true
         projectsToRestore.clear()
         projectsToRestore.add(project)
         withContext(Dispatchers.IO) {
-            async {
-                firestoreRepository.deleteProject(project)
-            }.join()
-            makeSnackbarWIthAction("${projectsToRestore[0].name} deleted")
+            firestoreRepository.deleteProject(project).addOnCompleteListener {
+                viewModelScope.launch(Dispatchers.Default) {
+                    currentProjectList.remove(project)
+                    setProjectsPostValue()
+                    progressBar.postValue(false)
+                    makeSnackbarInfo("${project.name} deleted")
+                }
+            }
         }
     }
 
     fun deleteSelectedProjects() = viewModelScope.launch {
+        progressBar.value = true
         projectsToRestore.clear()
         projectsToRestore.addAll(projectsToDeleteList)
         withContext(Dispatchers.Default) {
             if (projectsToRestore.size == 1) {
-                async {
-                    firestoreRepository.deleteProject(projectsToRestore[0])
-                }.join()
-                selectMode.postValue(false)
-                makeSnackbarWIthAction("${projectsToRestore[0].name} projects deleted")
+                firestoreRepository.deleteProject(projectsToRestore[0]).addOnCompleteListener {
+                    viewModelScope.launch(Dispatchers.Default) {
+                        currentProjectList.remove(projectsToRestore[0])
+                        setProjectsPostValue()
+                        selectMode.postValue(false)
+                        progressBar.postValue(false)
+                        makeSnackbarWIthAction("${projectsToRestore[0].name} deleted")
+                    }
+                }
             } else {
-                async {
-                    firestoreRepository.deleteSeveralProjects(projectsToRestore)
-                }.join()
-                selectMode.postValue(false)
-                makeSnackbarWIthAction("${projectsToRestore.size} projects deleted")
+                firestoreRepository.deleteSeveralProjects(projectsToRestore).addOnCompleteListener {
+                    viewModelScope.launch(Dispatchers.Default) {
+                        currentProjectList.removeAll(projectsToRestore)
+                        setProjectsPostValue()
+                        selectMode.postValue(false)
+                        progressBar.postValue(false)
+                        makeSnackbarWIthAction("${projectsToRestore.size} projects deleted")
+                    }
+                }
             }
         }
     }

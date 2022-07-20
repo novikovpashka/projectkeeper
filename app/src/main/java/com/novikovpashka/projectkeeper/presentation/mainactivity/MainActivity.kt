@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.novikovpashka.projectkeeper.CurrencyList
@@ -35,6 +36,7 @@ import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener {
+    private lateinit var progressBar: LinearProgressIndicator
     private lateinit var addButton: MyFloatingButton
     private lateinit var shimmerProjects: ShimmerFrameLayout
     private lateinit var coordinatorLayout: CoordinatorLayout
@@ -68,6 +70,8 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
         drawerLayout = binding.drawerLayout
         shimmerProjects = binding.shimmerProjects
         navigationView = binding.navigationView
+        progressBar  = binding.progressbar
+
 
         usdrubRate = navigationView.getHeaderView(0)
             .findViewById(id.usdrub_value)
@@ -171,9 +175,14 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
             projectAdapter.submitList(projects)
         }
 
-        sharedViewModel.shimmerActive.observe(this) { aBoolean: Boolean ->
-            shimmerProjects.visibility = if (aBoolean) View.VISIBLE else View.GONE
+        sharedViewModel.shimmerActive.observe(this) {
+            shimmerProjects.visibility = if (it) View.VISIBLE else View.GONE
         }
+
+        sharedViewModel.progressBar.observe(this) {
+            progressBar.visibility = if (it) View.VISIBLE else View.GONE
+        }
+
 
         sharedViewModel.currencyLiveData.observe(this) { currency: CurrencyList? ->
             projectAdapter.currency = currency!!

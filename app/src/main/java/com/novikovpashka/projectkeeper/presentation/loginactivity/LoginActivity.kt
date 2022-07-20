@@ -22,8 +22,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var progressBar: LinearProgressIndicator
 
     override fun onCreate(savedInstanceState: Bundle?) {
-//        val projectsRepository = ProjectFirestoreRepo.instance!!
-//        setAccentColor(projectsRepository.loadAccentColorFromStorage(this))
+
         super.onCreate(savedInstanceState)
         val binding: ActivityLoginBinding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -83,29 +82,5 @@ class LoginActivity : AppCompatActivity() {
     private fun progressOff() {
         progressBar.visibility = View.GONE
         window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-    }
-
-    fun setAccentColor(color: Int) {
-        when (color) {
-            ContextCompat.getColor(this, R.color.myOrange) -> {
-                theme.applyStyle(R.style.Theme_Default, true)
-            }
-
-            ContextCompat.getColor(this, R.color.myRed) -> {
-                theme.applyStyle(R.style.Theme_Default_Red, true)
-            }
-
-            ContextCompat.getColor(this, R.color.myGreen) -> {
-                theme.applyStyle(R.style.Theme_Default_Green, true)
-            }
-
-            ContextCompat.getColor(this, R.color.myPurple) -> {
-                theme.applyStyle(R.style.Theme_Default_Purple, true)
-            }
-
-            ContextCompat.getColor(this, R.color.myBlue) -> {
-                theme.applyStyle(R.style.Theme_Default_Blue, true)
-            }
-        }
     }
 }

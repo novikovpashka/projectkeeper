@@ -1,10 +1,8 @@
 package com.novikovpashka.projectkeeper.data.repository
 
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.WriteBatch
+import com.google.firebase.firestore.*
 import com.novikovpashka.projectkeeper.data.model.Project
 import javax.inject.Inject
 
@@ -13,16 +11,16 @@ class FirestoreRepository @Inject constructor() {
     private val db = FirebaseFirestore.getInstance()
     private val userEmail = FirebaseAuth.getInstance().currentUser?.email.toString()
 
-    fun getAllProjects(): CollectionReference {
+    fun getProjects(): CollectionReference {
         return db.collection("Users").document(userEmail).collection("Projects")
     }
 
-    fun addProject(project: Project) {
-        db.collection("Users").document(userEmail).collection("Projects")
+    fun addProject(project: Project): Task<DocumentReference> {
+        return db.collection("Users").document(userEmail).collection("Projects")
             .add(project)
     }
 
-    fun addSeveralProjects(projects: List<Project>) {
+    fun addSeveralProjects(projects: List<Project>): Task<Void> {
         val writeBatch: WriteBatch = db.batch()
         for (project in projects) {
             writeBatch.set(
@@ -30,11 +28,11 @@ class FirestoreRepository @Inject constructor() {
                 project
             )
         }
-        writeBatch.commit()
+        return writeBatch.commit()
     }
 
-    fun updateProject(project: Project) {
-        db.collection("Users").document(userEmail).collection("Projects")
+    fun updateProject(project: Project): Task<QuerySnapshot> {
+        return db.collection("Users").document(userEmail).collection("Projects")
             .whereEqualTo("dateStamp", project.dateStamp).get()
             .addOnSuccessListener { queryDocumentSnapshots ->
                 for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {
@@ -43,8 +41,8 @@ class FirestoreRepository @Inject constructor() {
             }
     }
 
-    fun deleteProject(project: Project) {
-        db.collection("Users").document(userEmail).collection("Projects")
+    fun deleteProject(project: Project): Task<QuerySnapshot> {
+        return db.collection("Users").document(userEmail).collection("Projects")
             .whereEqualTo("dateStamp", project.dateStamp).get()
             .addOnSuccessListener { queryDocumentSnapshots ->
                 for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {
@@ -53,9 +51,9 @@ class FirestoreRepository @Inject constructor() {
             }
     }
 
-    fun deleteSeveralProjects(projects: List<Project>) {
+    fun deleteSeveralProjects(projects: List<Project>): Task<QuerySnapshot> {
         val writeBatch: WriteBatch = db.batch()
-        db.collection("Users").document(userEmail).collection("Projects")
+        return db.collection("Users").document(userEmail).collection("Projects")
             .get()
             .addOnSuccessListener { queryDocumentSnapshots ->
                 for (documentSnapshot: DocumentSnapshot in queryDocumentSnapshots.documents) {
