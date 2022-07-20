@@ -76,6 +76,7 @@ class IncomingListAdapter(private val listener: OnItemClickListener) : ListAdapt
                 listener.deleteIncoming(absoluteAdapterPosition)
             }
         }
+
     }
 
     inner class ButtonViewHolder(

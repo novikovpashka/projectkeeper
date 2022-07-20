@@ -1,5 +1,6 @@
 package com.novikovpashka.projectkeeper.presentation.addprojectactivity
 
+import android.os.Parcelable
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
+import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -51,14 +53,12 @@ class AddProjectViewModel @Inject constructor(
         incomings[index].incomingDateText = value
     }
 
-    fun getAccentColor(): Int {
-        return settingsRepository.loadAccentColorFromStorage()
+    fun loadThemeIdFromStorage(): Int {
+        return settingsRepository.loadThemeIdFromStorage()
     }
 
     fun parseProject(name: String, price: String, description: String): Project? {
         val incomingList = mutableListOf<Incoming>()
-        Log.v("mytag", "name is $name")
-        Log.v("mytag", "price is $price")
 
         if (name.isEmpty()) {
             _snackbar.value = "Project name can not be empty"
@@ -93,11 +93,12 @@ class AddProjectViewModel @Inject constructor(
         )
     }
 
+    @Parcelize
     data class ItemIncoming (
         var incomingDescription: String = "",
         var incomingValue: String = "",
         var incomingDate: Long = Date().time,
-        var dateStamp: Long = Date().time) {
+        var dateStamp: Long = Date().time) : Parcelable {
         var incomingDateText: String = ""
         init {
             val simpleDateFormat = SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH)

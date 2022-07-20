@@ -9,15 +9,24 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.novikovpashka.projectkeeper.R
 
-class MyToolbar : MaterialToolbar {
+//class MyToolbar : MaterialToolbar {
+//
+//    constructor(context: Context) : super(context)
+//    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+//    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+//        context,
+//        attrs,
+//        defStyleAttr
+//    )
 
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    )
+
+class MyToolbar(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : MaterialToolbar(
+    context,
+    attrs,
+    defStyleAttr
+) {
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     var searchText: EditText = EditText(this.context)
 
@@ -60,4 +69,4 @@ class MyToolbar : MaterialToolbar {
             this.windowToken, 0
         )
     }
-    }
+}

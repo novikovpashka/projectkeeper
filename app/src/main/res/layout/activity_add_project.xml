@@ -6,19 +6,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <com.novikovpashka.projectkeeper.presentation.base.MyAppBarLayout
         android:id="@+id/appbarlayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        style="@style/Widget.Material3.AppBarLayout">
 
-        <com.google.android.material.appbar.MaterialToolbar
+        <com.novikovpashka.projectkeeper.presentation.base.MyToolbar
             android:id="@+id/add_activity_toolbar"
             style="@style/Widget.Material3.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:menu="@menu/add_project_bar_menu"
             app:navigationIcon="@drawable/ic_baseline_close_24" />
-    </com.google.android.material.appbar.AppBarLayout>
+    </com.novikovpashka.projectkeeper.presentation.base.MyAppBarLayout>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

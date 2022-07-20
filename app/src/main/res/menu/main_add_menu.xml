@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="Add project"
-        android:id="@+id/add_project">
-    </item>
-    <item android:title="Add random project"
-        android:id="@+id/add_random_1">
-    </item>
-</menu>

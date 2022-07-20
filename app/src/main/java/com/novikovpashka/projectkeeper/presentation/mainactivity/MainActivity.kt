@@ -8,36 +8,34 @@ import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.MainApp
-import com.novikovpashka.projectkeeper.R.*
+import com.novikovpashka.projectkeeper.R.anim
+import com.novikovpashka.projectkeeper.R.id
 import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.databinding.ActivityMainBinding
 import com.novikovpashka.projectkeeper.extensions.logOutDialog
+import com.novikovpashka.projectkeeper.extensions.startProjectActivity
 import com.novikovpashka.projectkeeper.extensions.startSettingsFragment
 import com.novikovpashka.projectkeeper.presentation.addprojectactivity.AddProjectActivity
-import com.novikovpashka.projectkeeper.presentation.base.MyAppBarLayout
 import com.novikovpashka.projectkeeper.presentation.base.MyFloatingButton
 import com.novikovpashka.projectkeeper.presentation.base.MyToolbar
-import com.novikovpashka.projectkeeper.presentation.projectactivity.ProjectActivity
 import javax.inject.Inject
 
+
 class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener {
-    private lateinit var appBarLayout: MyAppBarLayout
     private lateinit var addButton: MyFloatingButton
-    private lateinit var recyclerView: RecyclerView
     private lateinit var shimmerProjects: ShimmerFrameLayout
     private lateinit var coordinatorLayout: CoordinatorLayout
     private lateinit var materialToolbar: MyToolbar
@@ -62,18 +60,14 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        appBarLayout = binding.appbarlayout
         addButton = binding.addButton
         coordinatorLayout = binding.coordinator
         materialToolbar = binding.materialToolbar
+        searchText = materialToolbar.searchText
+        searchText.setText(sharedViewModel.searchTextLiveData.value)
         drawerLayout = binding.drawerLayout
         shimmerProjects = binding.shimmerProjects
         navigationView = binding.navigationView
-        recyclerView = binding.recyclerView
-        projectAdapter = ProjectListAdapter(this)
-
-        searchText = materialToolbar.searchText
-        searchText.setText(sharedViewModel.searchTextLiveData.value)
 
         usdrubRate = navigationView.getHeaderView(0)
             .findViewById(id.usdrub_value)
@@ -82,16 +76,14 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
         lastupdate = navigationView.getHeaderView(0)
             .findViewById(id.last_updated)
 
+        val recyclerView = binding.recyclerView
+        projectAdapter = ProjectListAdapter(this)
+        recyclerView.setHasFixedSize(true)
+        recyclerView.adapter = projectAdapter
+
         setClickListeners()
         initViewModelObservers()
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = projectAdapter
-    }
-
-    override fun onStop() {
-        super.onStop()
-        drawerLayout.closeDrawer(Gravity.LEFT, false)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -112,20 +104,8 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
         super.onBackPressed()
     }
 
-    override fun onItemClick(project: Project) {
-        val intent = Intent(this, ProjectActivity::class.java)
-        intent.putExtra("Project", project)
-        startActivity(intent)
-        overridePendingTransition(anim.slide_from_right, anim.slide_to_left_slow)
-    }
-
-    override fun showActionMenu() {
-        sharedViewModel.selectMode.value = true
-    }
-
-    override fun closeActionMenu() {
-        sharedViewModel.selectMode.value = false
-        sharedViewModel.clearSelectedProjects()
+    override fun onProjectClick(project: Project) {
+        startProjectActivity(project)
     }
 
     override fun addProjectToDelete(project: Project, position: Int) {
@@ -137,8 +117,11 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
     }
 
     private fun setClickListeners() {
-
-        addButton.setOnClickListener { v: View -> showAddPopupMenu(v) }
+        addButton.setOnClickListener {
+            val intent = Intent(this, AddProjectActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(anim.slide_from_right, anim.slide_to_left_slow)
+        }
 
         materialToolbar.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
@@ -160,12 +143,14 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
 
         navigationView.setNavigationItemSelectedListener { item: MenuItem ->
             if (item.itemId == id.settings) {
-                startSettingsFragment().commit()
                 drawerLayout.closeDrawer(Gravity.LEFT, true)
                 drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                startSettingsFragment().commit()
                 return@setNavigationItemSelectedListener true
             } else if (item.itemId == id.logout) {
                 MaterialAlertDialogBuilder(this).logOutDialog().show()
+            } else if (item.itemId == id.add_random_5) {
+                sharedViewModel.addFiveRandomProject()
             }
             false
         }
@@ -213,12 +198,14 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
             }
         }
 
-        sharedViewModel.ratesUpdatedDate.observe(this) { s: String? -> lastupdate.text = s }
+        sharedViewModel.ratesUpdatedDate.observe(this) { lastupdate.text = it }
 
-        sharedViewModel.selectMode.observe(this) { aBoolean: Boolean ->
+        sharedViewModel.selectMode.observe(this) {
             val prevValue = projectAdapter.selectMode
-            projectAdapter.selectMode = aBoolean
-            if (aBoolean) {
+
+            projectAdapter.selectMode = it
+
+            if (it) {
                 sharedViewModel.toolbarMode.value = SharedViewModel.ToolbarMode.SELECT
             } else {
                 if (prevValue) {
@@ -229,31 +216,28 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
             }
         }
 
-        sharedViewModel.projectsToDelete.observe(this) { projects: List<Project> ->
-            projectAdapter.selectedProject.clear()
-            if (projects.isNotEmpty()) {
-                projectAdapter.selectedProject.addAll(projects)
-            }
+        sharedViewModel.projectsToDelete.observe(this) {
+            projectAdapter.selectedProject = it
         }
 
-        sharedViewModel.projectsIdToDelete.observe(this) { integers: List<Int> ->
-            projectAdapter.selectedId.clear()
-            if (integers.isNotEmpty()) {
-                projectAdapter.selectedId.addAll(integers)
-            }
+        sharedViewModel.projectsIdToDelete.observe(this) {
+            projectAdapter.selectedId = it
         }
 
         sharedViewModel.snackbarWithAction.observe(this) {
             it?.let {
-                Snackbar.make(coordinatorLayout, it, 5000)
+                val snackbar = Snackbar.make(coordinatorLayout, it, 5000)
                     .setAction("UNDO") { sharedViewModel.restoreDeletedProjects() }
-                    .show()
+                snackbar.animationMode = BaseTransientBottomBar.ANIMATION_MODE_SLIDE
+                snackbar.show()
             }
         }
 
         sharedViewModel.snackbarInfo.observe(this) {
             it?.let {
-                Snackbar.make(coordinatorLayout, it, 5000).show()
+                val snackbar = Snackbar.make(coordinatorLayout, it, 5000)
+                snackbar.animationMode = BaseTransientBottomBar.ANIMATION_MODE_SLIDE
+                snackbar.show()
             }
         }
 
@@ -267,23 +251,6 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
                 SharedViewModel.ToolbarMode.SELECT -> setSelectedMode()
                 else -> setDefaultMode()
             }
-        }
-    }
-
-    private fun showAddPopupMenu(v: View) {
-        val popupMenu = PopupMenu(v.context, v)
-        popupMenu.menuInflater.inflate(menu.main_add_menu, popupMenu.menu)
-        popupMenu.show()
-        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
-            if (item.itemId == id.add_project) {
-                val intent = Intent(this, AddProjectActivity::class.java)
-                startActivity(intent)
-                return@setOnMenuItemClickListener true
-            } else if (item.itemId == id.add_random_1) {
-                sharedViewModel.addRandomProject()
-                return@setOnMenuItemClickListener true
-            }
-            false
         }
     }
 

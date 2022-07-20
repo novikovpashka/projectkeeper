@@ -13,7 +13,16 @@ data class Project (
     var description: String = "",
     var incomings: MutableList<Incoming> = mutableListOf(),
 ) : Parcelable {
+
     var dateStamp: Long = Date().time
+    var incomingsSum = 0.0
+
+    init {
+        for (incoming in incomings) {
+            this.incomingsSum += incoming.incomingValue
+        }
+    }
+
     private companion object : Parceler<Project> {
         override fun create(parcel: Parcel): Project {
             val project = Project(
@@ -24,6 +33,7 @@ data class Project (
                     parcel.readList(this, Incoming::class.java.classLoader)
                 })
             project.dateStamp = parcel.readLong()
+            project.incomingsSum = parcel.readDouble()
             return project
         }
 
@@ -33,6 +43,7 @@ data class Project (
             parcel.writeString(description)
             parcel.writeList(incomings)
             parcel.writeLong(dateStamp)
+            parcel.writeDouble(incomingsSum)
         }
     }
 }

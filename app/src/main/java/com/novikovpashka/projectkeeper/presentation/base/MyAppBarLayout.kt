@@ -11,14 +11,22 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import com.google.android.material.appbar.AppBarLayout
 
-class MyAppBarLayout : AppBarLayout {
-    constructor(context: Context) : super(context)
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    )
+//class MyAppBarLayout : AppBarLayout {
+//    constructor(context: Context) : super(context)
+//    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+//    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+//        context,
+//        attrs,
+//        defStyleAttr
+//    )
+
+class MyAppBarLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : AppBarLayout(
+    context,
+    attrs,
+    defStyleAttr
+) {
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     init {
         val window = (this.context as Activity).window

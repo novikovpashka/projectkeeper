@@ -38,20 +38,11 @@ class AddProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClickL
     override fun onCreate(savedInstanceState: Bundle?) {
         (application as MainApp).appComponent.inject(this)
         viewModel = ViewModelProvider(this, factory)[AddProjectViewModel::class.java]
-        setAccentColor(viewModel.getAccentColor())
+        setTheme(viewModel.loadThemeIdFromStorage())
 
         val binding: ActivityAddProjectBinding = ActivityAddProjectBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            WindowCompat.setDecorFitsSystemWindows(window, false)
-            binding.appbarlayout.setOnApplyWindowInsetsListener { v, insets ->
-                val mInsets: Insets = insets.getInsets(WindowInsets.Type.systemBars())
-                v.setPadding(0, mInsets.top, 0, 0)
-                insets
-            }
-        }
 
         recyclerView = binding.recycler
         incomingAdapter = IncomingListAdapter(this)
@@ -164,26 +155,6 @@ class AddProjectActivity : AppCompatActivity(), IncomingListAdapter.OnItemClickL
             val date = simpleDateFormat.format(calendar.timeInMillis)
             viewModel.saveIncomingDateText(date, index = _index)
             incomingAdapter.notifyItemChanged(_index)
-        }
-    }
-
-    fun setAccentColor(color: Int) {
-        when (color) {
-            R.color.myOrange -> {
-                this.theme.applyStyle(R.style.Theme_Default, true)
-            }
-            R.color.myRed -> {
-                this.theme.applyStyle(R.style.Theme_Default_Red, true)
-            }
-            R.color.myGreen -> {
-                this.theme.applyStyle(R.style.Theme_Default_Green, true)
-            }
-            R.color.myPurple -> {
-                this.theme.applyStyle(R.style.Theme_Default_Purple, true)
-            }
-            R.color.myBlue -> {
-                this.theme.applyStyle(R.style.Theme_Default_Blue, true)
-            }
         }
     }
 

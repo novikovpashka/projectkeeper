@@ -27,7 +27,9 @@
         <com.novikovpashka.projectkeeper.presentation.base.MyAppBarLayout
             android:id="@+id/appbarlayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            style="@style/Widget.Material3.AppBarLayout"
+            >
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/settings_toolbar"
