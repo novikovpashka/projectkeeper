@@ -8,14 +8,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.data.model.Project
-import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
+import com.novikovpashka.projectkeeper.data.UserSettings
 import kotlinx.parcelize.Parcelize
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 class AddProjectViewModel @Inject constructor(
-    private val settingsRepository: SettingsRepository
+    private val userSettings: UserSettings
 ) : ViewModel() {
     private val incomings = mutableListOf<ItemIncoming>()
     private val _incomingsLiveData = MutableLiveData<List<ItemIncoming>>()
@@ -54,7 +54,7 @@ class AddProjectViewModel @Inject constructor(
     }
 
     fun loadThemeIdFromStorage(): Int {
-        return settingsRepository.loadThemeIdFromStorage()
+        return userSettings.loadThemeIdFromStorage()
     }
 
     fun parseProject(name: String, price: String, description: String): Project? {
@@ -74,9 +74,9 @@ class AddProjectViewModel @Inject constructor(
             try {
                 val incomingValue: Double = itemIncoming.incomingValue.toDouble()
                 val incoming = Incoming(
-                    incomingValue = incomingValue,
-                    incomingDescription = itemIncoming.incomingDescription,
-                    incomingDate = itemIncoming.incomingDate
+                    value = incomingValue,
+                    description = itemIncoming.incomingDescription,
+                    date = itemIncoming.incomingDate
                 )
                 incomingList.add(incoming)
             }
@@ -107,13 +107,13 @@ class AddProjectViewModel @Inject constructor(
     }
 
     class Factory @Inject constructor(
-        private val settingsRepository: SettingsRepository
+        private val userSettings: UserSettings
     ): ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(AddProjectViewModel::class.java)) {
                 return AddProjectViewModel(
-                    settingsRepository
+                    userSettings
                 ) as T
             }
             else throw IllegalStateException("Unknown ViewModel class")

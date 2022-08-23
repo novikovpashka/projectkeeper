@@ -1,4 +1,4 @@
-package com.novikovpashka.projectkeeper.data.repository
+package com.novikovpashka.projectkeeper.data
 
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
@@ -9,9 +9,9 @@ import com.novikovpashka.projectkeeper.presentation.mainactivity.SharedViewModel
 import com.novikovpashka.projectkeeper.presentation.mainactivity.SortParam
 import javax.inject.Inject
 
-class SettingsRepository @Inject constructor(
+class UserSettings @Inject constructor(
     private val sharedPreferences: SharedPreferences,
-    ) {
+) {
 
     fun saveRatesToStorage(USD: String, EUR: String) {
         val editor = sharedPreferences.edit()
@@ -71,17 +71,11 @@ class SettingsRepository @Inject constructor(
     }
 
     fun loadAccentColorFromStorage(): Int {
-        return sharedPreferences.getInt(
-            "accentcolor",
-            R.color.myOrange
-        )
+        return sharedPreferences.getInt("accentcolor", R.color.myOrange)
     }
 
     fun loadThemeIdFromStorage(): Int {
-        return sharedPreferences.getInt(
-            "themeid",
-            R.style.Theme_Default
-        )
+        return sharedPreferences.getInt("themeid", R.style.Theme_Default)
     }
 
     fun saveNightModeToStorage() {

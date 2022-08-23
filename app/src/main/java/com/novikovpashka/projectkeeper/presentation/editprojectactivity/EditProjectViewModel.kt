@@ -7,12 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.data.model.Project
-import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
+import com.novikovpashka.projectkeeper.data.UserSettings
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class EditProjectViewModel @Inject constructor(private val settingsRepository: SettingsRepository) : ViewModel() {
+class EditProjectViewModel @Inject constructor(private val userSettings: UserSettings) : ViewModel() {
     private val incomings = mutableListOf<ItemIncoming>()
     private val _incomingsLiveData = MutableLiveData<List<ItemIncoming>>()
 
@@ -50,7 +50,7 @@ class EditProjectViewModel @Inject constructor(private val settingsRepository: S
     }
 
     fun getAccentColor(): Int {
-        return settingsRepository.loadAccentColorFromStorage()
+        return userSettings.loadAccentColorFromStorage()
     }
 
     fun parseProject(name: String, price: String, description: String, dateStamp: Long): Project? {
@@ -70,9 +70,9 @@ class EditProjectViewModel @Inject constructor(private val settingsRepository: S
             try {
                 val incomingValue: Double = itemIncoming.incomingValue.toDouble()
                 val incoming = Incoming(
-                    incomingValue = incomingValue,
-                    incomingDescription = itemIncoming.incomingDescription,
-                    incomingDate = itemIncoming.incomingDate
+                    value = incomingValue,
+                    description = itemIncoming.incomingDescription,
+                    date = itemIncoming.incomingDate
                 )
                 incomingList.add(incoming)
             }
@@ -95,9 +95,9 @@ class EditProjectViewModel @Inject constructor(private val settingsRepository: S
     fun parseAndPutIncoming(incomingsProject: List<Incoming>) {
 
         for (incoming in incomingsProject) {
-            val incomingDescription = incoming.incomingDescription
-            val incomingValue = incoming.incomingValue.toInt().toString()
-            val incomingDate = incoming.incomingDate
+            val incomingDescription = incoming.description
+            val incomingValue = incoming.value.toInt().toString()
+            val incomingDate = incoming.date
             val dateStamp = incoming.dateStamp
             incomings.add(
                 ItemIncoming(
@@ -124,13 +124,13 @@ class EditProjectViewModel @Inject constructor(private val settingsRepository: S
     }
 
     class Factory @Inject constructor(
-        private val settingsRepository: SettingsRepository
+        private val userSettings: UserSettings
     ): ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(EditProjectViewModel::class.java)) {
                 return EditProjectViewModel(
-                    settingsRepository
+                    userSettings
                 ) as T
             }
             else throw IllegalStateException("Unknown ViewModel class")
