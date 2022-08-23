@@ -225,11 +225,7 @@ class MainActivity : AppCompatActivity(), ProjectListAdapter.OnItemClickListener
             }
         }
 
-        sharedViewModel.projectsToDelete.observe(this) {
-            projectAdapter.selectedProject = it
-        }
-
-        sharedViewModel.projectsIdToDelete.observe(this) {
+        sharedViewModel.selectedId.observe(this) {
             projectAdapter.selectedId = it
         }
 

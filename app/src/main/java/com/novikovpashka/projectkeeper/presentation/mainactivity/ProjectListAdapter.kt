@@ -15,7 +15,6 @@ class ProjectListAdapter(private val listener: OnItemClickListener) :
     ListAdapter<Project, RecyclerView.ViewHolder>(ProjectDiffCallback()) {
 
     var selectMode: Boolean = false
-    var selectedProject: List<Project> = mutableListOf()
     var selectedId: List<Int> = mutableListOf()
 
     var currency = CurrencyList.RUB
@@ -28,7 +27,7 @@ class ProjectListAdapter(private val listener: OnItemClickListener) :
 
         with(holder.binding) {
 
-            card.isChecked = selectedProject.contains(project)
+            card.isChecked = selectedId.contains(holder.bindingAdapterPosition)
 
             itemTotalprice.text =
                 Helpers.convertPrice(project.price, currency, usdRate, eurRate)
@@ -58,7 +57,7 @@ class ProjectListAdapter(private val listener: OnItemClickListener) :
                 executePendingBindings()
 
                 binding.root.setOnLongClickListener {
-                    if (selectedProject.contains(item)) {
+                    if (selectedId.contains(bindingAdapterPosition)) {
                         listener.removeProjectToDelete(item, bindingAdapterPosition)
                         binding.card.isChecked = false
                     } else {
@@ -72,7 +71,7 @@ class ProjectListAdapter(private val listener: OnItemClickListener) :
                     if (!selectMode) {
                         listener.onProjectClick(item)
                     } else {
-                        if (selectedProject.contains(item)) {
+                        if (selectedId.contains(bindingAdapterPosition)) {
                             listener.removeProjectToDelete(item, bindingAdapterPosition)
                             binding.card.isChecked = false
                         } else {

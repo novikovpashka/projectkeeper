@@ -2,8 +2,7 @@ package com.novikovpashka.projectkeeper.presentation.mainactivity
 
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.*
-import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.QuerySnapshot
+import com.github.javafaker.Faker
 import com.novikovpashka.projectkeeper.AccentColors
 import com.novikovpashka.projectkeeper.CurrencyList
 import com.novikovpashka.projectkeeper.data.apicurrency.NoConnectivityException
@@ -11,9 +10,9 @@ import com.novikovpashka.projectkeeper.data.model.Incoming
 import com.novikovpashka.projectkeeper.data.model.Project
 import com.novikovpashka.projectkeeper.data.repository.CurrencyRepository
 import com.novikovpashka.projectkeeper.data.repository.FirestoreRepository
-import com.novikovpashka.projectkeeper.data.repository.SettingsRepository
+import com.novikovpashka.projectkeeper.data.repository.Repository
+import com.novikovpashka.projectkeeper.data.UserSettings
 import kotlinx.coroutines.*
-import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -22,8 +21,9 @@ import kotlin.coroutines.suspendCoroutine
 
 class SharedViewModel @Inject constructor(
     private val firestoreRepository: FirestoreRepository,
-    private val settingsRepository: SettingsRepository,
+    private val userSettings: UserSettings,
     private val currencyRepository: CurrencyRepository,
+    private val repository: Repository
 ) : ViewModel() {
 
     val projects: LiveData<List<Project>>
@@ -35,36 +35,34 @@ class SharedViewModel @Inject constructor(
 
     val searchTextLiveData = MutableLiveData("")
 
-    val sortParamLiveData = MutableLiveData(settingsRepository.loadSortParam())
+    val sortParamLiveData = MutableLiveData(userSettings.loadSortParam())
     fun setSortParam(sortParam: SortParam) {
         sortParamLiveData.value = sortParam
     }
 
-    val orderParamLiveData = MutableLiveData(settingsRepository.loadOrderParam())
+    val orderParamLiveData = MutableLiveData(userSettings.loadOrderParam())
     fun setOrderParam(orderParam: OrderParam) {
         orderParamLiveData.value = orderParam
     }
 
-    val currencyLiveData = MutableLiveData(settingsRepository.loadCurrentCurrencyFromStorage())
+    val currencyLiveData = MutableLiveData(userSettings.loadCurrentCurrencyFromStorage())
     fun setCurrency(currency: CurrencyList) {
         currencyLiveData.value = currency
-        settingsRepository.saveCurrentCurrencyToStorage(currency)
+        userSettings.saveCurrentCurrencyToStorage(currency)
     }
 
     val selectMode = MutableLiveData(false)
     val progressBar = MutableLiveData(false)
 
-    val usdrubRate = MutableLiveData(settingsRepository.loadUSDRateFromStorage())
-    val eurrubRate = MutableLiveData(settingsRepository.loadEURRateFromStorage())
+    val usdrubRate = MutableLiveData(userSettings.loadUSDRateFromStorage())
+    val eurrubRate = MutableLiveData(userSettings.loadEURRateFromStorage())
     val ratesUpdatedDate: MutableLiveData<String> = MutableLiveData()
 
     private val projectsToRestore = mutableListOf<Project>()
+    private val projectsToDelete = mutableListOf<Project>()
 
-    val projectsToDelete = MutableLiveData<List<Project>>()
-    private val projectsToDeleteList = mutableListOf<Project>()
-
-    val projectsIdToDelete = MutableLiveData<List<Int>>()
-    private val projectsIdToDeleteList = mutableListOf<Int>()
+    val selectedId = MutableLiveData<List<Int>>()
+    private val selectedIdList = mutableListOf<Int>()
 
     private val _shimmer = MutableLiveData(true)
     val shimmerActive: LiveData<Boolean>
@@ -90,65 +88,40 @@ class SharedViewModel @Inject constructor(
 
         loadRatesAndSaveToStorage()
 
-        currencyLiveData.value = settingsRepository.loadCurrentCurrencyFromStorage()
+        currencyLiveData.value = userSettings.loadCurrentCurrencyFromStorage()
 
         _projects.addSource(searchTextLiveData) {
             viewModelScope.launch {
-                sortAndFilterProjectList()
-                _projects.value = filteredProjectList
+                sortAndSetProjectList()
             }
         }
 
         _projects.addSource(sortParamLiveData) {
             viewModelScope.launch {
-                sortAndFilterProjectList()
-                _projects.value = filteredProjectList
+                sortAndSetProjectList()
             }
         }
 
         _projects.addSource(orderParamLiveData) {
             viewModelScope.launch {
-                sortAndFilterProjectList()
-                _projects.value = filteredProjectList
+                sortAndSetProjectList()
             }
         }
 
     }
 
     private fun loadProjects() = viewModelScope.launch(Dispatchers.Default) {
-        val loadedProjectsList = mutableListOf<Project>()
-        getProjects().addOnSuccessListener {
-            viewModelScope.launch(Dispatchers.Default) {
-                val list = mutableListOf<Deferred<Project>>()
-                for (item in it) {
-                    val job = async {
-                        item.toObject(Project::class.java)
-                    }
-                    list.add(job)
-                }
-                for (project in list) {
-                    loadedProjectsList.add(project.await())
-                }
-                currentProjectList = loadedProjectsList
-                sortAndFilterProjectList()
-                _projects.postValue(filteredProjectList)
-                _shimmer.postValue(false)
-            }
-        }
+        currentProjectList = repository.getProjects(viewModelScope).toMutableList()
+        sortAndSetProjectList()
+        _shimmer.postValue(false)
     }
 
-    private suspend fun getProjects(): Task<QuerySnapshot> = viewModelScope.async {
-        withContext(Dispatchers.IO) {
-            return@withContext firestoreRepository.getProjects().get()
-        }
-    }.await()
-
-    private suspend fun sortAndFilterProjectList() = withContext(Dispatchers.IO) {
+    private suspend fun sortAndSetProjectList() = withContext(Dispatchers.IO) {
         val projectsList = mutableListOf<Project>()
         //filter projects by searching text
         if (currentProjectList.isNotEmpty()) {
             if (searchTextLiveData.value!!.isNotEmpty()) {
-                val project: List<Deferred<Project?>> = List(currentProjectList.size) {
+                val project = List(currentProjectList.size) {
                     async {
                         return@async checkTextFiltered(currentProjectList[it])
                     }
@@ -159,25 +132,24 @@ class SharedViewModel @Inject constructor(
             } else projectsList.addAll(currentProjectList)
         }
         //sort projects
-        launch {
-            when (sortParamLiveData.value!!) {
-                SortParam.BY_NAME -> {
-                    when (orderParamLiveData.value!!) {
-                        OrderParam.ASCENDING -> projectsList.sortBy { it.name.lowercase(Locale.getDefault()) }
-                        OrderParam.DESCENDING -> projectsList.sortByDescending {
-                            it.name.lowercase(Locale.getDefault())
-                        }
+        when (sortParamLiveData.value!!) {
+            SortParam.BY_NAME -> {
+                when (orderParamLiveData.value!!) {
+                    OrderParam.ASCENDING -> projectsList.sortBy { it.name.lowercase(Locale.getDefault()) }
+                    OrderParam.DESCENDING -> projectsList.sortByDescending {
+                        it.name.lowercase(Locale.getDefault())
                     }
                 }
-                SortParam.BY_DATE_ADDED -> {
-                    when (orderParamLiveData.value!!) {
-                        OrderParam.ASCENDING -> projectsList.sortBy { it.dateStamp }
-                        OrderParam.DESCENDING -> projectsList.sortByDescending { it.dateStamp }
-                    }
+            }
+            SortParam.BY_DATE_ADDED -> {
+                when (orderParamLiveData.value!!) {
+                    OrderParam.ASCENDING -> projectsList.sortBy { it.dateStamp }
+                    OrderParam.DESCENDING -> projectsList.sortByDescending { it.dateStamp }
                 }
             }
         }
         filteredProjectList = projectsList
+        _projects.postValue(filteredProjectList)
     }
 
     fun checkTextFiltered(project: Project): Project? {
@@ -187,82 +159,58 @@ class SharedViewModel @Inject constructor(
         else null
     }
 
-    suspend fun setProjectsPostValue() {
-        sortAndFilterProjectList()
-        _projects.postValue(filteredProjectList)
-    }
-
     fun addProject(project: Project) = viewModelScope.launch(Dispatchers.IO) {
-        firestoreRepository.addProject(project).addOnCompleteListener {
-            viewModelScope.launch(Dispatchers.Default) {
-                currentProjectList.add(project)
-                setProjectsPostValue()
-            }
-        }
+        repository.addProject(project)
+        currentProjectList.add(project)
+        sortAndSetProjectList()
     }
 
     private fun addSeveralProjects(projects: List<Project>) =
         viewModelScope.launch(Dispatchers.IO) {
-            firestoreRepository.addSeveralProjects(projects).addOnCompleteListener {
-                viewModelScope.launch(Dispatchers.Default) {
-                    currentProjectList.addAll(projects)
-                    setProjectsPostValue()
-                }
-            }
+            repository.addMultipleProjects(projects)
+            currentProjectList.addAll(projects)
+            sortAndSetProjectList()
         }
 
     fun updateProject(project: Project) = viewModelScope.launch(Dispatchers.IO) {
         firestoreRepository.updateProject(project).addOnCompleteListener {
             viewModelScope.launch(Dispatchers.Default) {
                 currentProjectList[currentProjectList.indexOf(project)] = project
-                setProjectsPostValue()
+                sortAndSetProjectList()
                 makeSnackbarInfo("${project.name} updated")
             }
         }
     }
 
-    fun deleteProject(project: Project) = viewModelScope.launch {
-        progressBar.value = true
+    fun deleteProject(project: Project) = viewModelScope.launch(Dispatchers.IO) {
+        progressBar.postValue(true)
         projectsToRestore.clear()
         projectsToRestore.add(project)
-        withContext(Dispatchers.IO) {
-            firestoreRepository.deleteProject(project).addOnCompleteListener {
-                viewModelScope.launch(Dispatchers.Default) {
-                    currentProjectList.remove(project)
-                    setProjectsPostValue()
-                    progressBar.postValue(false)
-                    makeSnackbarInfo("${project.name} deleted")
-                }
-            }
-        }
+        repository.deleteProject(project)
+        currentProjectList.remove(project)
+        sortAndSetProjectList()
+        progressBar.postValue(false)
+        makeSnackbarInfo("${project.name} deleted")
     }
 
-    fun deleteSelectedProjects() = viewModelScope.launch {
-        progressBar.value = true
+    fun deleteSelectedProjects() = viewModelScope.launch(Dispatchers.IO) {
+        progressBar.postValue(true)
         projectsToRestore.clear()
-        projectsToRestore.addAll(projectsToDeleteList)
-        withContext(Dispatchers.Default) {
-            if (projectsToRestore.size == 1) {
-                firestoreRepository.deleteProject(projectsToRestore[0]).addOnCompleteListener {
-                    viewModelScope.launch(Dispatchers.Default) {
-                        currentProjectList.remove(projectsToRestore[0])
-                        setProjectsPostValue()
-                        selectMode.postValue(false)
-                        progressBar.postValue(false)
-                        makeSnackbarWIthAction("${projectsToRestore[0].name} deleted")
-                    }
-                }
-            } else {
-                firestoreRepository.deleteSeveralProjects(projectsToRestore).addOnCompleteListener {
-                    viewModelScope.launch(Dispatchers.Default) {
-                        currentProjectList.removeAll(projectsToRestore)
-                        setProjectsPostValue()
-                        selectMode.postValue(false)
-                        progressBar.postValue(false)
-                        makeSnackbarWIthAction("${projectsToRestore.size} projects deleted")
-                    }
-                }
-            }
+        projectsToRestore.addAll(projectsToDelete)
+        if (projectsToRestore.size == 1) {
+            repository.deleteProject(projectsToRestore[0])
+            currentProjectList.remove(projectsToRestore[0])
+            sortAndSetProjectList()
+            selectMode.postValue(false)
+            progressBar.postValue(false)
+            makeSnackbarWIthAction("${projectsToRestore[0].name} deleted")
+        } else {
+            repository.deleteMultipleProjects(projectsToRestore)
+            currentProjectList.removeAll(projectsToRestore)
+            sortAndSetProjectList()
+            selectMode.postValue(false)
+            progressBar.postValue(false)
+            makeSnackbarWIthAction("${projectsToRestore.size} projects deleted")
         }
     }
 
@@ -292,7 +240,7 @@ class SharedViewModel @Inject constructor(
                 eurrubRate.postValue(eurrubRateResponce.body())
                 val dateFormat = SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss")
                 ratesUpdatedDate.postValue(dateFormat.format(Date()))
-                settingsRepository.saveRatesToStorage(
+                userSettings.saveRatesToStorage(
                     usdrubRateResponce.body()!!,
                     eurrubRateResponce.body()!!
                 )
@@ -305,34 +253,31 @@ class SharedViewModel @Inject constructor(
     }
 
     fun addProjectToDelete(project: Project, position: Int) {
-        if (projectsToDeleteList.isEmpty()) {
+        if (projectsToDelete.isEmpty()) {
             selectMode.value = true
         }
-        projectsToDeleteList.add(project)
-        projectsToDelete.value = projectsToDeleteList
-        projectsIdToDeleteList.add(position)
-        projectsIdToDelete.value = projectsIdToDeleteList
-        _title.value = projectsIdToDeleteList.size.toString()
+        projectsToDelete.add(project)
+        selectedIdList.add(position)
+        selectedId.value = selectedIdList
+        _title.value = selectedIdList.size.toString()
     }
 
     fun removeProjectToDelete(project: Project, position: Int) {
-        projectsToDeleteList.remove(project)
-        projectsToDelete.value = projectsToDeleteList
-        projectsIdToDeleteList.remove(position)
-        projectsIdToDelete.value = projectsIdToDeleteList
-        if (projectsToDeleteList.isEmpty()) {
+        projectsToDelete.remove(project)
+        selectedIdList.remove(position)
+        selectedId.value = selectedIdList
+        if (projectsToDelete.isEmpty()) {
             _title.value = null
             selectMode.value = false
-        } else _title.value = projectsIdToDeleteList.size.toString()
+        } else _title.value = selectedIdList.size.toString()
     }
 
     fun clearSelectedProjects(): MutableList<Int> {
         val idToNotify = mutableListOf<Int>()
-        idToNotify.addAll(projectsIdToDeleteList)
-        projectsToDeleteList.clear()
-        projectsToDelete.value = projectsToDeleteList
-        projectsIdToDeleteList.clear()
-        projectsIdToDelete.value = projectsIdToDeleteList
+        idToNotify.addAll(selectedIdList)
+        projectsToDelete.clear()
+        selectedIdList.clear()
+        selectedId.value = selectedIdList
         selectMode.value = false
         _title.value = null
         return idToNotify
@@ -346,27 +291,27 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    val nightMode = MutableLiveData(settingsRepository.loadNightModeFromStorage())
+    val nightMode = MutableLiveData(userSettings.loadNightModeFromStorage())
     fun setNightMode(nightmode: NightMode) {
         nightMode.value = nightmode.value
         AppCompatDelegate.setDefaultNightMode(nightmode.value)
-        settingsRepository.saveNightModeToStorage()
+        userSettings.saveNightModeToStorage()
     }
 
-    val accentColor = MutableLiveData(settingsRepository.loadAccentColorFromStorage())
+    val accentColor = MutableLiveData(userSettings.loadAccentColorFromStorage())
     fun setAccentColor(color: Int) {
         if (color != accentColor.value) {
-            settingsRepository.saveAccentColorToStorage(color)
+            userSettings.saveAccentColorToStorage(color)
             accentColor.value = color
         }
     }
 
     fun loadAccentColorFromStorage(): Int {
-        return settingsRepository.loadAccentColorFromStorage()
+        return userSettings.loadAccentColorFromStorage()
     }
 
     fun loadThemeIdFromStorage(): Int {
-        return settingsRepository.loadThemeIdFromStorage()
+        return userSettings.loadThemeIdFromStorage()
     }
 
     fun getAccentColorsList(): MutableList<Int> {
@@ -377,9 +322,8 @@ class SharedViewModel @Inject constructor(
         return colorList
     }
 
-
     fun saveSortAndOrderParamsToStorage() {
-        settingsRepository.saveSortAndOrderParamsToStorage(
+        userSettings.saveSortAndOrderParamsToStorage(
             sortParam = sortParamLiveData.value!!,
             orderParam = orderParamLiveData.value!!
         )
@@ -387,36 +331,42 @@ class SharedViewModel @Inject constructor(
 
     fun addFiveRandomProject() {
         viewModelScope.launch {
-            val projects: List<Deferred<Project>> = List(5) {
-                async {
-                    getRandomProject()
-                }
+
+            val projects: MutableList<Project> = mutableListOf()
+
+            for (i in 1..5) {
+                projects.add(getRandomProject())
+                delay(1)
             }
-            addSeveralProjects(projects.awaitAll())
+            addSeveralProjects(projects)
         }
     }
 
+    val faker = Faker.instance()
+
     private suspend fun getRandomProject(): Project {
         return suspendCoroutine { continuation ->
-            val name = "Test" + (Math.random() * 100000).toInt()
-            val description = "Project description" + (Math.random() * 1000000).toInt()
-            val price =
-                DecimalFormat("####").format(((Math.random() * 200000).toInt() / 1000 * 1000).toLong())
-                    .toDouble()
-            val incomings: MutableList<Incoming> = ArrayList()
-            for (i in 0..19) {
-                val incomingDescription =
-                    "Incoming description" + (Math.random() * 1000000).toInt()
+            val name = faker.country().capital()
+            val description = faker.harryPotter().quote()
+            val price = (100000 until 1000000).random().toDouble()
 
-                val incomingValue = DecimalFormat("####")
-                    .format(((Math.random() * price).toInt() / 20 / 1000 * 1000).toLong())
-                    .toDouble()
+            val incomings: MutableList<Incoming> = ArrayList()
+            for (i in 0..4) {
+                val incomingDescription =
+                    faker.harryPotter().quote()
+
+                val x = (price / 7).toInt()
+                val y = (price / 10).toInt()
+
+                val incomingValue = (y until x).random().toDouble()
+
                 val incoming = Incoming(
                     incomingDescription,
                     incomingValue,
                     Date().time
                 )
                 incomings.add(incoming)
+
             }
             continuation.resume(Project(name, price, description, incomings))
         }
@@ -424,16 +374,18 @@ class SharedViewModel @Inject constructor(
 
     class Factory @Inject constructor(
         private val firestoreRepository: FirestoreRepository,
-        private val settingsRepository: SettingsRepository,
-        private val currencyRepository: CurrencyRepository
+        private val userSettings: UserSettings,
+        private val currencyRepository: CurrencyRepository,
+        private val repository: Repository
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(SharedViewModel::class.java)) {
                 return SharedViewModel(
                     firestoreRepository,
-                    settingsRepository,
-                    currencyRepository
+                    userSettings,
+                    currencyRepository,
+                    repository
                 ) as T
             } else throw IllegalStateException("Unknown ViewModel class")
         }
