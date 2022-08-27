@@ -14,6 +14,7 @@ class UserSettings @Inject constructor(
 ) {
 
     fun saveRatesToStorage(USD: String, EUR: String) {
+
         val editor = sharedPreferences.edit()
         editor.putString("usdrubRate", USD)
         editor.putString("eurrubRate", EUR)
@@ -21,14 +22,17 @@ class UserSettings @Inject constructor(
     }
 
     fun loadUSDRateFromStorage(): String {
+
         return sharedPreferences.getString("usdrubRate", "No data")!!
     }
 
     fun loadEURRateFromStorage(): String {
+
         return sharedPreferences.getString("eurrubRate", "No data")!!
     }
 
     fun saveCurrentCurrencyToStorage(currency: CurrencyList) {
+
         val editor = sharedPreferences.edit()
         val currentCurrency: String = when (currency) {
             CurrencyList.RUB -> CurrencyList.RUB.name
@@ -40,6 +44,7 @@ class UserSettings @Inject constructor(
     }
 
     fun loadCurrentCurrencyFromStorage(): CurrencyList {
+
         return when (sharedPreferences.getString("currency", "RUB")) {
             CurrencyList.USD.name -> CurrencyList.USD
             CurrencyList.EUR.name -> CurrencyList.EUR
@@ -48,6 +53,7 @@ class UserSettings @Inject constructor(
     }
 
     fun saveAccentColorToStorage(color: Int) {
+
         val editor = sharedPreferences.edit()
         when (color) {
             R.color.myOrange -> {
@@ -71,20 +77,24 @@ class UserSettings @Inject constructor(
     }
 
     fun loadAccentColorFromStorage(): Int {
+
         return sharedPreferences.getInt("accentcolor", R.color.myOrange)
     }
 
     fun loadThemeIdFromStorage(): Int {
+
         return sharedPreferences.getInt("themeid", R.style.Theme_Default)
     }
 
     fun saveNightModeToStorage() {
+
         val editor = sharedPreferences.edit()
         editor.putInt("nightmode", AppCompatDelegate.getDefaultNightMode())
         editor.apply()
     }
 
     fun loadNightModeFromStorage(): Int {
+
         return sharedPreferences.getInt(
             "nightmode",
             SharedViewModel.NightMode.AS_SYSTEM.value
@@ -95,6 +105,7 @@ class UserSettings @Inject constructor(
         sortParam: SortParam,
         orderParam: OrderParam
     ) {
+
         val editor = sharedPreferences.edit()
         editor.putString("sortparam", sortParam.name)
         editor.putString("orderparam", orderParam.name)
@@ -102,6 +113,7 @@ class UserSettings @Inject constructor(
     }
 
     fun loadSortParam(): SortParam {
+
         val sortParam = sharedPreferences.getString(
             "sortparam",
             SortParam.BY_DATE_ADDED.name
@@ -116,6 +128,7 @@ class UserSettings @Inject constructor(
     }
 
     fun loadOrderParam(): OrderParam {
+
         val orderParam = sharedPreferences.getString(
             "orderparam",
             OrderParam.ASCENDING.name

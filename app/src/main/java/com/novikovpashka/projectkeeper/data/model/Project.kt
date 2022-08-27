@@ -19,12 +19,13 @@ data class Project (
 
     init {
         for (incoming in incomings) {
-            this.incomingsSum += incoming.incomingValue
+            this.incomingsSum += incoming.value
         }
     }
 
     private companion object : Parceler<Project> {
         override fun create(parcel: Parcel): Project {
+
             val project = Project(
                 parcel.readString()!!,
                 parcel.readDouble(),

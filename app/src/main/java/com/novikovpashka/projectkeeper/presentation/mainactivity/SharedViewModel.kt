@@ -110,8 +110,8 @@ class SharedViewModel @Inject constructor(
 
     }
 
-    private fun loadProjects() = viewModelScope.launch(Dispatchers.Default) {
-        currentProjectList = repository.getProjects(viewModelScope).toMutableList()
+    private fun loadProjects() = viewModelScope.launch(Dispatchers.IO) {
+        currentProjectList = repository.getProjects().toMutableList()
         sortAndSetProjectList()
         _shimmer.postValue(false)
     }

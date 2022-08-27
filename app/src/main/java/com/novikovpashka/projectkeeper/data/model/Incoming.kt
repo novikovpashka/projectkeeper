@@ -8,9 +8,9 @@ import java.util.*
 
 @Parcelize
 data class Incoming (
-    var incomingDescription: String = "",
-    var incomingValue: Double = 0.0,
-    var incomingDate: Long = Date().time,
+    var description: String = "",
+    var value: Double = 0.0,
+    var date: Long = Date().time,
 ) : Parcelable {
     var dateStamp: Long = Date().time
 
@@ -26,9 +26,9 @@ data class Incoming (
         }
 
         override fun Incoming.write(parcel: Parcel, flags: Int) {
-            parcel.writeString(incomingDescription)
-            parcel.writeDouble(incomingValue)
-            parcel.writeLong(incomingDate)
+            parcel.writeString(description)
+            parcel.writeDouble(value)
+            parcel.writeLong(date)
             parcel.writeLong(dateStamp)
         }
     }
