@@ -26,10 +26,10 @@ class IncomingListAdapter : ListAdapter<Incoming, RecyclerView.ViewHolder>(Incom
         val binding: IncomingItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: Incoming) {
-            binding.incomingDate.text = Helpers.convertDate(item.incomingDate)
-            binding.incomingValue.text = Helpers.convertPriceProject(item.incomingValue)
-            if (item.incomingDescription.isNotEmpty()) {
-                binding.incomingDesc.text = item.incomingDescription
+            binding.incomingDate.text = Helpers.convertDate(item.date)
+            binding.incomingValue.text = Helpers.convertPriceProject(item.value)
+            if (item.description.isNotEmpty()) {
+                binding.incomingDesc.text = item.description
             }
             else binding.incomingDesc.visibility = View.GONE
         }
